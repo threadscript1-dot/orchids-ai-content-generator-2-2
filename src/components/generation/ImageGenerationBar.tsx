@@ -72,7 +72,7 @@ export function ImageGenerationBar({
         <div className="fixed bottom-0 md:bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none px-0 md:px-6 mb-[64px] md:mb-0">
             <div className="w-full max-w-2xl pointer-events-auto">
                 <div
-                    className={`relative rounded-t-[32px] md:rounded-[32px] p-4 transition-all ${
+                    className={`relative rounded-t-[32px] md:rounded-[32px] p-4 transition-[border-color,box-shadow] ${
                         isDragging
                             ? 'border-[#6F00FF] border-2 border-dashed shadow-[0_0_50px_rgba(111,0,255,0.2)]'
                             : 'shadow-2xl'
@@ -106,8 +106,9 @@ export function ImageGenerationBar({
                     <textarea
                         value={prompt}
                         onChange={(e) => onPromptChange(e.target.value)}
-                        placeholder={t('prompt.placeholder') + (language === 'ru' ? ' или приложите изображение' : ' or attach an image')}
-                        className="w-full bg-transparent resize-none outline-none text-white placeholder:text-white/20 min-h-[44px] font-medium text-sm mb-4 leading-relaxed"
+                        aria-label={language === 'ru' ? 'Промпт для генерации изображения' : 'Image generation prompt'}
+                        placeholder={t('prompt.placeholder') + (language === 'ru' ? ' или приложите изображение…' : ' or attach an image…')}
+                        className="w-full bg-transparent resize-none text-white placeholder:text-white/20 min-h-[44px] font-medium text-sm mb-4 leading-relaxed focus-visible:ring-0 focus-visible:outline-none"
                         rows={1}
                     />
 
@@ -115,9 +116,10 @@ export function ImageGenerationBar({
                         <div className="flex items-center gap-2 flex-wrap">
                             <button
                                 onClick={onOpenFilePicker}
-                                className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-10 px-3 rounded-2xl bg-white/5 hover:bg-white/10"
+                                aria-label="Attach image"
+                                className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-10 px-3 rounded-2xl bg-white/5 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50"
                             >
-                                <Plus className="w-4 h-4" />
+                                <Plus className="w-4 h-4" aria-hidden="true" />
                             </button>
                             <ModelSelector
                                 models={models}
@@ -139,14 +141,14 @@ export function ImageGenerationBar({
                         <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                             <div className="text-sm text-muted-foreground hidden sm:block">
                                 <span className="text-[#FFDC74] font-mono flex items-center gap-2 font-black">
-                                    <Zap className="w-4 h-4 fill-current" />
+                                    <Zap className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
                                     {creditsCost}
                                 </span>
                             </div>
                             <button
                                 onClick={onGenerate}
                                 disabled={!prompt.trim() || isGenerating}
-                                className="px-6 py-2.5 rounded-2xl bg-[#6F00FF] text-white font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed w-[35%] sm:w-auto flex items-center justify-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(111,0,255,0.3)] ml-auto"
+                                className="px-6 py-2.5 rounded-2xl bg-[#6F00FF] text-white font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed w-[35%] sm:w-auto flex items-center justify-center hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-[0_0_30px_rgba(111,0,255,0.3)] ml-auto focus-visible:ring-2 focus-visible:ring-white/50"
                             >
                                 {isGenerating ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

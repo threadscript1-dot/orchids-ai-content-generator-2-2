@@ -176,20 +176,21 @@ export function AudioGenerationPage() {
                                 href="/app"
                                 className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
                             >
-                                <ArrowLeft className="w-5 h-5" />
+                                <ArrowLeft className="w-5 h-5" aria-hidden="true" />
                             </Link>
                             <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">
                                 {language === 'ru' ? 'АУДИО' : 'AUDIO'}
                             </h1>
                         </div>
                         <div className="flex-1 max-w-xl relative pointer-events-auto">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 z-10" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 z-10" aria-hidden="true" />
                             <input
                                 type="text"
-                                placeholder={language === 'ru' ? 'Поиск...' : 'Search...'}
+                                placeholder={language === 'ru' ? 'Поиск…' : 'Search…'}
+                                aria-label={language === 'ru' ? 'Поиск' : 'Search'}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full h-11 bg-black/20 backdrop-blur-sm rounded-full pl-11 pr-4 outline-none text-sm font-mono border border-white/10 focus:border-white/30 transition-all placeholder:text-white/30"
+                                className="w-full h-11 bg-black/20 backdrop-blur-sm rounded-full pl-11 pr-4 outline-none text-sm font-mono border border-white/10 focus:border-white/30 focus-visible:ring-2 focus-visible:ring-[#6F00FF]/50 transition-all placeholder:text-white/30"
                             />
                         </div>
                     </header>
@@ -200,7 +201,7 @@ export function AudioGenerationPage() {
                             {isGenerating && (
                                 <div className="h-[100px] rounded-[20px] bg-white/[0.02] border border-white/5 flex items-center px-6 gap-6 relative overflow-hidden group">
                                     <div className="w-[68px] h-[68px] rounded-md bg-white/5 animate-pulse flex items-center justify-center shrink-0">
-                                        <Loader2 className="w-5 h-5 animate-spin text-[#6F00FF]" />
+                                        <Loader2 className="w-5 h-5 animate-spin text-[#6F00FF]" aria-hidden="true" />
                                     </div>
                                     <div className="flex-1 space-y-2">
                                         <div className="h-3 w-1/3 bg-white/5 animate-pulse rounded" />

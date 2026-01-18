@@ -27,30 +27,24 @@ function getModelIcon(model: Model) {
 
 function getModelBadges(model: Model): string[] {
     const badges: string[] = [];
-    
+
     // Image capabilities
     if (hasCapability(model, 'text-to-image')) badges.push('T2I');
     if (hasCapability(model, 'image-to-image')) badges.push('I2I');
-    
+
     // Video capabilities
     if (hasCapability(model, 'text-to-video')) badges.push('T2V');
     if (hasCapability(model, 'image-to-video')) badges.push('I2V');
     if (hasCapability(model, 'video-to-video')) badges.push('V2V');
-    
+
     // Edit capabilities
     if (hasCapability(model, 'edit')) badges.push('Edit');
     if (hasCapability(model, 'upscale')) badges.push('Upscale');
-    
+
     return badges;
 }
 
-export function ModelSelector({
-    models,
-    value,
-    onChange,
-    open,
-    onOpenChange,
-}: ModelSelectorProps) {
+export function ModelSelector({ models, value, onChange, open, onOpenChange }: ModelSelectorProps) {
     const selectedModel = models.find((m) => m.id === value);
     const ModelIcon = selectedModel ? getModelIcon(selectedModel) : Cpu;
 
@@ -74,11 +68,11 @@ export function ModelSelector({
                 {models.map((m) => {
                     const badges = getModelBadges(m);
                     const Icon = getModelIcon(m);
-                    
+
                     return (
-                        <SelectItem 
-                            key={m.id} 
-                            value={m.id} 
+                        <SelectItem
+                            key={m.id}
+                            value={m.id}
                             className="rounded-sm py-2.5 px-3 cursor-pointer"
                         >
                             <div className="flex flex-col gap-1 w-[240px] sm:w-[300px]">

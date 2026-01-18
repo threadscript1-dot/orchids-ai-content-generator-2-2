@@ -379,9 +379,10 @@ export function LibraryPage() {
                                             setActiveFolderId(null);
                                             setActiveCategory('all');
                                         }}
-                                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
+                                        aria-label={language === 'ru' ? 'Назад' : 'Back'}
+                                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-[background-color,color] focus-visible:ring-2 focus-visible:ring-white/50"
                                     >
-                                        <ChevronLeft className="w-5 h-5" />
+                                        <ChevronLeft className="w-5 h-5" aria-hidden="true" />
                                     </button>
                                 )}
 
@@ -400,13 +401,13 @@ export function LibraryPage() {
                                                 }
                                                 className="p-2 rounded-lg hover:bg-white/5 text-white/20 hover:text-white/60 transition-colors"
                                             >
-                                                <Pencil className="w-4 h-4" />
+                                                <Pencil className="w-4 h-4" aria-hidden="true" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteFolder(activeFolder.id)}
                                                 className="p-2 rounded-lg hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-colors"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                                             </button>
                                         </div>
                                     )}
@@ -420,7 +421,7 @@ export function LibraryPage() {
                                             setActiveCategory('all');
                                             setActiveFolderId(null);
                                         }}
-                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] ${
                                             activeCategory === 'all' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -433,19 +434,20 @@ export function LibraryPage() {
                                             setActiveCategory('favorites');
                                             setActiveFolderId(null);
                                         }}
-                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'favorites' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                     >
-                                        <Heart
-                                            className={`w-3.5 h-3.5 ${
-                                                activeCategory === 'favorites' && !activeFolderId
-                                                    ? 'fill-black'
-                                                    : 'fill-white'
-                                            }`}
-                                        />
+<Heart
+                                              className={`w-3.5 h-3.5 ${
+                                                  activeCategory === 'favorites' && !activeFolderId
+                                                      ? 'fill-black'
+                                                      : 'fill-white'
+                                              }`}
+                                              aria-hidden="true"
+                                          />
                                         <span className="hidden sm:inline">
                                             {language === 'ru' ? 'Избранное' : 'Favorites'}
                                         </span>
@@ -455,13 +457,13 @@ export function LibraryPage() {
                                             setActiveCategory('image');
                                             setActiveFolderId(null);
                                         }}
-                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'image' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                     >
-                                        <Image className="w-3.5 h-3.5" />
+                                        <Image className="w-3.5 h-3.5" aria-hidden="true" />
                                         <span className="hidden sm:inline">
                                             {language === 'ru' ? 'Фото' : 'Photos'}
                                         </span>
@@ -471,13 +473,13 @@ export function LibraryPage() {
                                             setActiveCategory('video');
                                             setActiveFolderId(null);
                                         }}
-                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'video' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                     >
-                                        <Video className="w-3.5 h-3.5" />
+                                        <Video className="w-3.5 h-3.5" aria-hidden="true" />
                                         <span className="hidden sm:inline">
                                             {language === 'ru' ? 'Видео' : 'Video'}
                                         </span>
@@ -487,13 +489,13 @@ export function LibraryPage() {
                                             setActiveCategory('audio');
                                             setActiveFolderId(null);
                                         }}
-                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'audio' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                     >
-                                        <Music className="w-3.5 h-3.5" />
+                                        <Music className="w-3.5 h-3.5" aria-hidden="true" />
                                         <span className="hidden sm:inline">
                                             {language === 'ru' ? 'Аудио' : 'Audio'}
                                         </span>
@@ -517,7 +519,7 @@ export function LibraryPage() {
                                 onClick={handleOpenCreateFolder}
                                 className="flex-shrink-0 p-2 rounded-xl bg-white/5 text-white/40 hover:bg-white/10 hover:text-white transition-all border border-white/5"
                             >
-                                <Plus className="w-4 h-4" />
+                                <Plus className="w-4 h-4" aria-hidden="true" />
                             </button>
                             {sidebarFolders.map((folder) => (
                                 <button
@@ -526,13 +528,13 @@ export function LibraryPage() {
                                         setActiveFolderId(folder.id);
                                         setActiveCategory('all');
                                     }}
-                                    className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,border-color] flex items-center gap-2 ${
                                         activeFolderId === folder.id
                                             ? 'bg-white/10 text-white border border-white/10'
                                             : 'bg-transparent text-white/40 hover:text-white border border-transparent'
                                     }`}
                                 >
-                                    <FolderIcon className="w-3.5 h-3.5" />
+                                    <FolderIcon className="w-3.5 h-3.5" aria-hidden="true" />
                                     {folder.name}
                                 </button>
                             ))}
@@ -542,7 +544,7 @@ export function LibraryPage() {
                             <div className="flex flex-wrap items-center gap-2 p-1.5 bg-white/5 backdrop-blur-xl rounded-2xl w-fit border border-white/5">
                                 <button
                                     onClick={() => setContentTypeFilter('all')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'all'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -557,7 +559,7 @@ export function LibraryPage() {
                                 <div className="w-px h-4 bg-white/10 mx-1" />
                                 <button
                                     onClick={() => setContentTypeFilter('image')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'image'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -571,7 +573,7 @@ export function LibraryPage() {
                                 </button>
                                 <button
                                     onClick={() => setContentTypeFilter('video')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'video'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -585,7 +587,7 @@ export function LibraryPage() {
                                 </button>
                                 <button
                                     onClick={() => setContentTypeFilter('audio')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'audio'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -605,7 +607,7 @@ export function LibraryPage() {
                         <div className="flex flex-col items-center justify-center py-32">
                             <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin mb-4" />
                             <p className="text-white/40 text-sm animate-pulse">
-                                {language === 'ru' ? 'Делаем...' : 'Loading...'}
+                                                {language === 'ru' ? 'Делаем…' : 'Loading…'}
                             </p>
                         </div>
                     ) : sidebarFolders.length > 0 || groupedGenerations.length > 0 ? (

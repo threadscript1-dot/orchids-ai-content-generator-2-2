@@ -73,7 +73,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean; onClose:
             onClick={onClose}
             className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-white/5 text-white/40 hover:text-white/80 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
 
           <div className="relative h-48 overflow-hidden">
@@ -160,7 +160,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                     onClick={prevStep}
                     className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-white/60" />
+                    <ChevronLeft className="w-5 h-5 text-white/60" aria-hidden="true" />
                   </button>
                 )}
                 
@@ -177,7 +177,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                   ) : (
                     <>
                       Далее
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4" aria-hidden="true" />
                     </>
                   )}
                 </button>

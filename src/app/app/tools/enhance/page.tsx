@@ -268,7 +268,7 @@ function EnhanceToolContent() {
                                     </div>
                                 </div>
                                 <p className="text-xs font-black uppercase tracking-widest text-[#6F00FF] animate-pulse">
-                                    {language === 'ru' ? 'Улучшаем...' : 'Enhancing...'}
+                                    {language === 'ru' ? 'Улучшаем…' : 'Enhancing…'}
                                 </p>
                             </div>
                         </div>

@@ -63,7 +63,7 @@ function NavItem({
                       : 'text-muted-foreground hover:text-white p-2'
             }`}
         >
-            <Icon className={`w-5 h-5 ${active || highlight ? 'text-white' : ''}`} />
+            <Icon className={`w-5 h-5 ${active || highlight ? 'text-white' : ''}`} aria-hidden="true" />
             <span className="text-[10px] font-medium">{label}</span>
         </Link>
     );
@@ -144,7 +144,7 @@ function HeaderDropdown({
                                 className="flex items-start gap-3 w-full pl-3 pr-8 py-3 group/item"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover/item:bg-white/10 transition-colors shrink-0">
-                                    <item.icon className="w-5 h-5 text-white/40 group-hover/item:text-white transition-transform group-hover/item:scale-110" />
+                                    <item.icon className="w-5 h-5 text-white/40 group-hover/item:text-white transition-transform group-hover/item:scale-110" aria-hidden="true" />
                                 </div>
                                 <div className="flex flex-col gap-0.5">
                                     <span className="font-medium text-sm text-white transition-colors">
@@ -252,9 +252,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         <div className="flex items-center gap-2">
                             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                                 <SheetTrigger asChild>
-                                    <button className="p-2 rounded-xl hover:bg-white/10 transition-colors">
-                                        <Menu className="w-5 h-5" />
-                                    </button>
+<button aria-label={language === 'ru' ? 'Открыть меню' : 'Open menu'} className="p-2 rounded-xl hover:bg-white/10 transition-colors">
+                                          <Menu className="w-5 h-5" aria-hidden="true" />
+                                      </button>
                                 </SheetTrigger>
                                 <SheetContent
                                     side="left"
@@ -280,9 +280,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                                             onClick={() => setMenuOpen(false)}
                                                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
                                                         >
-                                                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                                <item.icon className="w-4 h-4" />
-                                                            </div>
+<div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
+                                                                  <item.icon className="w-4 h-4" aria-hidden="true" />
+                                                              </div>
                                                             <span className="text-sm font-medium">
                                                                 {item.label}
                                                             </span>
@@ -303,9 +303,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                                             onClick={() => setMenuOpen(false)}
                                                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
                                                         >
-                                                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                                <item.icon className="w-4 h-4" />
-                                                            </div>
+<div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
+                                                                  <item.icon className="w-4 h-4" aria-hidden="true" />
+                                                              </div>
                                                             <span className="text-sm font-medium">
                                                                 {item.label}
                                                             </span>
@@ -322,7 +322,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                                         className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
                                                     >
                                                         <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                            <FolderOpen className="w-4 h-4" />
+                                                            <FolderOpen className="w-4 h-4" aria-hidden="true" />
                                                         </div>
                                                         <span className="text-sm font-medium">
                                                             {t('nav.library')}
@@ -392,7 +392,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-3 sm:gap-6">
                         <div className="flex items-center gap-3">
                             <div className="hidden sm:flex items-center gap-1.5 px-1">
-                                <Zap className="w-4 h-4 text-[#FFDC74] fill-[#FFDC74]" />
+                                <Zap className="w-4 h-4 text-[#FFDC74] fill-[#FFDC74]" aria-hidden="true" />
                                 <span className="text-sm font-bold text-[#FFDC74] font-mono">
                                     {creditBalance}
                                 </span>
@@ -415,7 +415,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <User className="w-5 h-5 text-muted-foreground" />
+                                        <User className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                                     )}
                                 </div>
                             </Link>

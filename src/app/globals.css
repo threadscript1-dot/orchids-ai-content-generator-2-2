@@ -239,3 +239,38 @@
 nextjs-portal {
   display: none !important;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin {
+    animation: none !important;
+  }
+
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .animate-shimmer {
+    animation: none !important;
+  }
+
+  .animate-float {
+    animation: none !important;
+  }
+
+  .animate-pulse-glow {
+    animation: none !important;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+  }
+}

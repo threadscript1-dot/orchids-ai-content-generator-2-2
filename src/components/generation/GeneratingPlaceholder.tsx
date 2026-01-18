@@ -23,7 +23,7 @@ export function GeneratingPlaceholder({ aspectRatio = 'square' }: GeneratingPlac
             <div className="text-center">
                 <Loader2 className="w-12 h-12 animate-spin text-[#6F00FF] mx-auto mb-4" />
                 <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">
-                    {language === 'ru' ? 'Генерация...' : 'Generating...'}
+                    {language === 'ru' ? 'Генерация…' : 'Generating…'}
                 </p>
             </div>
         </div>
