@@ -338,23 +338,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                                     <span className="text-xs text-white">
                                                         {t('nav.credits')}
                                                     </span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-bold text-[#FFDC74]">
-                                                            {creditBalance} / {maxCredits}
-                                                        </span>
-                                                        <Link
-                                                            href="/app/profile#plans"
-                                                            onClick={() => setMenuOpen(false)}
-                                                            className="px-2 py-1 rounded-lg bg-[#FFDC74] hover:bg-[#FFDC74]/90 transition-colors text-[10px] font-bold text-black uppercase tracking-wider"
-                                                        >
-                                                            {t('nav.more')}
-                                                        </Link>
-                                                    </div>
+                                                    <span className="text-xs font-bold text-[#FFDC74]">
+                                                        {creditBalance} / {maxCredits}
+                                                    </span>
                                                 </div>
                                                 <Progress
                                                     value={creditPercentage}
                                                     className="h-1 bg-white/10 [&>div]:bg-[#FFDC74]"
                                                 />
+                                                <Link
+                                                    href="/app/profile#plans"
+                                                    onClick={() => setMenuOpen(false)}
+                                                    className="mt-3 w-full flex items-center justify-center px-3 py-2 rounded-lg bg-[#FFDC74] hover:bg-[#FFDC74]/90 transition-colors text-xs font-bold text-black uppercase tracking-wider"
+                                                >
+                                                    {t('nav.more')}
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
@@ -402,9 +400,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
                             <Link
                                 href="/app/profile#plans"
-                                className="hidden sm:flex px-3 py-1.5 rounded-lg bg-[#FFDC74] hover:bg-[#FFDC74]/90 transition-colors text-[11px] font-bold text-black uppercase tracking-wider"
+                                className="hidden sm:flex px-3 py-1.5 rounded-lg bg-[#FFDC74] text-[11px] font-bold text-black uppercase tracking-wider relative overflow-hidden group transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,220,116,0.4)]"
                             >
-                                {t('nav.more')}
+                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                                <span className="relative z-10">{t('nav.more')}</span>
                             </Link>
 
                             <Link href="/app/profile">

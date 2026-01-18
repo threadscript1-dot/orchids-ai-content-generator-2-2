@@ -485,8 +485,8 @@ function ToolsScroll() {
                 </h2>
                 <p className="text-xl text-white/40 max-w-2xl font-medium">
                     {language === 'ru'
-                        ? 'Все необходимые инструменты для профессиональной работы с контентом в одном месте'
-                        : 'All the tools you need for professional content creation in one place'}
+                        ? 'Генерируй изображения, видео и музыку с помощью нейросетей — быстро, качественно и без технических навыков'
+                        : 'Generate images, videos and music with AI — fast, high-quality, no technical skills required'}
                 </p>
             </div>
 
@@ -1237,9 +1237,6 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex-col items-center">
-                        <div className="w-full relative">
-                            <TypewriterLogo />
-                        </div>
                         <div className="mt-12 flex flex-col items-center gap-8">
                             <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
                                 <Link
