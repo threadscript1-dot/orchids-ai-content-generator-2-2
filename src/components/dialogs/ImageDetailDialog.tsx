@@ -119,14 +119,18 @@ export function ImageDetailDialog({
     };
 
     const handleMakeVariations = () => {
-        if (onMakeVariations) {
-            onMakeVariations(image);
-            onOpenChange(false);
+        // Navigate to image generation with the current image as attachment
+        const imageUrl = currentAsset?.url || '';
+        if (imageUrl) {
+            router.push(`/app/create/image/nano-banana-pro?image=${encodeURIComponent(imageUrl)}`);
         }
+        onOpenChange(false);
     };
 
     const handleAnimate = () => {
-        router.push(`/app/create/video?image=${encodeURIComponent(currentAsset?.url || '')}`);
+        router.push(
+            `/app/create/video/kling-2.6?image=${encodeURIComponent(currentAsset?.url || '')}`,
+        );
     };
 
     const handleUpscale = () => {
@@ -370,7 +374,7 @@ export function ImageDetailDialog({
                                             <FolderPlus className="w-4 h-4" />{' '}
                                             {language === 'ru' ? 'В папку' : 'Add to folder'}
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem 
+                                        <DropdownMenuItem
                                             onClick={handleDelete}
                                             className="gap-3 py-3 rounded-lg text-red-500 focus:text-red-500 focus:bg-red-500/10"
                                         >

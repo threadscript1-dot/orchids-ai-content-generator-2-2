@@ -1,5 +1,5 @@
-import { VideoGenerationPage } from "@/components/video-generation-page";
+import { redirect } from 'next/navigation';
 
 export default function CreateVideoPage() {
-  return <VideoGenerationPage />;
+    redirect('/app/create/video/kling-2.6');
 }

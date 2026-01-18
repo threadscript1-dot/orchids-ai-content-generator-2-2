@@ -1,5 +1,5 @@
-import { ImageGenerationPage } from "@/components/image-generation-page";
+import { redirect } from 'next/navigation';
 
 export default function CreateImagePage() {
-  return <ImageGenerationPage />;
+    redirect('/app/create/image/nano-banana-pro');
 }

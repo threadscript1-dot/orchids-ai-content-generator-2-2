@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { useLanguage } from '@/lib/language-context';
 import { useModelsStore } from '@/stores/models-store';
 import { useGenerationStore, Generation } from '@/stores/generation-store';
-import { useFileUpload } from '@/hooks/useFileUpload';
+import { useUnifiedGeneration } from '@/hooks/useUnifiedGeneration';
 
 import { BackgroundEllipses } from '@/components/shared';
 import {
@@ -20,38 +20,34 @@ import { ImageDetailDialog } from '@/components/dialogs/ImageDetailDialog';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-export function ImageGenerationPage() {
+const DEFAULT_IMAGE_MODEL = 'nano-banana-pro';
+
+interface ImageGenerationPageProps {
+    initialModelId?: string;
+}
+
+export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps) {
     const { t, language } = useLanguage();
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
 
     // Stores
-    const { imageModels, fetchModels } = useModelsStore();
-    const { generations, generateImageGeneric, uploadImage, fetchHistory, toggleFavorite } =
+    const { fetchModels } = useModelsStore();
+    const { generations, fetchHistory, toggleFavorite, generateImageGeneric } =
         useGenerationStore();
 
-    // Local state
-    const [prompt, setPrompt] = useState('');
-    const [model, setModel] = useState('');
-    const [aspectRatio, setAspectRatio] = useState('1:1');
-    const [resolution, setResolution] = useState('1K');
-    const [isGenerating, setIsGenerating] = useState(false);
+    // Unified generation hook
+    const generation = useUnifiedGeneration({
+        type: 'image',
+        maxFiles: 4,
+        language: language as 'ru' | 'en',
+    });
+
+    // Local UI state
     const [gridSize, setGridSize] = useState([250]);
     const [viewMode, setViewMode] = useState<'grid' | 'feed'>('grid');
     const [selectedImage, setSelectedImage] = useState<Generation | null>(null);
-
-    // File upload hook
-    const {
-        uploadedImages,
-        isDragging,
-        fileInputRef,
-        handleDrop,
-        handleDragOver,
-        handleDragLeave,
-        removeImage,
-        clearImages,
-        openFilePicker,
-        handleInputChange,
-    } = useFileUpload({ maxFiles: 4 });
 
     // Fetch models and history on mount
     useEffect(() => {
@@ -59,164 +55,114 @@ export function ImageGenerationPage() {
         fetchHistory(true);
     }, [fetchModels, fetchHistory]);
 
-    // Set default model when models are loaded
-    useEffect(() => {
-        if (imageModels.length > 0 && !model) {
-            setModel(imageModels[0].id);
-        }
-    }, [imageModels, model]);
-
-    // Handle URL params
+    // Handle URL params for prompt and model
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
-        const modelParam = searchParams.get('model');
+        const imageParam = searchParams.get('image');
         const actionParam = searchParams.get('action');
 
-        if (imageModels.length > 0) {
-            let currentPrompt = prompt;
-            let currentModel = model;
+        if (generation.models.length > 0) {
+            // Set model from URL path or use default
+            const modelId = initialModelId || DEFAULT_IMAGE_MODEL;
+            const foundModel = generation.models.find(
+                (m) => m.id === modelId || m.name === modelId,
+            );
+            if (foundModel && generation.selectedModelId !== foundModel.id) {
+                generation.setSelectedModelId(foundModel.id);
+            } else if (!foundModel && generation.models.length > 0 && !generation.selectedModelId) {
+                // Fallback to first model if specified model not found
+                generation.setSelectedModelId(generation.models[0].id);
+            }
 
             if (promptParam) {
-                currentPrompt = decodeURIComponent(promptParam);
-                setPrompt(currentPrompt);
-            }
-            if (modelParam) {
-                const foundModel = imageModels.find(
-                    (m) => m.id === modelParam || m.name === modelParam
-                );
-                if (foundModel) {
-                    currentModel = foundModel.id;
-                    setModel(currentModel);
-                }
+                generation.setPrompt(decodeURIComponent(promptParam));
             }
 
-            if (actionParam === 'generate' && currentPrompt && currentModel && !isGenerating) {
-                // Small delay to ensure state is updated
-                setTimeout(() => {
-                    handleGenerate();
-                    // Clear the action param from URL to avoid re-triggering on refresh
-                    const newUrl =
-                        window.location.pathname +
-                        (currentPrompt ? `?prompt=${encodeURIComponent(currentPrompt)}` : '');
+            // Add image from URL if provided
+            if (imageParam && generation.uploadedFiles.length === 0) {
+                generation.addFileFromUrl(decodeURIComponent(imageParam), 'Reference Image');
+            }
+
+            // Auto-generate if action=generate
+            if (actionParam === 'generate' && promptParam && !generation.isGenerating) {
+                setTimeout(async () => {
+                    await generation.generate();
+                    // Clear the action param from URL
+                    const newUrl = window.location.pathname;
                     window.history.replaceState({}, '', newUrl);
                 }, 500);
             }
         }
-    }, [searchParams, imageModels]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, generation.models.length, initialModelId]);
 
-    // Get current model and its constraints
-    const selectedModel = useMemo(
-        () => imageModels.find((m) => m.id === model),
-        [imageModels, model]
+    // Navigate to model URL when model changes via dropdown
+    const handleModelChange = useCallback(
+        (modelId: string) => {
+            generation.setSelectedModelId(modelId);
+            // Build query params to preserve state
+            const params = new URLSearchParams();
+            if (generation.formState.prompt) {
+                params.set('prompt', generation.formState.prompt);
+            }
+            const queryString = params.toString();
+            router.push(`/app/create/image/${modelId}${queryString ? `?${queryString}` : ''}`);
+        },
+        [generation, router],
     );
 
-    // Dynamic aspect ratios from model constraints
-    const availableAspectRatios = useMemo(() => {
-        if (selectedModel?.constraints?.aspectRatios) {
-            return selectedModel.constraints.aspectRatios.map((ar) => ({
+    // Build aspect ratio options for the bar
+    const aspectRatioOptions = useMemo(
+        () =>
+            generation.availableAspectRatios.map((ar) => ({
                 id: ar,
                 name: ar,
-            }));
-        }
-        return [
-            { id: '1:1', name: '1:1' },
-            { id: '16:9', name: '16:9' },
-            { id: '9:16', name: '9:16' },
-            { id: '4:3', name: '4:3' },
-            { id: '3:2', name: '3:2' },
-        ];
-    }, [selectedModel]);
+            })),
+        [generation.availableAspectRatios],
+    );
 
-    // Dynamic resolutions from model constraints
-    const availableResolutions = useMemo(() => {
-        if (selectedModel?.constraints?.resolutions) {
-            return selectedModel.constraints.resolutions.map((res) => ({
+    // Build resolution options for the bar
+    const resolutionOptions = useMemo(
+        () =>
+            generation.availableResolutions.map((res) => ({
                 id: res,
                 name: res,
-            }));
-        }
-        return [
-            { id: '1K', name: '1K' },
-            { id: '2K', name: '2K' },
-        ];
-    }, [selectedModel]);
+            })),
+        [generation.availableResolutions],
+    );
 
     // Filter generations to only show images
     const imageGenerations = useMemo(
         () => generations.filter((g) => g.type === 'image'),
-        [generations]
+        [generations],
     );
 
+    // Handlers
     const handleRemix = (gen: Generation) => {
-        setPrompt(gen.prompt);
-        const foundModel = imageModels.find((m) => m.id === gen.model || m.name === gen.model);
-        if (foundModel) setModel(foundModel.id);
+        generation.setPrompt(gen.prompt);
+        const foundModel = generation.models.find(
+            (m) => m.id === gen.model || m.name === gen.model,
+        );
+        if (foundModel) generation.setSelectedModelId(foundModel.id);
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     };
 
     const handleMakeVariations = async (gen: Generation) => {
-        setPrompt(gen.prompt);
-        const foundModel = imageModels.find((m) => m.id === gen.model || m.name === gen.model);
-        if (foundModel) setModel(foundModel.id);
+        generation.setPrompt(gen.prompt);
+        const foundModel = generation.models.find(
+            (m) => m.id === gen.model || m.name === gen.model,
+        );
+        if (foundModel) generation.setSelectedModelId(foundModel.id);
 
-        setIsGenerating(true);
-        try {
-            const generationId = await generateImageGeneric(foundModel?.id || gen.model, {
-                prompt: gen.prompt,
-                aspect_ratio: (gen as any).aspect_ratio || aspectRatio,
-                resolution: resolution,
-            });
-
-            if (generationId) {
-                toast.success(language === 'ru' ? 'Генерация запущена' : 'Generation started');
-            } else {
-                toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-            }
-        } catch (error) {
-            console.error('Variation error:', error);
+        // Trigger generation with current prompt
+        const generationId = await generation.generate();
+        if (!generationId) {
             toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-        } finally {
-            setIsGenerating(false);
         }
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim() || !selectedModel) return;
-
-        setIsGenerating(true);
-
-        try {
-            // Upload images if present (for image-to-image)
-            const uploadedUrls: string[] = [];
-            if (uploadedImages.length > 0) {
-                for (const img of uploadedImages) {
-                    if (img.file) {
-                        const url = await uploadImage(img.file);
-                        if (url) uploadedUrls.push(url);
-                    }
-                }
-            }
-
-            const generationId = await generateImageGeneric(selectedModel.id, {
-                prompt,
-                aspect_ratio: aspectRatio,
-                input_urls: uploadedUrls.length > 0 ? uploadedUrls : undefined,
-                resolution,
-            });
-
-            if (generationId) {
-                toast.success(language === 'ru' ? 'Генерация запущена' : 'Generation started');
-                setPrompt('');
-                clearImages();
-            } else {
-                toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-            }
-        } catch (error) {
-            console.error('Generation error:', error);
-            toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-        } finally {
-            setIsGenerating(false);
-        }
+        await generation.generate();
     };
 
     return (
@@ -268,7 +214,7 @@ export function ImageGenerationPage() {
                                 : undefined,
                     }}
                 >
-                    {isGenerating && <GeneratingPlaceholder aspectRatio="square" />}
+                    {generation.isGenerating && <GeneratingPlaceholder aspectRatio="square" />}
                     {imageGenerations.map((gen) => (
                         <ImageCard
                             key={gen.id}
@@ -282,36 +228,36 @@ export function ImageGenerationPage() {
             </div>
 
             <ImageGenerationBar
-                prompt={prompt}
-                onPromptChange={setPrompt}
-                uploadedImages={uploadedImages}
-                onRemoveImage={removeImage}
-                onOpenFilePicker={openFilePicker}
-                isDragging={isDragging}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                models={imageModels}
-                selectedModelId={model}
-                onModelChange={setModel}
-                aspectRatios={availableAspectRatios}
-                aspectRatio={aspectRatio}
-                onAspectRatioChange={setAspectRatio}
-                resolutions={availableResolutions}
-                resolution={resolution}
-                onResolutionChange={setResolution}
-                creditsCost={selectedModel?.credits_cost || 10}
-                isGenerating={isGenerating}
+                prompt={generation.formState.prompt}
+                onPromptChange={generation.setPrompt}
+                uploadedImages={generation.uploadedFiles}
+                onRemoveImage={generation.removeFile}
+                onOpenFilePicker={generation.openFilePicker}
+                isDragging={generation.isDragging}
+                onDragOver={generation.handleDragOver}
+                onDragLeave={generation.handleDragLeave}
+                onDrop={generation.handleDrop}
+                models={generation.models}
+                selectedModelId={generation.selectedModelId}
+                onModelChange={handleModelChange}
+                aspectRatios={aspectRatioOptions}
+                aspectRatio={generation.formState.aspectRatio}
+                onAspectRatioChange={generation.setAspectRatio}
+                resolutions={resolutionOptions}
+                resolution={generation.formState.resolution}
+                onResolutionChange={generation.setResolution}
+                creditsCost={generation.estimatedPrice}
+                isGenerating={generation.isGenerating}
                 onGenerate={handleGenerate}
-                fileInputRef={fileInputRef}
-                onFileInputChange={handleInputChange}
+                fileInputRef={generation.fileInputRef}
+                onFileInputChange={generation.handleFileInputChange}
             />
 
             <ImageDetailDialog
                 image={selectedImage}
                 open={!!selectedImage}
                 onOpenChange={(open) => !open && setSelectedImage(null)}
-                resolution={resolution}
+                resolution={generation.formState.resolution}
                 onRemix={handleRemix}
                 onMakeVariations={handleMakeVariations}
                 onToggleLike={toggleFavorite}

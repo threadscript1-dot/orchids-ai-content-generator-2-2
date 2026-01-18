@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useModelsStore, type Model } from '@/stores/models-store';
+import { useEffect, useMemo } from 'react';
+import { useModelsStore, type Model, hasCapability } from '@/stores/models-store';
 
 export function useModels() {
     const models = useModelsStore((state) => state.models);
@@ -48,12 +48,14 @@ export function useImageModels() {
         }
     }, [imageModels.length, isLoading, fetchModels]);
 
-    const textToImageModels = imageModels.filter(
-        (m) => m.capability === 'text-to-image' || m.capabilities?.includes('text-to-image')
+    const textToImageModels = useMemo(
+        () => imageModels.filter((m) => hasCapability(m, 'text-to-image')),
+        [imageModels]
     );
 
-    const imageToImageModels = imageModels.filter(
-        (m) => m.capability === 'image-to-image' || m.capabilities?.includes('image-to-image')
+    const imageToImageModels = useMemo(
+        () => imageModels.filter((m) => hasCapability(m, 'image-to-image')),
+        [imageModels]
     );
 
     return {
@@ -75,12 +77,14 @@ export function useVideoModels() {
         }
     }, [videoModels.length, isLoading, fetchModels]);
 
-    const textToVideoModels = videoModels.filter(
-        (m) => m.capability === 'text-to-video' || m.capabilities?.includes('text-to-video')
+    const textToVideoModels = useMemo(
+        () => videoModels.filter((m) => hasCapability(m, 'text-to-video')),
+        [videoModels]
     );
 
-    const imageToVideoModels = videoModels.filter(
-        (m) => m.capability === 'image-to-video' || m.capabilities?.includes('image-to-video')
+    const imageToVideoModels = useMemo(
+        () => videoModels.filter((m) => hasCapability(m, 'image-to-video')),
+        [videoModels]
     );
 
     return {
@@ -109,3 +113,15 @@ export function useAudioModels() {
 }
 
 export type { Model };
+
+// Re-export helper functions for convenience
+export {
+    hasCapability,
+    getAttachmentConfig,
+    requiresAttachment,
+    supportsAttachment,
+    calculatePrice,
+    getAttachmentFieldName,
+    validateAttachment,
+} from '@/stores/models-store';
+

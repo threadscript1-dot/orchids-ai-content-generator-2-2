@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-18T17:54:20.994Z
+ * Generated from OpenAPI spec: 2026-01-18T21:56:45.659Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -565,7 +565,21 @@ export interface paths {
         };
         /**
          * Get available models
-         * @description Returns all available image, video, and audio generation models. No authentication required.
+         * @description Returns all available image, video, and audio generation models with their capabilities and input requirements.
+         *
+         *     Each model includes:
+         *     - **attachments**: Array describing what file inputs are accepted
+         *       - `type`: 'image', 'video', or 'audio'
+         *       - `mode`: 'none' (no input), 'optional' (can provide input), 'required' (must provide input)
+         *       - `fieldName`: The API field name to use (e.g., 'input_urls', 'image_urls')
+         *       - `maxCount`: Maximum number of files allowed
+         *       - `maxSizeBytes`: Maximum file size in bytes
+         *       - `acceptedMimeTypes`: Accepted file types
+         *
+         *     - **capabilities**: What the model can do (e.g., 'text-to-image', 'image-to-image')
+         *     - **endpoint**: The API endpoint to call for this model
+         *
+         *     No authentication required.
          */
         get: operations["getModels"];
         put?: never;
@@ -1020,7 +1034,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/image/seedream/text-to-image": {
+    "/image/seedream/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1031,36 +1045,16 @@ export interface paths {
         put?: never;
         /**
          * Generate image with Seedream 4.5
-         * @description Creates an image from text using Seedream 4.5. Quality: basic (2K), high (4K).
+         * @description Creates or edits images using Seedream 4.5. Provide image_urls for edit mode (up to 14 images, max 10MB each). Quality: basic (2K), high (4K).
          */
-        post: operations["postImageSeedreamText-to-image"];
+        post: operations["postImageSeedreamGenerate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/image/seedream/edit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Edit images with Seedream 4.5
-         * @description Edits input images based on prompt using Seedream 4.5. Max 14 images, 10MB each.
-         */
-        post: operations["postImageSeedreamEdit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/image/flux-2/text-to-image": {
+    "/image/flux-2/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1071,29 +1065,9 @@ export interface paths {
         put?: never;
         /**
          * Generate image with Flux-2 Pro
-         * @description Creates an image from text using Flux-2 Pro. Prompt: 3-5000 chars.
+         * @description Creates or transforms images using Flux-2 Pro. Provide input_urls for image-to-image mode (1-8 images, max 10MB each). Prompt: 3-5000 chars.
          */
-        post: operations["postImageFlux-2Text-to-image"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/image/flux-2/image-to-image": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Transform images with Flux-2 Pro
-         * @description Transforms input images using Flux-2 Pro. 1-8 images, max 10MB each.
-         */
-        post: operations["postImageFlux-2Image-to-image"];
+        post: operations["postImageFlux-2Generate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1360,7 +1334,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/video/grok-imagine/text-to-video": {
+    "/video/grok-imagine/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1370,17 +1344,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Generate video from text with Grok Imagine
-         * @description Creates a video from text prompt. Optionally accepts image_urls for i2v mode. Modes: fun, normal, spicy.
+         * Generate video with Grok Imagine
+         * @description Creates video from text or animates an image. Provide image_urls for image-to-video mode (max 1 image, 10MB). Modes: fun, normal, spicy. English prompts only.
          */
-        post: operations["postVideoGrok-imagineText-to-video"];
+        post: operations["postVideoGrok-imagineGenerate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/video/grok-imagine/image-to-video": {
+    "/video/kling/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1390,17 +1364,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Animate image to video with Grok Imagine
-         * @description Animates an image or prior Grok task. Use image_urls OR task_id, not both.
+         * Generate video with Kling 2.6
+         * @description Creates video from text or animates an image. Provide image_urls for image-to-video mode (max 1 image, 10MB). Duration: 5 or 10 seconds. Sound: true/false.
          */
-        post: operations["postVideoGrok-imagineImage-to-video"];
+        post: operations["postVideoKlingGenerate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/video/kling/text-to-video": {
+    "/video/sora-2/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1410,17 +1384,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Generate video from text with Kling 2.6
-         * @description Creates a video from text. Optionally accepts image_urls for image-to-video mode. Duration: 5 or 10 seconds. Sound: true/false.
+         * Generate video with Sora-2
+         * @description Creates video from text or animates an image. Provide image_urls for image-to-video mode (max 1 image, 10MB). Frames: 10 or 15. Max 5 character IDs.
          */
-        post: operations["postVideoKlingText-to-video"];
+        post: operations["postVideoSora-2Generate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/video/kling/image-to-video": {
+    "/video/wan/generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -1430,90 +1404,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Animate image to video with Kling 2.6
-         * @description Animates an image to video. Max 1 image, 10MB.
+         * Generate video with Wan 2.6
+         * @description Creates video from text or animates an image. Provide image_urls for image-to-video mode (max 1 image, min 256x256px). Duration: 5/10/15 seconds. Resolution: 720p/1080p.
          */
-        post: operations["postVideoKlingImage-to-video"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/video/sora-2/text-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Generate video from text with Sora-2
-         * @description Creates a video from text. Frames: 10 or 15. Max 5 character IDs.
-         */
-        post: operations["postVideoSora-2Text-to-video"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/video/sora-2/image-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Animate image to video with Sora-2
-         * @description Animates an image to video. Max 1 image, 10MB.
-         */
-        post: operations["postVideoSora-2Image-to-video"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/video/wan/text-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Generate video from text with Wan 2.6
-         * @description Optionally accepts image_urls for image-to-video mode. Duration: 5/10/15 seconds. Resolution: 720p/1080p.
-         */
-        post: operations["postVideoWanText-to-video"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/video/wan/image-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Animate image to video with Wan 2.6
-         * @description Max 1 image (min 256x256px). Duration: 5/10/15 seconds.
-         */
-        post: operations["postVideoWanImage-to-video"];
+        post: operations["postVideoWanGenerate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2895,12 +2789,20 @@ export interface operations {
                         models: {
                             id: string;
                             name: string;
+                            description: string;
                             type: "image" | "video" | "audio";
                             vendor: string;
+                            endpoint: string;
                             capability: string;
                             capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
+                            attachments: {
+                                type: "image" | "video" | "audio";
+                                mode: "none" | "optional" | "required";
+                                fieldName: string;
+                                maxCount: number;
+                                maxSizeBytes?: number;
+                                acceptedMimeTypes?: string[];
+                            }[];
                             pricing: {
                                 base: number;
                                 dimensions?: ({
@@ -2931,10 +2833,6 @@ export interface operations {
                             };
                             constraints?: {
                                 aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
                                 promptRequired?: boolean;
                                 maxDuration?: number;
                                 minDuration?: number;
@@ -2974,267 +2872,27 @@ export interface operations {
                                 ];
                                 generationModes?: string[];
                             };
-                        }[];
-                        image_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
                             credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        video_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        audio_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
                         }[];
                     };
                     "multipart/form-data": {
                         models: {
                             id: string;
                             name: string;
+                            description: string;
                             type: "image" | "video" | "audio";
                             vendor: string;
+                            endpoint: string;
                             capability: string;
                             capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
+                            attachments: {
+                                type: "image" | "video" | "audio";
+                                mode: "none" | "optional" | "required";
+                                fieldName: string;
+                                maxCount: number;
+                                maxSizeBytes?: number;
+                                acceptedMimeTypes?: string[];
+                            }[];
                             pricing: {
                                 base: number;
                                 dimensions?: ({
@@ -3265,10 +2923,6 @@ export interface operations {
                             };
                             constraints?: {
                                 aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
                                 promptRequired?: boolean;
                                 maxDuration?: number;
                                 minDuration?: number;
@@ -3308,267 +2962,27 @@ export interface operations {
                                 ];
                                 generationModes?: string[];
                             };
-                        }[];
-                        image_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
                             credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        video_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        audio_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
                         }[];
                     };
                     "text/plain": {
                         models: {
                             id: string;
                             name: string;
+                            description: string;
                             type: "image" | "video" | "audio";
                             vendor: string;
+                            endpoint: string;
                             capability: string;
                             capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
+                            attachments: {
+                                type: "image" | "video" | "audio";
+                                mode: "none" | "optional" | "required";
+                                fieldName: string;
+                                maxCount: number;
+                                maxSizeBytes?: number;
+                                acceptedMimeTypes?: string[];
+                            }[];
                             pricing: {
                                 base: number;
                                 dimensions?: ({
@@ -3599,10 +3013,6 @@ export interface operations {
                             };
                             constraints?: {
                                 aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
                                 promptRequired?: boolean;
                                 maxDuration?: number;
                                 minDuration?: number;
@@ -3642,255 +3052,7 @@ export interface operations {
                                 ];
                                 generationModes?: string[];
                             };
-                        }[];
-                        image_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
                             credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        video_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
-                        }[];
-                        audio_models: {
-                            id: string;
-                            name: string;
-                            type: "image" | "video" | "audio";
-                            vendor: string;
-                            capability: string;
-                            capabilities: string[];
-                            description?: string;
-                            credits_cost: number;
-                            pricing: {
-                                base: number;
-                                dimensions?: ({
-                                    key: string;
-                                    /** @constant */
-                                    kind: "enum";
-                                    options: {
-                                        [key: string]: number;
-                                    };
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "boolean";
-                                    add: number;
-                                } | {
-                                    key: string;
-                                    /** @constant */
-                                    kind: "number";
-                                    perUnit: number;
-                                    min?: number;
-                                    max?: number;
-                                })[];
-                                /** @constant */
-                                currency: "credits";
-                                version: string;
-                                source?: "manual" | "scraped" | "kie-dashboard";
-                                updatedAt?: string;
-                            };
-                            constraints?: {
-                                aspectRatios?: string[];
-                                requiresImageUrls?: boolean;
-                                requiresVideoUrls?: boolean;
-                                imageInputMode?: "none" | "optional" | "required";
-                                videoInputMode?: "none" | "optional" | "required";
-                                promptRequired?: boolean;
-                                maxDuration?: number;
-                                minDuration?: number;
-                                durations?: number[];
-                                resolutions?: string[];
-                                defaultResolution?: string;
-                                supportsAudio?: boolean;
-                                outputFormats?: string[];
-                                maxVariants?: number;
-                                supportsMask?: boolean;
-                                maxInputImages?: number;
-                                supportsStrength?: boolean;
-                                supportsNegativePrompt?: boolean;
-                                maxMusicDuration?: number;
-                                kieModelVersion?: string;
-                                supportedModels?: string[];
-                                supportsInstrumental?: boolean;
-                                supportsLyrics?: boolean;
-                                supportsCustomMode?: boolean;
-                                musicStyles?: string[];
-                                supportsVocalGender?: boolean;
-                                supportsStyleWeight?: boolean;
-                                supportsWeirdnessConstraint?: boolean;
-                                supportsAudioWeight?: boolean;
-                                supportsNegativeTags?: boolean;
-                                supportsPersona?: boolean;
-                                maxPromptLength?: number;
-                                maxStyleLength?: number;
-                                maxTitleLength?: number;
-                                supportsPromptEnhancement?: boolean;
-                                supportsTranslation?: boolean;
-                                supportsWatermark?: boolean;
-                                supportsUpscale?: boolean;
-                                safetyToleranceRange?: [
-                                    number,
-                                    number
-                                ];
-                                generationModes?: string[];
-                            };
                         }[];
                     };
                 };
@@ -5503,7 +4665,7 @@ export interface operations {
             };
         };
     };
-    "postImageSeedreamText-to-image": {
+    postImageSeedreamGenerate: {
         parameters: {
             query?: never;
             header?: never;
@@ -5514,16 +4676,19 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
                     quality: "basic" | "high";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
                     quality: "basic" | "high";
                 };
                 "text/plain": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
                     quality: "basic" | "high";
                 };
@@ -5557,7 +4722,7 @@ export interface operations {
             };
         };
     };
-    postImageSeedreamEdit: {
+    "postImageFlux-2Generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -5568,130 +4733,19 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
-                    image_urls: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
-                };
-                "multipart/form-data": {
-                    prompt: string;
-                    image_urls: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
-                };
-                "text/plain": {
-                    prompt: string;
-                    image_urls: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postImageFlux-2Text-to-image": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    prompt: string;
+                    input_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
                     resolution: "1K" | "2K";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    input_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
                     resolution: "1K" | "2K";
                 };
                 "text/plain": {
                     prompt: string;
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postImageFlux-2Image-to-image": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    prompt: string;
-                    input_urls: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
-                };
-                "multipart/form-data": {
-                    prompt: string;
-                    input_urls: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
-                };
-                "text/plain": {
-                    prompt: string;
-                    input_urls: string[];
+                    input_urls?: string[];
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
                     resolution: "1K" | "2K";
                 };
@@ -6593,7 +5647,7 @@ export interface operations {
             };
         };
     };
-    "postVideoGrok-imagineText-to-video": {
+    "postVideoGrok-imagineGenerate": {
         parameters: {
             query?: never;
             header?: never;
@@ -6650,67 +5704,7 @@ export interface operations {
             };
         };
     };
-    "postVideoGrok-imagineImage-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    image_urls?: string[];
-                    task_id?: string;
-                    index?: string | number;
-                    prompt?: string;
-                    mode?: "fun" | "normal";
-                };
-                "multipart/form-data": {
-                    image_urls?: string[];
-                    task_id?: string;
-                    index?: string | number;
-                    prompt?: string;
-                    mode?: "fun" | "normal";
-                };
-                "text/plain": {
-                    image_urls?: string[];
-                    task_id?: string;
-                    index?: string | number;
-                    prompt?: string;
-                    mode?: "fun" | "normal";
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postVideoKlingText-to-video": {
+    postVideoKlingGenerate: {
         parameters: {
             query?: never;
             header?: never;
@@ -6770,7 +5764,7 @@ export interface operations {
             };
         };
     };
-    "postVideoKlingImage-to-video": {
+    "postVideoSora-2Generate": {
         parameters: {
             query?: never;
             header?: never;
@@ -6781,63 +5775,7 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
-                    image_urls: string[];
-                    duration: "5" | "10";
-                    sound: boolean;
-                };
-                "multipart/form-data": {
-                    prompt: string;
-                    image_urls: string[];
-                    duration: "5" | "10";
-                    sound: boolean;
-                };
-                "text/plain": {
-                    prompt: string;
-                    image_urls: string[];
-                    duration: "5" | "10";
-                    sound: boolean;
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postVideoSora-2Text-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "portrait" | "landscape";
                     n_frames?: "10" | "15";
                     remove_watermark?: boolean;
@@ -6845,6 +5783,7 @@ export interface operations {
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "portrait" | "landscape";
                     n_frames?: "10" | "15";
                     remove_watermark?: boolean;
@@ -6852,6 +5791,7 @@ export interface operations {
                 };
                 "text/plain": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "portrait" | "landscape";
                     n_frames?: "10" | "15";
                     remove_watermark?: boolean;
@@ -6887,70 +5827,7 @@ export interface operations {
             };
         };
     };
-    "postVideoSora-2Image-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    prompt: string;
-                    image_urls: string[];
-                    aspect_ratio?: "portrait" | "landscape";
-                    n_frames?: "10" | "15";
-                    remove_watermark?: boolean;
-                    character_id_list?: string[];
-                };
-                "multipart/form-data": {
-                    prompt: string;
-                    image_urls: string[];
-                    aspect_ratio?: "portrait" | "landscape";
-                    n_frames?: "10" | "15";
-                    remove_watermark?: boolean;
-                    character_id_list?: string[];
-                };
-                "text/plain": {
-                    prompt: string;
-                    image_urls: string[];
-                    aspect_ratio?: "portrait" | "landscape";
-                    n_frames?: "10" | "15";
-                    remove_watermark?: boolean;
-                    character_id_list?: string[];
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postVideoWanText-to-video": {
+    postVideoWanGenerate: {
         parameters: {
             query?: never;
             header?: never;
@@ -6974,63 +5851,6 @@ export interface operations {
                 "text/plain": {
                     prompt: string;
                     image_urls?: string[];
-                    duration?: "5" | "10" | "15";
-                    resolution?: "720p" | "1080p";
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "multipart/form-data": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                    "text/plain": {
-                        id: string;
-                        /** @constant */
-                        status: "processing";
-                        cost_credits: number;
-                    };
-                };
-            };
-        };
-    };
-    "postVideoWanImage-to-video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    prompt: string;
-                    image_urls: string[];
-                    duration?: "5" | "10" | "15";
-                    resolution?: "720p" | "1080p";
-                };
-                "multipart/form-data": {
-                    prompt: string;
-                    image_urls: string[];
-                    duration?: "5" | "10" | "15";
-                    resolution?: "720p" | "1080p";
-                };
-                "text/plain": {
-                    prompt: string;
-                    image_urls: string[];
                     duration?: "5" | "10" | "15";
                     resolution?: "720p" | "1080p";
                 };

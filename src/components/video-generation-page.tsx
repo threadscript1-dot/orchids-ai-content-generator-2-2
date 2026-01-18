@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { useLanguage } from '@/lib/language-context';
 import { useModelsStore } from '@/stores/models-store';
 import { useGenerationStore, Generation } from '@/stores/generation-store';
-import { useFileUpload } from '@/hooks/useFileUpload';
+import { useUnifiedGeneration } from '@/hooks/useUnifiedGeneration';
 
 import { PageHeader, BackgroundEllipses } from '@/components/shared';
 import {
@@ -20,44 +20,32 @@ import { VideoDetailDialog } from '@/components/dialogs/VideoDetailDialog';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-export function VideoGenerationPage() {
+const DEFAULT_VIDEO_MODEL = 'kling-2.6';
+
+interface VideoGenerationPageProps {
+    initialModelId?: string;
+}
+
+export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps) {
     const { t, language } = useLanguage();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
     // Stores
-    const { videoModels, fetchModels } = useModelsStore();
-    const {
-        generations,
-        generateVideoGeneric,
-        uploadImage,
-        fetchHistory,
-        toggleFavorite,
-    } = useGenerationStore();
+    const { fetchModels } = useModelsStore();
+    const { generations, fetchHistory, toggleFavorite } = useGenerationStore();
 
-    // Local state
-    const [prompt, setPrompt] = useState('');
-    const [model, setModel] = useState('');
-    const [aspectRatio, setAspectRatio] = useState('16:9');
-    const [duration, setDuration] = useState('5');
-    const [isGenerating, setIsGenerating] = useState(false);
+    // Unified generation hook
+    const generation = useUnifiedGeneration({
+        type: 'video',
+        maxFiles: 2,
+        language: language as 'ru' | 'en',
+    });
+
+    // Local UI state
     const [gridSize, setGridSize] = useState([250]);
     const [viewMode, setViewMode] = useState<'grid' | 'feed'>('grid');
     const [selectedVideo, setSelectedVideo] = useState<Generation | null>(null);
-
-    // File upload hook
-    const {
-        uploadedImages,
-        isDragging,
-        fileInputRef,
-        handleDrop,
-        handleDragOver,
-        handleDragLeave,
-        removeImage,
-        clearImages,
-        openFilePicker,
-        handleInputChange,
-        addImageFromUrl,
-    } = useFileUpload({ maxFiles: 2 });
 
     // Fetch models and history on mount
     useEffect(() => {
@@ -65,106 +53,79 @@ export function VideoGenerationPage() {
         fetchHistory(true);
     }, [fetchModels, fetchHistory]);
 
-    // Set default model when models are loaded
-    useEffect(() => {
-        if (videoModels.length > 0 && !model) {
-            setModel(videoModels[0].id);
-        }
-    }, [videoModels, model]);
-
     // Handle URL params
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
         const imageParam = searchParams.get('image');
-        if (promptParam && videoModels.length > 0) {
-            setPrompt(decodeURIComponent(promptParam));
-        }
-        if (imageParam) {
-            addImageFromUrl(decodeURIComponent(imageParam), 'Reference Image');
-        }
-    }, [searchParams, videoModels, addImageFromUrl]);
 
-    // Get current model and its constraints
-    const selectedModel = useMemo(
-        () => videoModels.find((m) => m.id === model),
-        [videoModels, model]
+        if (generation.models.length > 0) {
+            // Set model from URL path or use default
+            const modelId = initialModelId || DEFAULT_VIDEO_MODEL;
+            const foundModel = generation.models.find(
+                (m) => m.id === modelId || m.name === modelId,
+            );
+            if (foundModel && generation.selectedModelId !== foundModel.id) {
+                generation.setSelectedModelId(foundModel.id);
+            } else if (!foundModel && generation.models.length > 0 && !generation.selectedModelId) {
+                // Fallback to first model if specified model not found
+                generation.setSelectedModelId(generation.models[0].id);
+            }
+
+            if (promptParam) {
+                generation.setPrompt(decodeURIComponent(promptParam));
+            }
+
+            // Add image from URL if provided
+            if (imageParam && generation.uploadedFiles.length === 0) {
+                generation.addFileFromUrl(decodeURIComponent(imageParam), 'Reference Image');
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, generation.models.length, initialModelId]);
+
+    // Navigate to model URL when model changes via dropdown
+    const handleModelChange = useCallback(
+        (modelId: string) => {
+            generation.setSelectedModelId(modelId);
+            // Build query params to preserve state
+            const params = new URLSearchParams();
+            if (generation.formState.prompt) {
+                params.set('prompt', generation.formState.prompt);
+            }
+            const queryString = params.toString();
+            router.push(`/app/create/video/${modelId}${queryString ? `?${queryString}` : ''}`);
+        },
+        [generation, router],
     );
 
-    // Dynamic aspect ratios from model constraints
-    const availableAspectRatios = useMemo(() => {
-        if (selectedModel?.constraints?.aspectRatios) {
-            return selectedModel.constraints.aspectRatios.map((ar) => ({
+    // Build aspect ratio options for the bar
+    const aspectRatioOptions = useMemo(
+        () =>
+            generation.availableAspectRatios.map((ar) => ({
                 id: ar,
                 name: ar,
-            }));
-        }
-        return [
-            { id: '1:1', name: '1:1' },
-            { id: '16:9', name: '16:9' },
-            { id: '9:16', name: '9:16' },
-        ];
-    }, [selectedModel]);
-
-    // Dynamic durations from model constraints
-    const availableDurations = useMemo(() => {
-        if (selectedModel?.constraints?.durations) {
-            return selectedModel.constraints.durations;
-        }
-        return ['5', '10'];
-    }, [selectedModel]);
+            })),
+        [generation.availableAspectRatios],
+    );
 
     // Filter generations to only show videos
     const videoGenerations = useMemo(
         () => generations.filter((g) => g.type === 'video'),
-        [generations]
+        [generations],
     );
 
+    // Handlers
     const handleRemix = (gen: Generation) => {
-        setPrompt(gen.prompt);
-        const foundModel = videoModels.find((m) => m.id === gen.model || m.name === gen.model);
-        if (foundModel) setModel(foundModel.id);
+        generation.setPrompt(gen.prompt);
+        const foundModel = generation.models.find(
+            (m) => m.id === gen.model || m.name === gen.model,
+        );
+        if (foundModel) generation.setSelectedModelId(foundModel.id);
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim() || !selectedModel) return;
-
-        setIsGenerating(true);
-
-        try {
-            // Upload images if present (for image-to-video)
-            const uploadedUrls: string[] = [];
-            if (uploadedImages.length > 0) {
-                for (const img of uploadedImages) {
-                    if (img.file) {
-                        const url = await uploadImage(img.file);
-                        if (url) uploadedUrls.push(url);
-                    } else if (img.url && !img.url.startsWith('blob:')) {
-                        uploadedUrls.push(img.url);
-                    }
-                }
-            }
-
-            const generationId = await generateVideoGeneric(selectedModel.id, {
-                prompt,
-                aspect_ratio: aspectRatio,
-                duration: parseInt(duration),
-                image_urls: uploadedUrls.length > 0 ? uploadedUrls : undefined,
-            });
-
-            if (generationId) {
-                toast.success(language === 'ru' ? 'Генерация запущена' : 'Generation started');
-                setPrompt('');
-                clearImages();
-            } else {
-                toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-            }
-        } catch (error) {
-            console.error('Generation error:', error);
-            toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
-        } finally {
-            setIsGenerating(false);
-        }
+        await generation.generate();
     };
 
     return (
@@ -216,7 +177,7 @@ export function VideoGenerationPage() {
                                 : undefined,
                     }}
                 >
-                    {isGenerating && <GeneratingPlaceholder aspectRatio="video" />}
+                    {generation.isGenerating && <GeneratingPlaceholder aspectRatio="video" />}
                     {videoGenerations.map((gen) => (
                         <VideoCard
                             key={gen.id}
@@ -230,42 +191,42 @@ export function VideoGenerationPage() {
             </div>
 
             <GenerationBar
-                prompt={prompt}
-                onPromptChange={setPrompt}
-                uploadedImages={uploadedImages}
-                onRemoveImage={removeImage}
-                onOpenFilePicker={openFilePicker}
-                isDragging={isDragging}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                models={videoModels}
-                selectedModelId={model}
-                onModelChange={setModel}
-                aspectRatios={availableAspectRatios}
-                aspectRatio={aspectRatio}
-                onAspectRatioChange={setAspectRatio}
+                prompt={generation.formState.prompt}
+                onPromptChange={generation.setPrompt}
+                uploadedImages={generation.uploadedFiles}
+                onRemoveImage={generation.removeFile}
+                onOpenFilePicker={generation.openFilePicker}
+                isDragging={generation.isDragging}
+                onDragOver={generation.handleDragOver}
+                onDragLeave={generation.handleDragLeave}
+                onDrop={generation.handleDrop}
+                models={generation.models}
+                selectedModelId={generation.selectedModelId}
+                onModelChange={handleModelChange}
+                aspectRatios={aspectRatioOptions}
+                aspectRatio={generation.formState.aspectRatio}
+                onAspectRatioChange={generation.setAspectRatio}
                 showDuration
-                durations={availableDurations}
-                duration={duration}
-                onDurationChange={setDuration}
-                creditsCost={selectedModel?.credits_cost || 25}
-                isGenerating={isGenerating}
+                durations={generation.availableDurations}
+                duration={generation.formState.duration}
+                onDurationChange={generation.setDuration}
+                creditsCost={generation.estimatedPrice}
+                isGenerating={generation.isGenerating}
                 onGenerate={handleGenerate}
                 showLabels
                 labelType="start-end"
                 addFrameText={language === 'ru' ? 'Добавьте кадр' : 'Add frame'}
-                fileInputRef={fileInputRef}
-                onFileInputChange={handleInputChange}
+                fileInputRef={generation.fileInputRef}
+                onFileInputChange={generation.handleFileInputChange}
             />
 
             <VideoDetailDialog
                 video={selectedVideo}
                 open={!!selectedVideo}
                 onOpenChange={(open) => !open && setSelectedVideo(null)}
-                models={videoModels}
-                aspectRatio={aspectRatio}
-                duration={duration}
+                models={generation.models}
+                aspectRatio={generation.formState.aspectRatio}
+                duration={generation.formState.duration}
                 onRemix={handleRemix}
                 onToggleLike={toggleFavorite}
                 videos={videoGenerations}

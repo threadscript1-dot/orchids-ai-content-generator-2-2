@@ -76,7 +76,7 @@ export function LibraryPage() {
     const [activeFolder, setActiveFolder] = useState<Folder | null>(null);
     const [isFolderLoading, setIsFolderLoading] = useState(false);
     const [contentTypeFilter, setContentTypeFilter] = useState<'all' | 'image' | 'video' | 'audio'>(
-        'all'
+        'all',
     );
 
     const [gridSize, setGridSize] = useState([250]);
@@ -92,7 +92,10 @@ export function LibraryPage() {
 
     // Delete confirmation state
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState<{ type: 'folder' | 'generations'; id?: string } | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{
+        type: 'folder' | 'generations';
+        id?: string;
+    } | null>(null);
 
     // Fetch initial data
     useEffect(() => {
@@ -162,7 +165,7 @@ export function LibraryPage() {
 
     const handleConfirmDelete = async () => {
         if (!deleteTarget) return;
-        
+
         if (deleteTarget.type === 'folder' && deleteTarget.id) {
             const success = await deleteFolder(deleteTarget.id);
             if (success) {
@@ -193,7 +196,7 @@ export function LibraryPage() {
 
     const toggleSelect = (id: string) => {
         setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
         );
     };
 
@@ -278,27 +281,34 @@ export function LibraryPage() {
         return generations.filter((g) => g.type === 'audio');
     }, [generations]);
 
-    const {
-        currentTrack,
-        isPlaying,
-        getAudioTracks,
-        playTrack,
-    } = useAudio();
+    const { currentTrack, isPlaying, getAudioTracks, playTrack } = useAudio();
 
     const handleRemix = (gen: Generation) => {
-        router.push(
-            `/app/create/${gen.type}?prompt=${encodeURIComponent(
-                gen.prompt
-            )}&model=${encodeURIComponent(gen.model)}`
-        );
+        // Use model from generation, or default model for the type
+        const modelId =
+            gen.model ||
+            (gen.type === 'video' ? 'kling-2.6' : gen.type === 'image' ? 'nano-banana-pro' : '');
+        if (gen.type === 'audio') {
+            router.push(`/app/create/audio?prompt=${encodeURIComponent(gen.prompt)}`);
+        } else {
+            router.push(
+                `/app/create/${gen.type}/${modelId}?prompt=${encodeURIComponent(gen.prompt)}`,
+            );
+        }
     };
 
     const handleMakeVariations = (gen: Generation) => {
-        router.push(
-            `/app/create/${gen.type}?prompt=${encodeURIComponent(
-                gen.prompt
-            )}&model=${encodeURIComponent(gen.model)}&action=generate`
-        );
+        // For variations, navigate with the image/video as attachment
+        const assetUrl = gen.result_assets?.[0]?.url;
+        if (gen.type === 'audio') {
+            router.push(`/app/create/audio`);
+        } else if (gen.type === 'video') {
+            const url = `/app/create/video/kling-2.6${assetUrl ? `?image=${encodeURIComponent(assetUrl)}` : ''}`;
+            router.push(url);
+        } else {
+            const url = `/app/create/image/nano-banana-pro${assetUrl ? `?image=${encodeURIComponent(assetUrl)}` : ''}`;
+            router.push(url);
+        }
     };
 
     const showFoldersInMain = false;
@@ -317,7 +327,7 @@ export function LibraryPage() {
         toast.success(
             language === 'ru'
                 ? `Начато скачивание ${selectedIds.length} файлов`
-                : `Started downloading ${selectedIds.length} files`
+                : `Started downloading ${selectedIds.length} files`,
         );
     };
 
@@ -385,7 +395,7 @@ export function LibraryPage() {
                                                 onClick={() =>
                                                     handleOpenRenameFolder(
                                                         activeFolder.id,
-                                                        activeFolder.name
+                                                        activeFolder.name,
                                                     )
                                                 }
                                                 className="p-2 rounded-lg hover:bg-white/5 text-white/20 hover:text-white/60 transition-colors"
@@ -684,9 +694,18 @@ export function LibraryPage() {
                                                             totalTracks={tracks.length}
                                                             isCurrentTrack={isCurrentTrack}
                                                             isPlaying={isCurrentTrack && isPlaying}
-                                                            onClick={() => playTrack(gen, trackIdx, audioGenerations)}
+                                                            onClick={() =>
+                                                                playTrack(
+                                                                    gen,
+                                                                    trackIdx,
+                                                                    audioGenerations,
+                                                                )
+                                                            }
                                                             onDownload={() => {
-                                                                downloadFile(track.url, `audio-${gen.id}.mp3`);
+                                                                downloadFile(
+                                                                    track.url,
+                                                                    `audio-${gen.id}.mp3`,
+                                                                );
                                                             }}
                                                         />
                                                     );
@@ -759,13 +778,21 @@ export function LibraryPage() {
                 onConfirm={handleConfirmDelete}
                 title={
                     deleteTarget?.type === 'folder'
-                        ? language === 'ru' ? 'Удалить папку?' : 'Delete folder?'
-                        : language === 'ru' ? 'Удалить?' : 'Delete?'
+                        ? language === 'ru'
+                            ? 'Удалить папку?'
+                            : 'Delete folder?'
+                        : language === 'ru'
+                          ? 'Удалить?'
+                          : 'Delete?'
                 }
                 description={
                     deleteTarget?.type === 'folder'
-                        ? language === 'ru' ? 'Папка будет удалена. Генерации останутся в библиотеке.' : 'Folder will be deleted. Generations will remain in library.'
-                        : language === 'ru' ? 'Выбранные элементы будут удалены' : 'Selected items will be deleted'
+                        ? language === 'ru'
+                            ? 'Папка будет удалена. Генерации останутся в библиотеке.'
+                            : 'Folder will be deleted. Generations will remain in library.'
+                        : language === 'ru'
+                          ? 'Выбранные элементы будут удалены'
+                          : 'Selected items will be deleted'
                 }
             />
 
@@ -804,7 +831,6 @@ export function LibraryPage() {
                 audios={filteredGenerations.filter((g) => g.type === 'audio')}
                 onSelectAudio={setSelectedGeneration}
             />
-
         </div>
     );
 }

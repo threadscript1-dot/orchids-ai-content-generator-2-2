@@ -29,7 +29,7 @@ const TEMPLATES = [
             'Профессиональная предметная фотосъёмка товара для интернет-магазина. Чистый нейтральный фон, мягкий студийный свет, высокая резкость, точная цветопередача. Товар расположен по центру кадра, без лишних объектов, без шума. Коммерческий стиль, подходящий для карточки товара на маркетплейсе. Фотореализм, высокое качество, ощущение премиального продукта.',
         prompt_en:
             'Professional product photography for an online store. Clean neutral background, soft studio light, high sharpness, accurate color reproduction. The product is centered in the frame, no extra objects, no noise. Commercial style suitable for a marketplace product card. Photorealism, high quality, premium product feel.',
-        target: '/app/create/image',
+        target: '/app/create/image/nano-banana-pro',
     },
     {
         id: 'clothes',
@@ -51,7 +51,7 @@ const TEMPLATES = [
             'Портрет человека в анимационном стиле, вдохновлённом японской рисованной анимацией конца 90-х, студией Гибли. Мягкие линии, тёплая цветовая палитра, выразительные глаза, спокойное доброжелательное выражение лица. Плоское освещение без резких теней, акварельные текстуры, чистый фон с лёгким намёком на природу. Атмосфера уюта, спокойствия и лёгкой магии. Высокое качество, аккуратный контур, художественный стиль.',
         prompt_en:
             'Portrait of a person in animation style inspired by Japanese hand-drawn animation of the late 90s, Studio Ghibli. Soft lines, warm color palette, expressive eyes, calm friendly facial expression. Flat lighting without harsh shadows, watercolor textures, clean background with a light hint of nature. Atmosphere of comfort, peace and light magic. High quality, neat outline, artistic style.',
-        target: '/app/create/image',
+        target: '/app/create/image/nano-banana-pro',
     },
     {
         id: '3d-model',
@@ -62,7 +62,7 @@ const TEMPLATES = [
             'Создай коммерческую коллекционную фигурку персонажа с приложенного изображения в масштабе 1/7. Реалистичный 3D-стиль, высокая детализация, материалы выглядят физически корректно. Фигурка размещена на компьютерном столе в реальной обстановке. Под фигуркой — круглая прозрачная акриловая подставка. На экране компьютера отображается процесс 3D-моделирования этой фигурки. Рядом с монитором стоит коробка от игрушки, оформленная в стиле премиальных коллекционных фигур. На упаковке напечатаны оригинальные двухмерные иллюстрации этой фигурки. Кинематографичный свет, фотореализм, коммерческий уровень качества.',
         prompt_en:
             'Create a commercial collectible figure of the character from the attached image in 1/7 scale. Realistic 3D style, high detail, materials look physically correct. The figure is placed on a computer desk in a real environment. Under the figure is a round transparent acrylic stand. The computer screen displays the process of 3D modeling this figure. Next to the monitor is a toy box designed in the style of premium collectible figures. Original 2D illustrations of this figure are printed on the package. Cinematic light, photorealism, commercial quality level.',
-        target: '/app/create/image',
+        target: '/app/create/image/nano-banana-pro',
     },
     {
         id: 'face-swap',
@@ -73,7 +73,7 @@ const TEMPLATES = [
             'Заменить лицо персонажа на лицо с приложенной фотографии, сохранив естественные пропорции, выражение и освещение. Реалистичное совмещение, корректная перспектива, совпадение тона кожи и направления света. Без искажений, без артефактов, без изменения пола и возраста. Результат должен выглядеть как единая фотография.',
         prompt_en:
             "Replace the character's face with the face from the attached photo, maintaining natural proportions, expression and lighting. Realistic blending, correct perspective, matching skin tone and light direction. No distortions, no artifacts, no change in gender or age. The result should look like a single photograph.",
-        target: '/app/create/image',
+        target: '/app/create/image/nano-banana-pro',
     },
 ];
 
@@ -220,7 +220,7 @@ export function HomePage() {
             image: 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/banana-apple-manzano-exoticfruitscouk-905674-1768392693560.jpg?width=8000&height=8000&resize=contain',
             hoverImage:
                 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/banana-apple-manzano-exoticfruitscouk-905674-1768392693560.jpg?width=8000&height=8000&resize=contain',
-            href: '/app/create/image?model=nano',
+            href: '/app/create/image/nano-banana-pro',
             badge: 'ТОП',
         },
         ...TOOLS,

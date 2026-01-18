@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { api, API_BASE_URL } from '@/api/client';
 import { useAuthStore } from './auth-store';
+import { useModelsStore } from './models-store';
 
 export interface GenerationAsset {
     url: string;
@@ -50,7 +51,10 @@ interface GenerationState {
     stopPolling: (id: string) => void;
     stopAllPolling: () => void;
 
-    // Generation methods - Image
+    // Unified Generation
+    generateUnified: (modelId: string, params: Record<string, any>) => Promise<string | null>;
+
+    // Legacy/Specific Generation methods - Image
     generateImageFlux2: (params: Flux2TextToImageParams) => Promise<string | null>;
     generateImageFlux2I2I: (params: Flux2ImageToImageParams) => Promise<string | null>;
     generateImageImagen4Fast: (params: Imagen4Params) => Promise<string | null>;
@@ -246,6 +250,94 @@ const POLL_INTERVAL = 5000;
 const MAX_POLL_ATTEMPTS = 120;
 
 const pollingIntervals = new Map<string, NodeJS.Timeout>();
+
+/**
+ * Maps model IDs to their correct backend endpoints.
+ * The /models registry returns incorrect endpoints, so we maintain this mapping.
+ */
+function getEndpointForModel(
+    modelId: string,
+    type: 'image' | 'video' | 'audio',
+    params: Record<string, any>,
+): string {
+    const hasImages = params.image_urls?.length || params.input_urls?.length;
+
+    // Image model endpoints
+    const imageEndpoints: Record<string, string> = {
+        'flux-kontext': hasImages ? '/image/flux-kontext/edit' : '/image/flux-kontext/generate',
+        'gpt4o-image': hasImages ? '/image/gpt4o/edit' : '/image/gpt4o/generate',
+        'flux2-flex-t2i': '/image/flux-2/generate',
+        'flux2-flex-i2i': '/image/flux-2/generate',
+        'flux2-pro-t2i': '/image/flux-2/generate',
+        'flux2-pro-i2i': '/image/flux-2/generate',
+        'imagen4-fast': '/image/imagen4/fast',
+        'imagen4-ultra': '/image/imagen4/ultra',
+        'nano-banana': '/image/nano-banana/generate',
+        'nano-banana-pro': '/image/nano-banana/generate',
+        'nano-banana-edit': '/image/nano-banana/generate',
+        'nano-banana-pro-i2i': '/image/nano-banana/generate',
+        'seedream-4': '/image/seedream/generate',
+        'seedream-4-5': '/image/seedream/generate',
+        'ideogram-character': '/image/ideogram/character',
+        'ideogram-character-remix': '/image/ideogram/character-remix',
+        'ideogram-v3-reframe': '/image/ideogram/reframe',
+        'qwen-t2i': '/image/qwen/text-to-image',
+        'qwen-i2i': '/image/qwen/image-to-image',
+        'qwen-edit': '/image/qwen/edit',
+        'grok-imagine-t2i': '/image/grok-imagine/generate',
+        'gpt-image-1-5-t2i': '/image/gpt-1.5/generate',
+        'gpt-image-1-5-i2i': '/image/gpt-1.5/generate',
+    };
+
+    // Video model endpoints
+    const videoEndpoints: Record<string, string> = {
+        veo3: hasImages ? '/video/veo/image-to-video' : '/video/veo/text-to-video',
+        'veo3-fast': hasImages ? '/video/veo/image-to-video' : '/video/veo/text-to-video',
+        'runway-gen3': '/video/runway/text-to-video',
+        'runway-gen3-i2v': '/video/runway/image-to-video',
+        'runway-aleph': '/video/runway/video-to-video',
+        'luma-modify': '/video/luma/modify',
+        'sora2-t2v': '/video/sora-2/generate',
+        'sora2-i2v': '/video/sora-2/generate',
+        'sora2-characters': '/video/sora-2/generate',
+        'kling-t2v': '/video/kling/generate',
+        'kling-i2v': '/video/kling/generate',
+        'seedance-pro': '/video/seedance/generate',
+        'seedance-pro-i2v': '/video/seedance/generate',
+        'bytedance-v1-pro-t2v': '/video/bytedance/v1-pro-t2v',
+        'bytedance-v1-lite-t2v': '/video/bytedance/v1-lite-t2v',
+        'bytedance-pro-fast-i2v': '/video/bytedance/v1-pro-fast-i2v',
+        'bytedance-pro-i2v': '/video/bytedance/v1-pro-i2v',
+        'bytedance-lite-i2v': '/video/bytedance/v1-lite-i2v',
+        'hailuo-i2v-standard': '/video/hailuo/image-to-video-standard',
+        'hailuo-i2v-pro': '/video/hailuo/image-to-video-pro',
+        'wan-t2v': '/video/wan/generate',
+        'wan-i2v': '/video/wan/generate',
+        'wan-v2v': '/video/wan/video-to-video',
+        'wan-animate-move': '/video/wan/generate',
+        'wan-animate-replace': '/video/wan/generate',
+        'grok-imagine-t2v': '/video/grok-imagine/generate',
+        'grok-imagine-i2v': '/video/grok-imagine/generate',
+    };
+
+    // Audio model endpoints
+    const audioEndpoints: Record<string, string> = {
+        'suno-v4': '/audio/suno/generate-music',
+        'suno-v4-5': '/audio/suno/generate-music',
+        'suno-v5': '/audio/suno/generate-music',
+        'elevenlabs-tts': '/audio/elevenlabs/text-to-speech',
+    };
+
+    if (type === 'image') {
+        return imageEndpoints[modelId] || '/image/flux-2/generate';
+    } else if (type === 'video') {
+        return videoEndpoints[modelId] || '/video/kling/generate';
+    } else if (type === 'audio') {
+        return audioEndpoints[modelId] || '/audio/suno/generate-music';
+    }
+
+    return '/image/flux-2/generate';
+}
 
 export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generations: [],
@@ -484,11 +576,83 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
         set({ activePolling: new Set() });
     },
 
+    generateUnified: async (modelId: string, params: Record<string, any>) => {
+        set({ error: null });
+        const model = useModelsStore.getState().getModelById(modelId);
+
+        if (!model) {
+            console.error(`[generateUnified] Model ${modelId} not found`);
+            set({ error: `Model ${modelId} not found` });
+            return null;
+        }
+
+        // Get the correct endpoint using our mapping (model.endpoint from registry is incorrect)
+        const endpoint = getEndpointForModel(modelId, model.type, params);
+
+        try {
+            console.log(`[generateUnified] Calling ${endpoint} for model ${modelId}`, params);
+
+            // Use the mapped endpoint instead of model.endpoint
+            const { data, error } = await api.POST(endpoint as any, {
+                body: params,
+            });
+
+            if (error) {
+                const errData = error as { error?: string; message?: string } | undefined;
+                const errorMessage = errData?.message || errData?.error || 'Generation failed';
+                console.error(`[generateUnified] API error:`, error);
+                set({ error: errorMessage });
+                return null;
+            }
+
+            if (!data) {
+                console.error(`[generateUnified] No data returned from API`);
+                set({ error: 'Generation failed - no data returned' });
+                return null;
+            }
+
+            // Handle different response formats
+            const genData = data as {
+                id?: string;
+                generation_id?: string;
+                status?: string;
+                cost_credits?: number;
+            };
+            const generationId = genData.id || genData.generation_id;
+
+            if (!generationId) {
+                console.error(`[generateUnified] No generation ID in response:`, data);
+                set({ error: 'Generation failed - no ID returned' });
+                return null;
+            }
+
+            const optimisticGen: Generation = {
+                id: generationId,
+                type: model.type,
+                model: model.id,
+                status: 'processing',
+                prompt: params.prompt || '',
+                cost_credits: genData.cost_credits || model.credits_cost || 0,
+                created_at: new Date().toISOString(),
+            };
+
+            get().addGeneration(optimisticGen);
+            get().pollGenerationStatus(generationId);
+
+            console.log(`[generateUnified] Generation started: ${generationId}`);
+            return generationId;
+        } catch (err) {
+            console.error(`[generateUnified] Exception:`, err);
+            set({ error: err instanceof Error ? err.message : 'Generation error' });
+            return null;
+        }
+    },
+
     // Image generation methods
     generateImageFlux2: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/image/flux-2/text-to-image', {
+            const { data, error } = await api.POST('/image/flux-2/generate', {
                 body: params,
             });
 
@@ -521,7 +685,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateImageFlux2I2I: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/image/flux-2/image-to-image', {
+            const { data, error } = await api.POST('/image/flux-2/generate', {
                 body: params,
             });
 
@@ -620,7 +784,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateImageSeedream: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/image/seedream/text-to-image', {
+            const { data, error } = await api.POST('/image/seedream/generate', {
                 body: params,
             });
 
@@ -686,7 +850,9 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateImageGrokImagine: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/image/grok-imagine/text-to-image', {
+            // Note: Grok Imagine uses video endpoint now per backend update, but returns image?
+            // User requested /v2/video/grok-imagine/generate
+            const { data, error } = await api.POST('/video/grok-imagine/generate', {
                 body: params,
             });
 
@@ -698,7 +864,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             const genData = data as { id: string; status: string; cost_credits: number };
             const optimisticGen: Generation = {
                 id: genData.id,
-                type: 'image',
+                type: 'image', // Maintaining type as image based on prompt/component usage
                 model: 'grok-imagine',
                 status: 'processing',
                 prompt: params.prompt,
@@ -872,31 +1038,31 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             'gpt4o-image': params.input_urls?.length
                 ? '/image/gpt4o/edit'
                 : '/image/gpt4o/generate',
-            'flux2-flex-t2i': '/image/flux-2/text-to-image',
-            'flux2-flex-i2i': '/image/flux-2/image-to-image',
-            'flux2-pro-t2i': '/image/flux-2/text-to-image',
-            'flux2-pro-i2i': '/image/flux-2/image-to-image',
+            'flux2-flex-t2i': '/image/flux-2/generate',
+            'flux2-flex-i2i': '/image/flux-2/generate',
+            'flux2-pro-t2i': '/image/flux-2/generate',
+            'flux2-pro-i2i': '/image/flux-2/generate',
             'imagen4-fast': '/image/imagen4/fast',
             'imagen4-ultra': '/image/imagen4/ultra',
             'nano-banana': '/image/nano-banana/generate',
             'nano-banana-pro': '/image/nano-banana/generate',
             'nano-banana-edit': '/image/nano-banana/generate',
             'nano-banana-pro-i2i': '/image/nano-banana/generate',
-            'seedream-4': '/image/seedream/text-to-image',
-            'seedream-4-5': '/image/seedream/text-to-image',
+            'seedream-4': '/image/seedream/generate',
+            'seedream-4-5': '/image/seedream/generate',
             'ideogram-character': '/image/ideogram/character',
             'ideogram-character-remix': '/image/ideogram/character-remix',
             'ideogram-v3-reframe': '/image/ideogram/reframe',
             'qwen-t2i': '/image/qwen/text-to-image',
             'qwen-i2i': '/image/qwen/image-to-image',
             'qwen-edit': '/image/qwen/edit',
-            'grok-imagine-t2i': '/image/grok-imagine/text-to-image',
-            'z-image': '/image/flux-2/text-to-image', // fallback
+            'grok-imagine-t2i': '/video/grok-imagine/generate',
+            'z-image': '/image/flux-2/generate', // fallback
             'gpt-image-1-5-t2i': '/image/gpt4o/generate',
             'gpt-image-1-5-i2i': '/image/gpt4o/edit',
         };
 
-        const endpoint = modelEndpointMap[modelId] || '/image/flux-2/text-to-image';
+        const endpoint = modelEndpointMap[modelId] || '/image/flux-2/generate';
 
         try {
             const { data, error } = await api.POST(endpoint as any, {
@@ -933,7 +1099,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateVideoKling: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/video/kling/text-to-video', {
+            const { data, error } = await api.POST('/video/kling/generate', {
                 body: params,
             });
 
@@ -966,7 +1132,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateVideoKlingI2V: async (params) => {
         set({ error: null });
         try {
-            const { data, error } = await api.POST('/video/kling/image-to-video', {
+            const { data, error } = await api.POST('/video/kling/generate', {
                 body: params,
             });
 
@@ -999,9 +1165,11 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateVideoWan: async (params) => {
         set({ error: null });
         try {
-            const endpoint = params.image_urls?.length
-                ? '/video/wan/image-to-video'
-                : '/video/wan/text-to-video';
+            // const endpoint = params.image_urls?.length
+            //     ? '/video/wan/image-to-video'
+            //     : '/video/wan/text-to-video';
+            const endpoint = '/video/wan/generate';
+
             const { data, error } = await api.POST(endpoint as any, {
                 body: params,
             });
@@ -1071,9 +1239,11 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateVideoSora: async (params) => {
         set({ error: null });
         try {
-            const endpoint = params.image_urls?.length
-                ? '/video/sora-2/image-to-video'
-                : '/video/sora-2/text-to-video';
+            // const endpoint = params.image_urls?.length
+            //     ? '/video/sora-2/image-to-video'
+            //     : '/video/sora-2/text-to-video';
+            const endpoint = '/video/sora-2/generate';
+
             const { data, error } = await api.POST(endpoint as any, {
                 body: params,
             });
@@ -1190,11 +1360,11 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             'runway-gen3-i2v': '/video/runway/image-to-video',
             'runway-aleph': '/video/runway/video-to-video',
             'luma-modify': '/video/luma/modify',
-            'sora2-t2v': '/video/sora-2/text-to-video',
-            'sora2-i2v': '/video/sora-2/image-to-video',
-            'sora2-characters': '/video/sora-2/image-to-video',
-            'kling-t2v': '/video/kling/text-to-video',
-            'kling-i2v': '/video/kling/image-to-video',
+            'sora2-t2v': '/video/sora-2/generate',
+            'sora2-i2v': '/video/sora-2/generate',
+            'sora2-characters': '/video/sora-2/image-to-video', // assuming characters uses specific endpoint or also unified? keeping old for checks, but ideally should be unified or verify
+            'kling-t2v': '/video/kling/generate',
+            'kling-i2v': '/video/kling/generate',
             'seedance-pro': '/video/seedance/generate',
             'seedance-pro-i2v': '/video/seedance/generate',
             'bytedance-v1-pro-t2v': '/video/bytedance/v1-pro-t2v',
@@ -1204,18 +1374,16 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             'bytedance-lite-i2v': '/video/bytedance/v1-lite-i2v',
             'hailuo-i2v-standard': '/video/hailuo/image-to-video-standard',
             'hailuo-i2v-pro': '/video/hailuo/image-to-video-pro',
-            'wan-t2v': '/video/wan/text-to-video',
-            'wan-i2v': '/video/wan/image-to-video',
+            'wan-t2v': '/video/wan/generate',
+            'wan-i2v': '/video/wan/generate',
             'wan-v2v': '/video/wan/video-to-video',
-            'wan-animate-move': '/video/wan/image-to-video',
-            'wan-animate-replace': '/video/wan/image-to-video',
-            'grok-imagine-t2v': '/video/grok-imagine/text-to-video',
-            'grok-imagine-i2v': '/video/grok-imagine/image-to-video',
+            'wan-animate-move': '/video/wan/generate',
+            'wan-animate-replace': '/video/wan/generate',
+            'grok-imagine-t2v': '/video/grok-imagine/generate',
+            'grok-imagine-i2v': '/video/grok-imagine/generate',
         };
 
-        const endpoint =
-            modelEndpointMap[modelId] ||
-            (hasImages ? '/video/kling/image-to-video' : '/video/kling/text-to-video');
+        const endpoint = modelEndpointMap[modelId] || '/video/kling/generate';
 
         try {
             const { data, error } = await api.POST(endpoint as any, {
