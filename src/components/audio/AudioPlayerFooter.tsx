@@ -35,11 +35,11 @@ interface AudioPlayerFooterProps {
     audioProgress: number;
     audioDuration: number;
     volume: number;
-    speedPreset: 'normal' | 'slowed' | 'nightcore';
+    playbackSpeed: number;
     onTogglePlayPause: () => void;
     onSeek: (e: React.MouseEvent<HTMLDivElement>) => void;
     onVolumeChange: (e: React.MouseEvent<HTMLDivElement>) => void;
-    onSpeedPresetChange: (preset: 'normal' | 'slowed' | 'nightcore') => void;
+    onPlaybackSpeedChange: (value: number) => void;
     onPlayNext: () => void;
     onPlayPrev: () => void;
     formatDuration: (seconds: number) => string;
@@ -51,11 +51,11 @@ export function AudioPlayerFooter({
     audioProgress,
     audioDuration,
     volume,
-    speedPreset,
+    playbackSpeed,
     onTogglePlayPause,
     onSeek,
     onVolumeChange,
-    onSpeedPresetChange,
+    onPlaybackSpeedChange,
     onPlayNext,
     onPlayPrev,
     formatDuration,
@@ -64,32 +64,41 @@ export function AudioPlayerFooter({
     const volumeRef = useRef<HTMLDivElement>(null);
     const isDraggingRef = useRef(false);
 
-    const calculateVolume = useCallback((e: MouseEvent | React.MouseEvent) => {
-        if (!volumeRef.current) return;
-        const rect = volumeRef.current.getBoundingClientRect();
-        const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        onVolumeChange({ currentTarget: { getBoundingClientRect: () => rect }, clientX: e.clientX } as any);
-    }, [onVolumeChange]);
+    const calculateVolume = useCallback(
+        (e: MouseEvent | React.MouseEvent) => {
+            if (!volumeRef.current) return;
+            const rect = volumeRef.current.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            onVolumeChange({
+                currentTarget: { getBoundingClientRect: () => rect },
+                clientX: e.clientX,
+            } as any);
+        },
+        [onVolumeChange],
+    );
 
-    const handleVolumeMouseDown = useCallback((e: React.MouseEvent) => {
-        isDraggingRef.current = true;
-        calculateVolume(e);
+    const handleVolumeMouseDown = useCallback(
+        (e: React.MouseEvent) => {
+            isDraggingRef.current = true;
+            calculateVolume(e);
 
-        const handleMouseMove = (e: MouseEvent) => {
-            if (isDraggingRef.current) {
-                calculateVolume(e);
-            }
-        };
+            const handleMouseMove = (e: MouseEvent) => {
+                if (isDraggingRef.current) {
+                    calculateVolume(e);
+                }
+            };
 
-        const handleMouseUp = () => {
-            isDraggingRef.current = false;
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-        };
+            const handleMouseUp = () => {
+                isDraggingRef.current = false;
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            };
 
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-    }, [calculateVolume]);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        },
+        [calculateVolume],
+    );
 
     return (
         <footer className="fixed bottom-16 lg:bottom-0 left-0 right-0 h-[100px] lg:h-[110px] bg-[#0A0A0A]/95 backdrop-blur-2xl border-t border-white/5 flex flex-col z-50">
@@ -130,23 +139,25 @@ export function AudioPlayerFooter({
                     <div className="min-w-0 flex-1">
                         <h4 className="text-xs lg:text-sm font-bold truncate">
                             {currentTrack?.title ||
-                                (language === 'ru' ? 'Ничего не воспроизводится' : 'Nothing playing')}
+                                (language === 'ru'
+                                    ? 'Ничего не воспроизводится'
+                                    : 'Nothing playing')}
                         </h4>
                         <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest truncate">
                             {currentTrack
                                 ? `${formatDuration(audioProgress)} / ${formatDuration(audioDuration)}`
                                 : language === 'ru'
-                                ? 'Выберите трек'
-                                : 'Select a track'}
+                                  ? 'Выберите трек'
+                                  : 'Select a track'}
                         </p>
                     </div>
 
                     {/* Speed Preset Chips */}
                     <div className="hidden sm:flex items-center gap-1 p-1 bg-white/5 rounded-full">
                         <button
-                            onClick={() => onSpeedPresetChange('normal')}
+                            onClick={() => onPlaybackSpeedChange(1)}
                             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                                speedPreset === 'normal'
+                                playbackSpeed === 1
                                     ? 'bg-white text-black'
                                     : 'text-white/40 hover:text-white'
                             }`}
@@ -154,9 +165,9 @@ export function AudioPlayerFooter({
                             Normal
                         </button>
                         <button
-                            onClick={() => onSpeedPresetChange('slowed')}
+                            onClick={() => onPlaybackSpeedChange(0.85)}
                             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                                speedPreset === 'slowed'
+                                playbackSpeed === 0.85
                                     ? 'bg-[#6F00FF] text-white'
                                     : 'text-white/40 hover:text-white'
                             }`}
@@ -164,9 +175,9 @@ export function AudioPlayerFooter({
                             Slowed
                         </button>
                         <button
-                            onClick={() => onSpeedPresetChange('nightcore')}
+                            onClick={() => onPlaybackSpeedChange(1.25)}
                             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                                speedPreset === 'nightcore'
+                                playbackSpeed === 1.25
                                     ? 'bg-pink-500 text-white'
                                     : 'text-white/40 hover:text-white'
                             }`}

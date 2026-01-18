@@ -70,7 +70,7 @@ export function AudioDetailDialog({
     const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
     const { user } = useAuth();
-    
+
     const [selectedTrackIndex, setSelectedTrackIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -89,7 +89,7 @@ export function AudioDetailDialog({
         if (!gen?.result_assets) return [];
         const tracks: AudioTrack[] = [];
         const assets = gen.result_assets;
-        
+
         for (let i = 0; i < assets.length; i++) {
             const asset = assets[i];
             if (asset.mime?.startsWith('audio/') || asset.url?.endsWith('.mp3')) {
@@ -224,14 +224,21 @@ export function AudioDetailDialog({
     };
 
     const getTrackTitle = () => {
-        if (audio.prompt) {
-            const lines = audio.prompt.split('\n');
-            const firstLine = lines[0]?.trim();
-            if (firstLine && firstLine.length > 0 && firstLine.length < 60) {
-                return firstLine;
-            }
+        if (!audio?.prompt) {
+            return language === 'ru'
+                ? `Трек ${selectedTrackIndex + 1}`
+                : `Track ${selectedTrackIndex + 1}`;
         }
-        return language === 'ru' ? `Трек ${selectedTrackIndex + 1}` : `Track ${selectedTrackIndex + 1}`;
+
+        const lines = audio.prompt.split('\n');
+        const firstLine = lines[0]?.trim();
+        if (firstLine && firstLine.length > 0 && firstLine.length < 60) {
+            return firstLine;
+        }
+
+        return language === 'ru'
+            ? `Трек ${selectedTrackIndex + 1}`
+            : `Track ${selectedTrackIndex + 1}`;
     };
 
     const getArtistName = () => {
@@ -244,7 +251,7 @@ export function AudioDetailDialog({
         const idx = trackIndex ?? selectedTrackIndex;
         const track = tracks[idx];
         if (!track) return;
-        
+
         try {
             const response = await fetch(track.url);
             const blob = await response.blob();
@@ -282,7 +289,9 @@ export function AudioDetailDialog({
     };
 
     const handleExtend = () => {
-        router.push(`/app/create/audio?extend=${encodeURIComponent(currentTrack?.url || '')}&prompt=${encodeURIComponent(audio.prompt)}`);
+        router.push(
+            `/app/create/audio?extend=${encodeURIComponent(currentTrack?.url || '')}&prompt=${encodeURIComponent(audio.prompt)}`,
+        );
         onOpenChange(false);
     };
 
@@ -325,7 +334,9 @@ export function AudioDetailDialog({
                             <button
                                 onClick={handleNext}
                                 className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                disabled={audios.findIndex((a) => a.id === audio.id) === audios.length - 1}
+                                disabled={
+                                    audios.findIndex((a) => a.id === audio.id) === audios.length - 1
+                                }
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>
@@ -348,14 +359,12 @@ export function AudioDetailDialog({
                                 )}
                                 <div className="absolute inset-0 bg-black/20" />
                             </div>
-                            
+
                             <div className="text-center mb-6 lg:mb-8">
                                 <h2 className="text-lg lg:text-xl font-bold text-white truncate mb-1">
                                     {getTrackTitle()}
                                 </h2>
-                                <p className="text-sm text-white/50">
-                                    {getArtistName()}
-                                </p>
+                                <p className="text-sm text-white/50">{getArtistName()}</p>
                             </div>
                         </div>
 
@@ -473,7 +482,9 @@ export function AudioDetailDialog({
                                                 </div>
                                             )}
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                                <span className="text-[10px] font-bold">{idx + 1}</span>
+                                                <span className="text-[10px] font-bold">
+                                                    {idx + 1}
+                                                </span>
                                             </div>
                                         </button>
                                     ))}
@@ -487,10 +498,12 @@ export function AudioDetailDialog({
                                     {audio.prompt}
                                 </div>
                             )}
-                            
+
                             <div className="flex items-center gap-2 flex-wrap text-[10px] font-bold uppercase tracking-wider text-white/40">
                                 <span className="px-2 py-1 bg-white/5 rounded">{audio.model}</span>
-                                <span className="px-2 py-1 bg-white/5 rounded">{formatTime(duration)}</span>
+                                <span className="px-2 py-1 bg-white/5 rounded">
+                                    {formatTime(duration)}
+                                </span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
@@ -577,7 +590,10 @@ export function AudioDetailDialog({
                                 <button
                                     onClick={handleNext}
                                     className="p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                    disabled={audios.findIndex((a) => a.id === audio.id) === audios.length - 1}
+                                    disabled={
+                                        audios.findIndex((a) => a.id === audio.id) ===
+                                        audios.length - 1
+                                    }
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -618,15 +634,22 @@ export function AudioDetailDialog({
                                     </button>
                                 </div>
                                 <div className="text-sm text-white/70 leading-relaxed">
-                                    {audio.prompt?.slice(0, 100) || (language === 'ru' ? 'Без описания' : 'No description')}
+                                    {audio.prompt?.slice(0, 100) ||
+                                        (language === 'ru' ? 'Без описания' : 'No description')}
                                     {audio.prompt && audio.prompt.length > 100 && '...'}
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-3 flex-wrap text-[10px] font-bold uppercase tracking-wider text-white/50">
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{audio.model}</span>
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{formatTime(duration)}</span>
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{new Date(audio.created_at).toLocaleDateString()}</span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
+                                    {audio.model}
+                                </span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
+                                    {formatTime(duration)}
+                                </span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
+                                    {new Date(audio.created_at).toLocaleDateString()}
+                                </span>
                             </div>
                         </div>
 

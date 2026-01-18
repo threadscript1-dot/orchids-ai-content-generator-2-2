@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-14T19:53:01.786Z
+ * Generated from OpenAPI spec: 2026-01-18T17:54:20.994Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -1371,7 +1371,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video from text with Grok Imagine
-         * @description Creates a video from text prompt. Modes: fun, normal, spicy.
+         * @description Creates a video from text prompt. Optionally accepts image_urls for i2v mode. Modes: fun, normal, spicy.
          */
         post: operations["postVideoGrok-imagineText-to-video"];
         delete?: never;
@@ -1411,7 +1411,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video from text with Kling 2.6
-         * @description Creates a video from text. Duration: 5 or 10 seconds. Sound: true/false.
+         * @description Creates a video from text. Optionally accepts image_urls for image-to-video mode. Duration: 5 or 10 seconds. Sound: true/false.
          */
         post: operations["postVideoKlingText-to-video"];
         delete?: never;
@@ -1491,7 +1491,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video from text with Wan 2.6
-         * @description Duration: 5/10/15 seconds. Resolution: 720p/1080p.
+         * @description Optionally accepts image_urls for image-to-video mode. Duration: 5/10/15 seconds. Resolution: 720p/1080p.
          */
         post: operations["postVideoWanText-to-video"];
         delete?: never;
@@ -1611,7 +1611,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video with ByteDance V1 Pro
-         * @description High-quality text-to-video generation.
+         * @description Text-to-video. Optionally accepts image_url for image-to-video mode.
          */
         post: operations["postVideoBytedanceV1-pro-t2v"];
         delete?: never;
@@ -1631,7 +1631,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video with ByteDance V1 Lite
-         * @description Fast text-to-video generation.
+         * @description Fast text-to-video. Optionally accepts image_url for image-to-video mode.
          */
         post: operations["postVideoBytedanceV1-lite-t2v"];
         delete?: never;
@@ -1711,7 +1711,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video from text with Veo 3.1
-         * @description Creates a video from text prompt. Models: veo3 (quality) or veo3_fast (speed). Supports 16:9, 9:16, Auto aspect ratios.
+         * @description Creates a video from text prompt. Optionally accepts image_urls for reference-based generation. Models: veo3 (quality) or veo3_fast (speed). Supports 16:9, 9:16, Auto aspect ratios.
          */
         post: operations["postVideoVeoText-to-video"];
         delete?: never;
@@ -1751,7 +1751,7 @@ export interface paths {
         put?: never;
         /**
          * Generate video from text with Runway Gen-3
-         * @description Creates video from text. Duration: 5 or 10 seconds. Note: 1080p only available for 5s videos, 10s videos limited to 720p.
+         * @description Creates video from text. Optionally accepts image_url for i2v mode. Duration: 5 or 10 seconds. Note: 1080p only for 5s videos.
          */
         post: operations["postVideoRunwayText-to-video"];
         delete?: never;
@@ -1891,7 +1891,15 @@ export interface paths {
         put?: never;
         /**
          * Generate music with Suno
-         * @description Creates music from text. Models: V4, V4_5, V4_5PLUS, V4_5ALL, V5.
+         * @description Generate AI music.
+         *
+         *     **Modes:**
+         *     - **Simple** (custom_mode=false): Just provide prompt (max 500 chars). Lyrics auto-generated.
+         *     - **Custom** (custom_mode=true): Full control. Requires style + title. If instrumental=false, prompt = exact lyrics.
+         *
+         *     **Models:** V4 (4min max), V4_5/V4_5PLUS/V4_5ALL/V5 (8min max).
+         *
+         *     **Advanced params (custom_mode only):** negative_tags, vocal_gender, style_weight (0-1), weirdness_constraint (0-1), audio_weight (0-1), persona_id.
          */
         post: operations["postAudioSunoGenerate-music"];
         delete?: never;
@@ -6596,16 +6604,19 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "2:3" | "3:2" | "1:1" | "16:9" | "9:16";
                     mode?: "fun" | "normal" | "spicy";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "2:3" | "3:2" | "1:1" | "16:9" | "9:16";
                     mode?: "fun" | "normal" | "spicy";
                 };
                 "text/plain": {
                     prompt: string;
+                    image_urls?: string[];
                     aspect_ratio?: "2:3" | "3:2" | "1:1" | "16:9" | "9:16";
                     mode?: "fun" | "normal" | "spicy";
                 };
@@ -6710,19 +6721,22 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
-                    aspect_ratio: "1:1" | "16:9" | "9:16";
+                    image_urls?: string[];
+                    aspect_ratio?: "1:1" | "16:9" | "9:16";
                     duration: "5" | "10";
                     sound: boolean;
                 };
                 "multipart/form-data": {
                     prompt: string;
-                    aspect_ratio: "1:1" | "16:9" | "9:16";
+                    image_urls?: string[];
+                    aspect_ratio?: "1:1" | "16:9" | "9:16";
                     duration: "5" | "10";
                     sound: boolean;
                 };
                 "text/plain": {
                     prompt: string;
-                    aspect_ratio: "1:1" | "16:9" | "9:16";
+                    image_urls?: string[];
+                    aspect_ratio?: "1:1" | "16:9" | "9:16";
                     duration: "5" | "10";
                     sound: boolean;
                 };
@@ -6947,16 +6961,19 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    image_urls?: string[];
                     duration?: "5" | "10" | "15";
                     resolution?: "720p" | "1080p";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    image_urls?: string[];
                     duration?: "5" | "10" | "15";
                     resolution?: "720p" | "1080p";
                 };
                 "text/plain": {
                     prompt: string;
+                    image_urls?: string[];
                     duration?: "5" | "10" | "15";
                     resolution?: "720p" | "1080p";
                 };
@@ -7319,14 +7336,20 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
                 "text/plain": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
             };
@@ -7370,14 +7393,20 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
                 "text/plain": {
                     prompt: string;
+                    /** Format: uri */
+                    image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1";
                 };
             };
@@ -7592,24 +7621,30 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
+                    image_urls?: string[];
                     model?: "veo3" | "veo3_fast";
                     aspect_ratio?: "16:9" | "9:16" | "Auto";
+                    generation_type?: "TEXT_2_VIDEO" | "FIRST_AND_LAST_FRAMES_2_VIDEO" | "REFERENCE_2_VIDEO";
                     enable_translation?: boolean;
                     seed?: number;
                     watermark?: string;
                 };
                 "multipart/form-data": {
                     prompt: string;
+                    image_urls?: string[];
                     model?: "veo3" | "veo3_fast";
                     aspect_ratio?: "16:9" | "9:16" | "Auto";
+                    generation_type?: "TEXT_2_VIDEO" | "FIRST_AND_LAST_FRAMES_2_VIDEO" | "REFERENCE_2_VIDEO";
                     enable_translation?: boolean;
                     seed?: number;
                     watermark?: string;
                 };
                 "text/plain": {
                     prompt: string;
+                    image_urls?: string[];
                     model?: "veo3" | "veo3_fast";
                     aspect_ratio?: "16:9" | "9:16" | "Auto";
+                    generation_type?: "TEXT_2_VIDEO" | "FIRST_AND_LAST_FRAMES_2_VIDEO" | "REFERENCE_2_VIDEO";
                     enable_translation?: boolean;
                     seed?: number;
                     watermark?: string;
@@ -7724,21 +7759,27 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
-                    aspect_ratio: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
+                    /** Format: uri */
+                    image_url?: string;
+                    aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
                     duration: 5 | 10;
                     quality: "720p" | "1080p";
                     watermark?: string;
                 };
                 "multipart/form-data": {
                     prompt: string;
-                    aspect_ratio: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
+                    /** Format: uri */
+                    image_url?: string;
+                    aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
                     duration: 5 | 10;
                     quality: "720p" | "1080p";
                     watermark?: string;
                 };
                 "text/plain": {
                     prompt: string;
-                    aspect_ratio: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
+                    /** Format: uri */
+                    image_url?: string;
+                    aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
                     duration: 5 | 10;
                     quality: "720p" | "1080p";
                     watermark?: string;
@@ -8308,45 +8349,81 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    /** @description Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics. */
                     prompt: string;
+                    /** @description Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min. */
                     model: "V4" | "V4_5" | "V4_5PLUS" | "V4_5ALL" | "V5";
+                    /** @description Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics). */
                     custom_mode: boolean;
+                    /** @description Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required. */
                     instrumental: boolean;
+                    /** @description Music style/genre (e.g. "Pop, Upbeat, Electronic"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars. */
                     style?: string;
+                    /** @description Track title. Required in custom_mode=true. Max 80 chars. */
                     title?: string;
+                    /** @description Styles to exclude (e.g. "Heavy Metal, Screaming"). Only effective in custom_mode=true. */
                     negative_tags?: string;
+                    /** @description Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed. */
                     vocal_gender?: "m" | "f";
+                    /** @description Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true. */
                     style_weight?: number;
+                    /** @description Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true. */
                     weirdness_constraint?: number;
+                    /** @description Audio features balance (0-1). Only effective in custom_mode=true. */
                     audio_weight?: number;
+                    /** @description Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint. */
                     persona_id?: string;
                 };
                 "multipart/form-data": {
+                    /** @description Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics. */
                     prompt: string;
+                    /** @description Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min. */
                     model: "V4" | "V4_5" | "V4_5PLUS" | "V4_5ALL" | "V5";
+                    /** @description Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics). */
                     custom_mode: boolean;
+                    /** @description Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required. */
                     instrumental: boolean;
+                    /** @description Music style/genre (e.g. "Pop, Upbeat, Electronic"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars. */
                     style?: string;
+                    /** @description Track title. Required in custom_mode=true. Max 80 chars. */
                     title?: string;
+                    /** @description Styles to exclude (e.g. "Heavy Metal, Screaming"). Only effective in custom_mode=true. */
                     negative_tags?: string;
+                    /** @description Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed. */
                     vocal_gender?: "m" | "f";
+                    /** @description Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true. */
                     style_weight?: number;
+                    /** @description Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true. */
                     weirdness_constraint?: number;
+                    /** @description Audio features balance (0-1). Only effective in custom_mode=true. */
                     audio_weight?: number;
+                    /** @description Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint. */
                     persona_id?: string;
                 };
                 "text/plain": {
+                    /** @description Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics. */
                     prompt: string;
+                    /** @description Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min. */
                     model: "V4" | "V4_5" | "V4_5PLUS" | "V4_5ALL" | "V5";
+                    /** @description Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics). */
                     custom_mode: boolean;
+                    /** @description Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required. */
                     instrumental: boolean;
+                    /** @description Music style/genre (e.g. "Pop, Upbeat, Electronic"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars. */
                     style?: string;
+                    /** @description Track title. Required in custom_mode=true. Max 80 chars. */
                     title?: string;
+                    /** @description Styles to exclude (e.g. "Heavy Metal, Screaming"). Only effective in custom_mode=true. */
                     negative_tags?: string;
+                    /** @description Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed. */
                     vocal_gender?: "m" | "f";
+                    /** @description Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true. */
                     style_weight?: number;
+                    /** @description Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true. */
                     weirdness_constraint?: number;
+                    /** @description Audio features balance (0-1). Only effective in custom_mode=true. */
                     audio_weight?: number;
+                    /** @description Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint. */
                     persona_id?: string;
                 };
             };

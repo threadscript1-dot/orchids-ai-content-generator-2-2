@@ -13,7 +13,7 @@ import { useModelsStore } from '@/stores/models-store';
 import { useGenerationStore, Generation } from '@/stores/generation-store';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 
-import { AudioSidebar, AudioTrackCard, AudioPlayerFooter } from '@/components/audio';
+import { AudioSidebar, AudioTrackCard, AudioPlayerFooter, SunoModel } from '@/components/audio';
 
 export function AudioGenerationPage() {
     const { language } = useLanguage();
@@ -23,22 +23,29 @@ export function AudioGenerationPage() {
     const { audioModels, fetchModels } = useModelsStore();
     const { generations, generateAudioSuno, fetchHistory } = useGenerationStore();
 
-    // Local state
+    // Local state - Suno params
+    const [customMode, setCustomMode] = useState(true);
+    const [instrumental, setInstrumental] = useState(false);
     const [prompt, setPrompt] = useState('');
-    const [lyrics, setLyrics] = useState('');
-    const [songTitle, setSongTitle] = useState('');
     const [style, setStyle] = useState('');
-    const [model, setModel] = useState('');
+    const [title, setTitle] = useState('');
+    const [model, setModel] = useState<SunoModel>('V5');
+    const [negativeTags, setNegativeTags] = useState('');
+    const [vocalGender, setVocalGender] = useState<'m' | 'f' | undefined>(undefined);
+    const [styleWeight, setStyleWeight] = useState(0.5);
+    const [weirdnessConstraint, setWeirdnessConstraint] = useState(0.5);
+    const [audioWeight, setAudioWeight] = useState(0.5);
+
+    // UI state
     const [isGenerating, setIsGenerating] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
-    const [weirdness, setWeirdness] = useState([50]);
 
     // Filter generations to only show audio and apply search
     const audioGenerations = useMemo(() => {
         const audioOnly = generations.filter((g) => g.type === 'audio');
         if (!searchQuery.trim()) return audioOnly;
-        
+
         const query = searchQuery.toLowerCase();
         return audioOnly.filter((g) => {
             const prompt = g.prompt?.toLowerCase() || '';
@@ -76,48 +83,60 @@ export function AudioGenerationPage() {
         fetchHistory(true);
     }, [fetchModels, fetchHistory]);
 
-    // Set default model when models are loaded (prefer Suno V5)
-    useEffect(() => {
-        if (audioModels.length > 0 && !model) {
-            const sunoV5 = audioModels.find(m => m.name.toLowerCase().includes('v5'));
-            setModel(sunoV5?.id || audioModels[0].id);
-        }
-    }, [audioModels, model]);
-
     // Handle URL params
     useEffect(() => {
         const promptParam = searchParams.get('prompt');
-        if (promptParam && audioModels.length > 0) {
+        if (promptParam) {
             setPrompt(decodeURIComponent(promptParam));
         }
-    }, [searchParams, audioModels]);
+    }, [searchParams]);
+
+    // Credits cost (could be dynamic based on model in the future)
+    const creditsCost = 10;
 
     const handleGenerate = async () => {
-        if (!prompt.trim() && !lyrics.trim() && !style.trim()) return;
-
         setIsGenerating(true);
         if (window.innerWidth < 1024) {
             setIsSidebarMinimized(true);
         }
 
         try {
-            const hasLyrics = lyrics.trim().length > 0;
-            const generationId = await generateAudioSuno({
-                prompt: hasLyrics ? lyrics : prompt,
-                model: 'V5',
-                custom_mode: hasLyrics,
-                instrumental: false,
-                style: style || undefined,
-                title: songTitle || undefined,
-                style_weight: weirdness[0] / 100,
-            });
+            const params: Parameters<typeof generateAudioSuno>[0] = {
+                model,
+                custom_mode: customMode,
+                instrumental,
+            };
+
+            // Add prompt based on mode
+            if (!customMode) {
+                params.prompt = prompt;
+            } else if (!instrumental) {
+                params.prompt = prompt;
+                params.style = style;
+                params.title = title;
+            } else {
+                params.style = style;
+                params.title = title;
+            }
+
+            // Add advanced params only in custom mode
+            if (customMode) {
+                if (negativeTags.trim()) params.negative_tags = negativeTags;
+                if (vocalGender && !instrumental) params.vocal_gender = vocalGender;
+                if (styleWeight !== 0.5) params.style_weight = styleWeight;
+                if (weirdnessConstraint !== 0.5) params.weirdness_constraint = weirdnessConstraint;
+                if (audioWeight !== 0.5) params.audio_weight = audioWeight;
+            }
+
+            const generationId = await generateAudioSuno(params);
 
             if (generationId) {
                 toast.success(language === 'ru' ? 'Генерация запущена' : 'Generation started');
+                // Reset form
                 setPrompt('');
-                setLyrics('');
-                setSongTitle('');
                 setStyle('');
+                setTitle('');
+                setNegativeTags('');
             } else {
                 toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
             }
@@ -134,23 +153,33 @@ export function AudioGenerationPage() {
             <div className="flex flex-1 overflow-hidden relative">
                 {/* Sidebar */}
                 <AudioSidebar
+                    customMode={customMode}
+                    onCustomModeChange={setCustomMode}
+                    instrumental={instrumental}
+                    onInstrumentalChange={setInstrumental}
                     prompt={prompt}
                     onPromptChange={setPrompt}
-                    lyrics={lyrics}
-                    onLyricsChange={setLyrics}
-                    songTitle={songTitle}
-                    onSongTitleChange={setSongTitle}
                     style={style}
                     onStyleChange={setStyle}
-                    models={audioModels}
-                    selectedModelId={model}
+                    title={title}
+                    onTitleChange={setTitle}
+                    model={model}
                     onModelChange={setModel}
-                    weirdness={weirdness}
-                    onWeirdnessChange={setWeirdness}
+                    negativeTags={negativeTags}
+                    onNegativeTagsChange={setNegativeTags}
+                    vocalGender={vocalGender}
+                    onVocalGenderChange={setVocalGender}
+                    styleWeight={styleWeight}
+                    onStyleWeightChange={setStyleWeight}
+                    weirdnessConstraint={weirdnessConstraint}
+                    onWeirdnessConstraintChange={setWeirdnessConstraint}
+                    audioWeight={audioWeight}
+                    onAudioWeightChange={setAudioWeight}
                     isGenerating={isGenerating}
                     onGenerate={handleGenerate}
                     isSidebarMinimized={isSidebarMinimized}
                     onToggleSidebar={() => setIsSidebarMinimized(!isSidebarMinimized)}
+                    creditsCost={creditsCost}
                 />
 
                 {/* Main Content Area */}
@@ -158,7 +187,10 @@ export function AudioGenerationPage() {
                     {/* Top Header with Search */}
                     <header className="p-6 flex items-center justify-between gap-6 sticky top-0 z-40 pointer-events-none">
                         <div className="flex items-center gap-4 sm:gap-6 pointer-events-auto">
-                            <Link href="/app" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                            <Link
+                                href="/app"
+                                className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                            >
                                 <ArrowLeft className="w-5 h-5" />
                             </Link>
                             <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">

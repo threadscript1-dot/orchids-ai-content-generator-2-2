@@ -216,14 +216,17 @@ export interface GenericVideoParams {
 }
 
 export interface SunoParams {
-    prompt: string;
+    prompt?: string;
     model: 'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5';
     custom_mode: boolean;
     instrumental: boolean;
     style?: string;
     title?: string;
+    negative_tags?: string;
     vocal_gender?: 'm' | 'f';
     style_weight?: number;
+    weirdness_constraint?: number;
+    audio_weight?: number;
 }
 
 export interface TopazUpscaleParams {
@@ -374,7 +377,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
                         : [...state.generations, ...historyData.data];
                     // Ensure uniqueness by ID
                     const uniqueGenerations = Array.from(
-                        new Map(newGenerations.map((g) => [g.id, g])).values()
+                        new Map(newGenerations.map((g) => [g.id, g])).values(),
                     );
 
                     // Apply liked status from likedIds
@@ -1249,8 +1252,13 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
     generateAudioSuno: async (params) => {
         set({ error: null });
         try {
+            // For instrumental tracks in custom mode, prompt can be empty
+            const body = {
+                ...params,
+                prompt: params.prompt || '',
+            };
             const { data, error } = await api.POST('/audio/suno/generate-music', {
-                body: params,
+                body,
             });
 
             if (error || !data) {
@@ -1264,7 +1272,7 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
                 type: 'audio',
                 model: 'suno',
                 status: 'processing',
-                prompt: params.prompt,
+                prompt: body.prompt,
                 cost_credits: genData.cost_credits,
                 created_at: new Date().toISOString(),
             };

@@ -17402,7 +17402,7 @@
           "Video - Grok Imagine"
         ],
         "summary": "Generate video from text with Grok Imagine",
-        "description": "Creates a video from text prompt. Modes: fun, normal, spicy.",
+        "description": "Creates a video from text prompt. Optionally accepts image_urls for i2v mode. Modes: fun, normal, spicy.",
         "requestBody": {
           "required": true,
           "content": {
@@ -17414,6 +17414,15 @@
                     "minLength": 1,
                     "maxLength": 5000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "aspect_ratio": {
                     "anyOf": [
@@ -17470,6 +17479,15 @@
                     "maxLength": 5000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -17524,6 +17542,15 @@
                     "minLength": 1,
                     "maxLength": 5000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "aspect_ratio": {
                     "anyOf": [
@@ -17902,7 +17929,7 @@
           "Video - Kling"
         ],
         "summary": "Generate video from text with Kling 2.6",
-        "description": "Creates a video from text. Duration: 5 or 10 seconds. Sound: true/false.",
+        "description": "Creates a video from text. Optionally accepts image_urls for image-to-video mode. Duration: 5 or 10 seconds. Sound: true/false.",
         "requestBody": {
           "required": true,
           "content": {
@@ -17914,6 +17941,15 @@
                     "minLength": 1,
                     "maxLength": 1000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "aspect_ratio": {
                     "anyOf": [
@@ -17949,7 +17985,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "sound"
                 ]
@@ -17964,6 +17999,15 @@
                     "maxLength": 1000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -17998,7 +18042,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "sound"
                 ]
@@ -18013,6 +18056,15 @@
                     "maxLength": 1000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "maxItems": 1,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -18047,7 +18099,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "sound"
                 ]
@@ -18851,7 +18902,7 @@
           "Video - Wan"
         ],
         "summary": "Generate video from text with Wan 2.6",
-        "description": "Duration: 5/10/15 seconds. Resolution: 720p/1080p.",
+        "description": "Optionally accepts image_urls for image-to-video mode. Duration: 5/10/15 seconds. Resolution: 720p/1080p.",
         "requestBody": {
           "required": true,
           "content": {
@@ -18863,6 +18914,15 @@
                     "minLength": 1,
                     "maxLength": 5000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "duration": {
                     "anyOf": [
@@ -18907,6 +18967,15 @@
                     "maxLength": 5000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "duration": {
                     "anyOf": [
                       {
@@ -18949,6 +19018,15 @@
                     "minLength": 1,
                     "maxLength": 5000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "duration": {
                     "anyOf": [
@@ -20327,7 +20405,7 @@
           "Video - ByteDance"
         ],
         "summary": "Generate video with ByteDance V1 Pro",
-        "description": "High-quality text-to-video generation.",
+        "description": "Text-to-video. Optionally accepts image_url for image-to-video mode.",
         "requestBody": {
           "required": true,
           "content": {
@@ -20338,6 +20416,10 @@
                   "prompt": {
                     "minLength": 1,
                     "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "format": "uri",
                     "type": "string"
                   },
                   "aspect_ratio": {
@@ -20371,6 +20453,10 @@
                     "maxLength": 2500,
                     "type": "string"
                   },
+                  "image_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -20400,6 +20486,10 @@
                   "prompt": {
                     "minLength": 1,
                     "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "format": "uri",
                     "type": "string"
                   },
                   "aspect_ratio": {
@@ -20508,7 +20598,7 @@
           "Video - ByteDance"
         ],
         "summary": "Generate video with ByteDance V1 Lite",
-        "description": "Fast text-to-video generation.",
+        "description": "Fast text-to-video. Optionally accepts image_url for image-to-video mode.",
         "requestBody": {
           "required": true,
           "content": {
@@ -20519,6 +20609,10 @@
                   "prompt": {
                     "minLength": 1,
                     "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "format": "uri",
                     "type": "string"
                   },
                   "aspect_ratio": {
@@ -20552,6 +20646,10 @@
                     "maxLength": 2500,
                     "type": "string"
                   },
+                  "image_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -20581,6 +20679,10 @@
                   "prompt": {
                     "minLength": 1,
                     "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "format": "uri",
                     "type": "string"
                   },
                   "aspect_ratio": {
@@ -21268,7 +21370,7 @@
           "Video - Veo 3.1"
         ],
         "summary": "Generate video from text with Veo 3.1",
-        "description": "Creates a video from text prompt. Models: veo3 (quality) or veo3_fast (speed). Supports 16:9, 9:16, Auto aspect ratios.",
+        "description": "Creates a video from text prompt. Optionally accepts image_urls for reference-based generation. Models: veo3 (quality) or veo3_fast (speed). Supports 16:9, 9:16, Auto aspect ratios.",
         "requestBody": {
           "required": true,
           "content": {
@@ -21280,6 +21382,15 @@
                     "minLength": 1,
                     "maxLength": 2000,
                     "type": "string"
+                  },
+                  "image_urls": {
+                    "maxItems": 3,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
                   },
                   "model": {
                     "anyOf": [
@@ -21305,6 +21416,22 @@
                       },
                       {
                         "const": "Auto",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "generation_type": {
+                    "anyOf": [
+                      {
+                        "const": "TEXT_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FIRST_AND_LAST_FRAMES_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REFERENCE_2_VIDEO",
                         "type": "string"
                       }
                     ]
@@ -21335,6 +21462,15 @@
                     "maxLength": 2000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "maxItems": 3,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "model": {
                     "anyOf": [
                       {
@@ -21359,6 +21495,22 @@
                       },
                       {
                         "const": "Auto",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "generation_type": {
+                    "anyOf": [
+                      {
+                        "const": "TEXT_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FIRST_AND_LAST_FRAMES_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REFERENCE_2_VIDEO",
                         "type": "string"
                       }
                     ]
@@ -21389,6 +21541,15 @@
                     "maxLength": 2000,
                     "type": "string"
                   },
+                  "image_urls": {
+                    "maxItems": 3,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
                   "model": {
                     "anyOf": [
                       {
@@ -21413,6 +21574,22 @@
                       },
                       {
                         "const": "Auto",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "generation_type": {
+                    "anyOf": [
+                      {
+                        "const": "TEXT_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FIRST_AND_LAST_FRAMES_2_VIDEO",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REFERENCE_2_VIDEO",
                         "type": "string"
                       }
                     ]
@@ -21846,7 +22023,7 @@
           "Video - Runway"
         ],
         "summary": "Generate video from text with Runway Gen-3",
-        "description": "Creates video from text. Duration: 5 or 10 seconds. Note: 1080p only available for 5s videos, 10s videos limited to 720p.",
+        "description": "Creates video from text. Optionally accepts image_url for i2v mode. Duration: 5 or 10 seconds. Note: 1080p only for 5s videos.",
         "requestBody": {
           "required": true,
           "content": {
@@ -21857,6 +22034,10 @@
                   "prompt": {
                     "minLength": 1,
                     "maxLength": 1800,
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "format": "uri",
                     "type": "string"
                   },
                   "aspect_ratio": {
@@ -21913,7 +22094,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "quality"
                 ]
@@ -21928,6 +22108,10 @@
                     "maxLength": 1800,
                     "type": "string"
                   },
+                  "image_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -21982,7 +22166,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "quality"
                 ]
@@ -21997,6 +22180,10 @@
                     "maxLength": 1800,
                     "type": "string"
                   },
+                  "image_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
                   "aspect_ratio": {
                     "anyOf": [
                       {
@@ -22051,7 +22238,6 @@
                 },
                 "required": [
                   "prompt",
-                  "aspect_ratio",
                   "duration",
                   "quality"
                 ]
@@ -23563,20 +23749,22 @@
           "Audio - Suno"
         ],
         "summary": "Generate music with Suno",
-        "description": "Creates music from text. Models: V4, V4_5, V4_5PLUS, V4_5ALL, V5.",
+        "description": "Generate AI music.\n\n**Modes:**\n- **Simple** (custom_mode=false): Just provide prompt (max 500 chars). Lyrics auto-generated.\n- **Custom** (custom_mode=true): Full control. Requires style + title. If instrumental=false, prompt = exact lyrics.\n\n**Models:** V4 (4min max), V4_5/V4_5PLUS/V4_5ALL/V5 (8min max).\n\n**Advanced params (custom_mode only):** negative_tags, vocal_gender, style_weight (0-1), weirdness_constraint (0-1), audio_weight (0-1), persona_id.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
+                "description": "Suno music generation request.\n\n**Mode Logic:**\n- custom_mode=false: Simple mode. Only prompt required (max 500 chars). Lyrics auto-generated. Hide style/title/advanced fields.\n- custom_mode=true + instrumental=true: Style + title required. Hide prompt field (or use for style hints).\n- custom_mode=true + instrumental=false: Style + title + prompt (as exact lyrics) required.\n\n**Advanced params (custom_mode=true only):** negative_tags, vocal_gender, style_weight, weirdness_constraint, audio_weight, persona_id.",
                 "type": "object",
                 "properties": {
                   "prompt": {
-                    "minLength": 1,
                     "maxLength": 5000,
+                    "description": "Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics.",
                     "type": "string"
                   },
                   "model": {
+                    "description": "Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min.",
                     "anyOf": [
                       {
                         "const": "V4",
@@ -23601,23 +23789,29 @@
                     ]
                   },
                   "custom_mode": {
+                    "description": "Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics).",
                     "type": "boolean"
                   },
                   "instrumental": {
+                    "description": "Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required.",
                     "type": "boolean"
                   },
                   "style": {
                     "maxLength": 1000,
+                    "description": "Music style/genre (e.g. \"Pop, Upbeat, Electronic\"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars.",
                     "type": "string"
                   },
                   "title": {
                     "maxLength": 80,
+                    "description": "Track title. Required in custom_mode=true. Max 80 chars.",
                     "type": "string"
                   },
                   "negative_tags": {
+                    "description": "Styles to exclude (e.g. \"Heavy Metal, Screaming\"). Only effective in custom_mode=true.",
                     "type": "string"
                   },
                   "vocal_gender": {
+                    "description": "Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed.",
                     "anyOf": [
                       {
                         "const": "m",
@@ -23632,19 +23826,23 @@
                   "style_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "weirdness_constraint": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "audio_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Audio features balance (0-1). Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "persona_id": {
+                    "description": "Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint.",
                     "type": "string"
                   }
                 },
@@ -23658,14 +23856,16 @@
             },
             "multipart/form-data": {
               "schema": {
+                "description": "Suno music generation request.\n\n**Mode Logic:**\n- custom_mode=false: Simple mode. Only prompt required (max 500 chars). Lyrics auto-generated. Hide style/title/advanced fields.\n- custom_mode=true + instrumental=true: Style + title required. Hide prompt field (or use for style hints).\n- custom_mode=true + instrumental=false: Style + title + prompt (as exact lyrics) required.\n\n**Advanced params (custom_mode=true only):** negative_tags, vocal_gender, style_weight, weirdness_constraint, audio_weight, persona_id.",
                 "type": "object",
                 "properties": {
                   "prompt": {
-                    "minLength": 1,
                     "maxLength": 5000,
+                    "description": "Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics.",
                     "type": "string"
                   },
                   "model": {
+                    "description": "Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min.",
                     "anyOf": [
                       {
                         "const": "V4",
@@ -23690,23 +23890,29 @@
                     ]
                   },
                   "custom_mode": {
+                    "description": "Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics).",
                     "type": "boolean"
                   },
                   "instrumental": {
+                    "description": "Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required.",
                     "type": "boolean"
                   },
                   "style": {
                     "maxLength": 1000,
+                    "description": "Music style/genre (e.g. \"Pop, Upbeat, Electronic\"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars.",
                     "type": "string"
                   },
                   "title": {
                     "maxLength": 80,
+                    "description": "Track title. Required in custom_mode=true. Max 80 chars.",
                     "type": "string"
                   },
                   "negative_tags": {
+                    "description": "Styles to exclude (e.g. \"Heavy Metal, Screaming\"). Only effective in custom_mode=true.",
                     "type": "string"
                   },
                   "vocal_gender": {
+                    "description": "Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed.",
                     "anyOf": [
                       {
                         "const": "m",
@@ -23721,19 +23927,23 @@
                   "style_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "weirdness_constraint": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "audio_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Audio features balance (0-1). Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "persona_id": {
+                    "description": "Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint.",
                     "type": "string"
                   }
                 },
@@ -23747,14 +23957,16 @@
             },
             "text/plain": {
               "schema": {
+                "description": "Suno music generation request.\n\n**Mode Logic:**\n- custom_mode=false: Simple mode. Only prompt required (max 500 chars). Lyrics auto-generated. Hide style/title/advanced fields.\n- custom_mode=true + instrumental=true: Style + title required. Hide prompt field (or use for style hints).\n- custom_mode=true + instrumental=false: Style + title + prompt (as exact lyrics) required.\n\n**Advanced params (custom_mode=true only):** negative_tags, vocal_gender, style_weight, weirdness_constraint, audio_weight, persona_id.",
                 "type": "object",
                 "properties": {
                   "prompt": {
-                    "minLength": 1,
                     "maxLength": 5000,
+                    "description": "Text prompt or lyrics. In custom_mode=false: auto-generates lyrics from this (max 500 chars). In custom_mode=true with instrumental=false: used as exact lyrics.",
                     "type": "string"
                   },
                   "model": {
+                    "description": "Model version. V4: max 4min. V4_5/V4_5PLUS/V4_5ALL/V5: max 8min.",
                     "anyOf": [
                       {
                         "const": "V4",
@@ -23779,23 +23991,29 @@
                     ]
                   },
                   "custom_mode": {
+                    "description": "Enable advanced customization. false=simple mode (only prompt needed, max 500 chars, lyrics auto-generated). true=full control (style/title required, prompt used as exact lyrics).",
                     "type": "boolean"
                   },
                   "instrumental": {
+                    "description": "Generate instrumental only (no vocals). In custom_mode=true: if true, style+title required; if false, style+title+prompt(lyrics) required.",
                     "type": "boolean"
                   },
                   "style": {
                     "maxLength": 1000,
+                    "description": "Music style/genre (e.g. \"Pop, Upbeat, Electronic\"). Required in custom_mode=true. V4: max 200 chars, V4_5+: max 1000 chars.",
                     "type": "string"
                   },
                   "title": {
                     "maxLength": 80,
+                    "description": "Track title. Required in custom_mode=true. Max 80 chars.",
                     "type": "string"
                   },
                   "negative_tags": {
+                    "description": "Styles to exclude (e.g. \"Heavy Metal, Screaming\"). Only effective in custom_mode=true.",
                     "type": "string"
                   },
                   "vocal_gender": {
+                    "description": "Preferred vocal gender: m=male, f=female. Only effective in custom_mode=true. Increases probability but not guaranteed.",
                     "anyOf": [
                       {
                         "const": "m",
@@ -23810,19 +24028,23 @@
                   "style_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Style adherence strength (0-1). Higher = stricter style following. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "weirdness_constraint": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Creative deviation (0-1). Higher = more experimental. Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "audio_weight": {
                     "minimum": 0,
                     "maximum": 1,
+                    "description": "Audio features balance (0-1). Only effective in custom_mode=true.",
                     "type": "number"
                   },
                   "persona_id": {
+                    "description": "Persona ID for consistent voice/style. Only effective in custom_mode=true. Get from /generate-persona endpoint.",
                     "type": "string"
                   }
                 },
