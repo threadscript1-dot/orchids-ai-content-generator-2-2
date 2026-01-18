@@ -10,10 +10,10 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/lib/language-context';
 import { downloadFile } from '@/lib/utils';
 import { useModelsStore } from '@/stores/models-store';
-import { useGenerationStore, Generation } from '@/stores/generation-store';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useGenerationStore } from '@/stores/generation-store';
+import { useAudio } from '@/context/audio-context';
 
-import { AudioSidebar, AudioTrackCard, AudioPlayerFooter, SunoModel } from '@/components/audio';
+import { AudioSidebar, AudioTrackCard, SunoModel } from '@/components/audio';
 
 export function AudioGenerationPage() {
     const { language } = useLanguage();
@@ -56,26 +56,11 @@ export function AudioGenerationPage() {
 
     // Audio player hook
     const {
-        audioRef,
         currentTrack,
         isPlaying,
-        setIsPlaying,
-        audioProgress,
-        audioDuration,
-        volume,
-        playbackSpeed,
-        setPlaybackSpeed,
         getAudioTracks,
         playTrack,
-        togglePlayPause,
-        handleTimeUpdate,
-        handleLoadedMetadata,
-        handleSeek,
-        handleVolumeChange,
-        playNextTrack,
-        playPrevTrack,
-        formatDuration,
-    } = useAudioPlayer(audioGenerations);
+    } = useAudio();
 
     // Fetch models and history on mount
     useEffect(() => {
@@ -265,7 +250,7 @@ export function AudioGenerationPage() {
                                                 totalTracks={tracks.length}
                                                 isCurrentTrack={isCurrentTrack}
                                                 isPlaying={isCurrentTrack && isPlaying}
-                                                onClick={() => playTrack(gen, trackIdx)}
+                                                onClick={() => playTrack(gen, trackIdx, audioGenerations)}
                                                 onDownload={() => {
                                                     downloadFile(track.url, `audio-${gen.id}.mp3`);
                                                 }}
@@ -279,32 +264,6 @@ export function AudioGenerationPage() {
                 </main>
             </div>
 
-            {/* Hidden Audio Element */}
-            <audio
-                ref={audioRef}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onEnded={playNextTrack}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-            />
-
-            {/* Bottom Audio Player */}
-            <AudioPlayerFooter
-                currentTrack={currentTrack}
-                isPlaying={isPlaying}
-                audioProgress={audioProgress}
-                audioDuration={audioDuration}
-                volume={volume}
-                playbackSpeed={playbackSpeed}
-                onTogglePlayPause={togglePlayPause}
-                onSeek={handleSeek}
-                onVolumeChange={handleVolumeChange}
-                onPlaybackSpeedChange={setPlaybackSpeed}
-                onPlayNext={playNextTrack}
-                onPlayPrev={playPrevTrack}
-                formatDuration={formatDuration}
-            />
         </div>
     );
 }

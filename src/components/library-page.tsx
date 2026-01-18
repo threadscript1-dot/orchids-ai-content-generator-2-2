@@ -41,8 +41,8 @@ import { ImageDetailDialog } from '@/components/dialogs/ImageDetailDialog';
 import { VideoDetailDialog } from '@/components/dialogs/VideoDetailDialog';
 import { AudioDetailDialog } from '@/components/dialogs/AudioDetailDialog';
 import { useModelsStore } from '@/stores/models-store';
-import { AudioTrackCard, AudioPlayerFooter } from '@/components/audio';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { AudioTrackCard } from '@/components/audio';
+import { useAudio } from '@/context/audio-context';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -279,26 +279,11 @@ export function LibraryPage() {
     }, [generations]);
 
     const {
-        audioRef,
         currentTrack,
         isPlaying,
-        setIsPlaying,
-        audioProgress,
-        audioDuration,
-        volume,
-        playbackSpeed,
-        setPlaybackSpeed,
         getAudioTracks,
         playTrack,
-        togglePlayPause,
-        handleTimeUpdate,
-        handleLoadedMetadata,
-        handleSeek,
-        handleVolumeChange,
-        playNextTrack,
-        playPrevTrack,
-        formatDuration,
-    } = useAudioPlayer(audioGenerations);
+    } = useAudio();
 
     const handleRemix = (gen: Generation) => {
         router.push(
@@ -699,7 +684,7 @@ export function LibraryPage() {
                                                             totalTracks={tracks.length}
                                                             isCurrentTrack={isCurrentTrack}
                                                             isPlaying={isCurrentTrack && isPlaying}
-                                                            onClick={() => playTrack(gen, trackIdx)}
+                                                            onClick={() => playTrack(gen, trackIdx, audioGenerations)}
                                                             onDownload={() => {
                                                                 downloadFile(track.url, `audio-${gen.id}.mp3`);
                                                             }}
@@ -820,34 +805,6 @@ export function LibraryPage() {
                 onSelectAudio={setSelectedGeneration}
             />
 
-            {/* Hidden Audio Element */}
-            <audio
-                ref={audioRef}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onEnded={playNextTrack}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-            />
-
-            {/* Bottom Audio Player */}
-            {(activeCategory === 'audio' || (activeFolder && contentTypeFilter === 'audio')) && (
-                <AudioPlayerFooter
-                    currentTrack={currentTrack}
-                    isPlaying={isPlaying}
-                    audioProgress={audioProgress}
-                    audioDuration={audioDuration}
-                    volume={volume}
-                    playbackSpeed={playbackSpeed}
-                    onTogglePlayPause={togglePlayPause}
-                    onSeek={handleSeek}
-                    onVolumeChange={handleVolumeChange}
-                    onPlaybackSpeedChange={setPlaybackSpeed}
-                    onPlayNext={playNextTrack}
-                    onPlayPrev={playPrevTrack}
-                    formatDuration={formatDuration}
-                />
-            )}
         </div>
     );
 }

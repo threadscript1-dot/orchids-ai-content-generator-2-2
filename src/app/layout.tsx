@@ -4,6 +4,8 @@ import { VisualEditsMessenger } from 'orchids-visual-edits';
 import { LanguageProvider } from '@/lib/language-context';
 import { Toaster } from '@/components/ui/sonner';
 import { StoreProvider } from '@/providers/store-provider';
+import { AudioProvider } from '@/context/audio-context';
+import { GlobalAudioPlayer } from '@/components/audio/GlobalAudioPlayer';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -31,7 +33,12 @@ export default function RootLayout({
                     data-orchids-project-id="fd1da8b4-e5dc-4358-b600-21c518300dc8"
                 />
                 <LanguageProvider>
-                    <StoreProvider>{children}</StoreProvider>
+                    <StoreProvider>
+                        <AudioProvider>
+                            {children}
+                            <GlobalAudioPlayer />
+                        </AudioProvider>
+                    </StoreProvider>
                 </LanguageProvider>
                 <Toaster position="bottom-right" richColors />
                 <VisualEditsMessenger />
