@@ -26,6 +26,37 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Track previous initialFiles to detect external changes
+    const prevInitialFilesRef = useRef<typeof initialFiles>(initialFiles);
+
+    // Sync with initialFiles when they change externally (e.g., from navigation)
+    useEffect(() => {
+        const prevFiles = prevInitialFilesRef.current;
+        const currentFiles = initialFiles;
+
+        // Check if initialFiles actually changed (not just reference)
+        const prevIds = (prevFiles || [])
+            .map((f) => f.id)
+            .sort()
+            .join(',');
+        const currentIds = (currentFiles || [])
+            .map((f) => f.id)
+            .sort()
+            .join(',');
+
+        if (prevIds !== currentIds && currentFiles && currentFiles.length > 0) {
+            setUploadedImages(
+                currentFiles.map((f) => ({
+                    id: f.id,
+                    url: f.url,
+                    name: f.name,
+                })),
+            );
+        }
+
+        prevInitialFilesRef.current = currentFiles;
+    }, [initialFiles]);
+
     // Notify parent of file changes (debounced)
     const notifyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     useEffect(() => {

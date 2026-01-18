@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { useLanguage } from '@/lib/language-context';
@@ -28,7 +28,6 @@ interface VideoGenerationPageProps {
 
 export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps) {
     const { t, language } = useLanguage();
-    const searchParams = useSearchParams();
     const router = useRouter();
 
     // Stores
@@ -53,13 +52,9 @@ export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps
         fetchHistory(true);
     }, [fetchModels, fetchHistory]);
 
-    // Handle URL params
+    // Set model from URL path
     useEffect(() => {
-        const promptParam = searchParams.get('prompt');
-        const imageParam = searchParams.get('image');
-
         if (generation.models.length > 0) {
-            // Set model from URL path or use default
             const modelId = initialModelId || DEFAULT_VIDEO_MODEL;
             const foundModel = generation.models.find(
                 (m) => m.id === modelId || m.name === modelId,
@@ -70,23 +65,16 @@ export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps
                 // Fallback to first model if specified model not found
                 generation.setSelectedModelId(generation.models[0].id);
             }
-
-            if (promptParam) {
-                generation.setPrompt(decodeURIComponent(promptParam));
-            }
-
-            // Add image from URL if provided
-            if (imageParam && generation.uploadedFiles.length === 0) {
-                generation.addFileFromUrl(decodeURIComponent(imageParam), 'Reference Image');
-            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, generation.models.length, initialModelId]);
+    }, [generation.models.length, initialModelId]);
 
     // Navigate to model URL when model changes via dropdown
     // State is preserved in pending-generation-store across navigation
     const handleModelChange = useCallback(
         (modelId: string) => {
+            // Sync state to store immediately before navigation to prevent data loss
+            generation.syncToStore();
             generation.setSelectedModelId(modelId);
             router.push(`/app/create/video/${modelId}`);
         },

@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/lib/language-context';
 import { Generation, useGenerationStore } from '@/stores/generation-store';
+import { usePendingGenerationStore } from '@/stores/pending-generation-store';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -64,6 +65,7 @@ export function ImageDetailDialog({
 
     const storeGenerations = useGenerationStore((state) => state.generations);
     const removeGeneration = useGenerationStore((state) => state.removeGeneration);
+    const prepareNavigation = usePendingGenerationStore((s) => s.prepareNavigation);
     const currentImage = image ? storeGenerations.find((g) => g.id === image.id) || image : null;
 
     useEffect(() => {
@@ -119,22 +121,37 @@ export function ImageDetailDialog({
     };
 
     const handleMakeVariations = () => {
-        // Navigate to image generation with the current image as attachment
+        // Navigate to image generation with the current image as attachment AND original prompt
         const imageUrl = currentAsset?.url || '';
         if (imageUrl) {
-            router.push(`/app/create/image/nano-banana-pro?image=${encodeURIComponent(imageUrl)}`);
+            prepareNavigation('image', {
+                prompt: image.prompt,
+                imageUrl,
+                imageName: 'Reference',
+            });
+            router.push('/app/create/image/nano-banana-pro');
         }
         onOpenChange(false);
     };
 
     const handleAnimate = () => {
-        router.push(
-            `/app/create/video/kling-2.6?image=${encodeURIComponent(currentAsset?.url || '')}`,
-        );
+        // Navigate to video generation with the image as attachment AND original prompt
+        const imageUrl = currentAsset?.url || '';
+        if (imageUrl) {
+            prepareNavigation('video', {
+                prompt: image.prompt,
+                imageUrl,
+                imageName: 'Reference',
+            });
+        }
+        router.push('/app/create/video/kling-2.6');
+        onOpenChange(false);
     };
 
     const handleUpscale = () => {
+        // Tools page still uses query params for now
         router.push(`/app/tools/enhance?image=${encodeURIComponent(currentAsset?.url || '')}`);
+        onOpenChange(false);
     };
 
     const handleDelete = () => {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import { Search, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -11,13 +10,13 @@ import { useLanguage } from '@/lib/language-context';
 import { downloadFile } from '@/lib/utils';
 import { useModelsStore } from '@/stores/models-store';
 import { useGenerationStore } from '@/stores/generation-store';
+import { usePendingGenerationStore } from '@/stores/pending-generation-store';
 import { useAudio } from '@/context/audio-context';
 
 import { AudioSidebar, AudioTrackCard, SunoModel } from '@/components/audio';
 
 export function AudioGenerationPage() {
     const { language } = useLanguage();
-    const searchParams = useSearchParams();
 
     // Stores
     const { audioModels, fetchModels } = useModelsStore();
@@ -55,12 +54,7 @@ export function AudioGenerationPage() {
     }, [generations, searchQuery]);
 
     // Audio player hook
-    const {
-        currentTrack,
-        isPlaying,
-        getAudioTracks,
-        playTrack,
-    } = useAudio();
+    const { currentTrack, isPlaying, getAudioTracks, playTrack } = useAudio();
 
     // Fetch models and history on mount
     useEffect(() => {
@@ -68,13 +62,15 @@ export function AudioGenerationPage() {
         fetchHistory(true);
     }, [fetchModels, fetchHistory]);
 
-    // Handle URL params
+    // Initialize from pending store
     useEffect(() => {
-        const promptParam = searchParams.get('prompt');
-        if (promptParam) {
-            setPrompt(decodeURIComponent(promptParam));
+        const pending = usePendingGenerationStore.getState().getState('audio');
+        if (pending.formState.prompt) {
+            setPrompt(pending.formState.prompt);
+            // Clear after reading
+            usePendingGenerationStore.getState().clear('audio');
         }
-    }, [searchParams]);
+    }, []);
 
     // Credits cost (could be dynamic based on model in the future)
     const creditsCost = 10;
@@ -183,7 +179,10 @@ export function AudioGenerationPage() {
                             </h1>
                         </div>
                         <div className="flex-1 max-w-xl relative pointer-events-auto">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 z-10" aria-hidden="true" />
+                            <Search
+                                className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 z-10"
+                                aria-hidden="true"
+                            />
                             <input
                                 type="text"
                                 placeholder={language === 'ru' ? 'Поиск…' : 'Search…'}
@@ -201,7 +200,10 @@ export function AudioGenerationPage() {
                             {isGenerating && (
                                 <div className="h-[100px] rounded-[20px] bg-white/[0.02] border border-white/5 flex items-center px-6 gap-6 relative overflow-hidden group">
                                     <div className="w-[68px] h-[68px] rounded-md bg-white/5 animate-pulse flex items-center justify-center shrink-0">
-                                        <Loader2 className="w-5 h-5 animate-spin text-[#6F00FF]" aria-hidden="true" />
+                                        <Loader2
+                                            className="w-5 h-5 animate-spin text-[#6F00FF]"
+                                            aria-hidden="true"
+                                        />
                                     </div>
                                     <div className="flex-1 space-y-2">
                                         <div className="h-3 w-1/3 bg-white/5 animate-pulse rounded" />
@@ -251,7 +253,9 @@ export function AudioGenerationPage() {
                                                 totalTracks={tracks.length}
                                                 isCurrentTrack={isCurrentTrack}
                                                 isPlaying={isCurrentTrack && isPlaying}
-                                                onClick={() => playTrack(gen, trackIdx, audioGenerations)}
+                                                onClick={() =>
+                                                    playTrack(gen, trackIdx, audioGenerations)
+                                                }
                                                 onDownload={() => {
                                                     downloadFile(track.url, `audio-${gen.id}.mp3`);
                                                 }}
@@ -264,7 +268,6 @@ export function AudioGenerationPage() {
                     </div>
                 </main>
             </div>
-
         </div>
     );
 }

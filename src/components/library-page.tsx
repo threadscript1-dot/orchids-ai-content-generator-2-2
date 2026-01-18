@@ -23,6 +23,7 @@ import { useLanguage } from '@/lib/language-context';
 import { AddToCollectionModal } from '@/components/library/AddToCollectionModal';
 import { useGenerationStore, Generation } from '@/stores/generation-store';
 import { useFoldersStore, Folder } from '@/stores/folders-store';
+import { usePendingGenerationStore } from '@/stores/pending-generation-store';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { GridSizeSlider, GeneratingPlaceholder, ImageCard } from '@/components/generation';
@@ -283,31 +284,43 @@ export function LibraryPage() {
 
     const { currentTrack, isPlaying, getAudioTracks, playTrack } = useAudio();
 
+    const prepareNavigation = usePendingGenerationStore((s) => s.prepareNavigation);
+
     const handleRemix = (gen: Generation) => {
         // Use model from generation, or default model for the type
         const modelId =
             gen.model ||
             (gen.type === 'video' ? 'kling-2.6' : gen.type === 'image' ? 'nano-banana-pro' : '');
+
         if (gen.type === 'audio') {
-            router.push(`/app/create/audio?prompt=${encodeURIComponent(gen.prompt)}`);
+            prepareNavigation('audio', { prompt: gen.prompt });
+            router.push('/app/create/audio');
         } else {
-            router.push(
-                `/app/create/${gen.type}/${modelId}?prompt=${encodeURIComponent(gen.prompt)}`,
-            );
+            prepareNavigation(gen.type, { prompt: gen.prompt });
+            router.push(`/app/create/${gen.type}/${modelId}`);
         }
     };
 
     const handleMakeVariations = (gen: Generation) => {
-        // For variations, navigate with the image/video as attachment
+        // For variations, navigate with the image/video as attachment AND the original prompt
         const assetUrl = gen.result_assets?.[0]?.url;
+
         if (gen.type === 'audio') {
-            router.push(`/app/create/audio`);
+            router.push('/app/create/audio');
         } else if (gen.type === 'video') {
-            const url = `/app/create/video/kling-2.6${assetUrl ? `?image=${encodeURIComponent(assetUrl)}` : ''}`;
-            router.push(url);
+            prepareNavigation('video', {
+                prompt: gen.prompt,
+                imageUrl: assetUrl,
+                imageName: 'Reference',
+            });
+            router.push('/app/create/video/kling-2.6');
         } else {
-            const url = `/app/create/image/nano-banana-pro${assetUrl ? `?image=${encodeURIComponent(assetUrl)}` : ''}`;
-            router.push(url);
+            prepareNavigation('image', {
+                prompt: gen.prompt,
+                imageUrl: assetUrl,
+                imageName: 'Reference',
+            });
+            router.push('/app/create/image/nano-banana-pro');
         }
     };
 
@@ -421,7 +434,7 @@ export function LibraryPage() {
                                             setActiveCategory('all');
                                             setActiveFolderId(null);
                                         }}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] ${
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] ${
                                             activeCategory === 'all' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -434,20 +447,20 @@ export function LibraryPage() {
                                             setActiveCategory('favorites');
                                             setActiveFolderId(null);
                                         }}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'favorites' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
                                         }`}
                                     >
-<Heart
-                                              className={`w-3.5 h-3.5 ${
-                                                  activeCategory === 'favorites' && !activeFolderId
-                                                      ? 'fill-black'
-                                                      : 'fill-white'
-                                              }`}
-                                              aria-hidden="true"
-                                          />
+                                        <Heart
+                                            className={`w-3.5 h-3.5 ${
+                                                activeCategory === 'favorites' && !activeFolderId
+                                                    ? 'fill-black'
+                                                    : 'fill-white'
+                                            }`}
+                                            aria-hidden="true"
+                                        />
                                         <span className="hidden sm:inline">
                                             {language === 'ru' ? 'Избранное' : 'Favorites'}
                                         </span>
@@ -457,7 +470,7 @@ export function LibraryPage() {
                                             setActiveCategory('image');
                                             setActiveFolderId(null);
                                         }}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'image' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -473,7 +486,7 @@ export function LibraryPage() {
                                             setActiveCategory('video');
                                             setActiveFolderId(null);
                                         }}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'video' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -489,7 +502,7 @@ export function LibraryPage() {
                                             setActiveCategory('audio');
                                             setActiveFolderId(null);
                                         }}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
                                             activeCategory === 'audio' && !activeFolderId
                                                 ? 'bg-white text-black shadow-lg shadow-black/20'
                                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -528,7 +541,7 @@ export function LibraryPage() {
                                         setActiveFolderId(folder.id);
                                         setActiveCategory('all');
                                     }}
-                                                className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,border-color] flex items-center gap-2 ${
+                                    className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,border-color] flex items-center gap-2 ${
                                         activeFolderId === folder.id
                                             ? 'bg-white/10 text-white border border-white/10'
                                             : 'bg-transparent text-white/40 hover:text-white border border-transparent'
@@ -544,7 +557,7 @@ export function LibraryPage() {
                             <div className="flex flex-wrap items-center gap-2 p-1.5 bg-white/5 backdrop-blur-xl rounded-2xl w-fit border border-white/5">
                                 <button
                                     onClick={() => setContentTypeFilter('all')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'all'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -559,7 +572,7 @@ export function LibraryPage() {
                                 <div className="w-px h-4 bg-white/10 mx-1" />
                                 <button
                                     onClick={() => setContentTypeFilter('image')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'image'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -573,7 +586,7 @@ export function LibraryPage() {
                                 </button>
                                 <button
                                     onClick={() => setContentTypeFilter('video')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'video'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -587,7 +600,7 @@ export function LibraryPage() {
                                 </button>
                                 <button
                                     onClick={() => setContentTypeFilter('audio')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-[background-color,color,box-shadow] ${
                                         contentTypeFilter === 'audio'
                                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-lg shadow-black/20'
                                             : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -607,7 +620,7 @@ export function LibraryPage() {
                         <div className="flex flex-col items-center justify-center py-32">
                             <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin mb-4" />
                             <p className="text-white/40 text-sm animate-pulse">
-                                                {language === 'ru' ? 'Делаем…' : 'Loading…'}
+                                {language === 'ru' ? 'Делаем…' : 'Loading…'}
                             </p>
                         </div>
                     ) : sidebarFolders.length > 0 || groupedGenerations.length > 0 ? (

@@ -98,6 +98,9 @@ export interface UseUnifiedGenerationReturn {
     canGenerate: boolean;
     validationError: string | null;
     generate: () => Promise<string | null>;
+
+    // State persistence
+    syncToStore: () => void;
 }
 
 // ============================================================================
@@ -153,15 +156,34 @@ export function useUnifiedGeneration(
         }
     }, [models, selectedModelId]);
 
+    // Get form state from pending store - reactive to store changes
+    const pendingFormState = usePendingGenerationStore((state) => state[type].formState);
+    const pendingFormLastUpdated = usePendingGenerationStore((state) => state[type].lastUpdated);
+
     // Form state - initialize from pending store
     const [formState, setFormState] = useState<GenerationFormState>(() => {
         const pending = pendingStore.getState(type);
         if (pending.formState.prompt || pending.uploadedFiles.length > 0) {
-            return pending.formState as GenerationFormState;
+            return { ...DEFAULT_FORM_STATE, ...pending.formState } as GenerationFormState;
         }
         return DEFAULT_FORM_STATE;
     });
     const [isGenerating, setIsGenerating] = useState(false);
+
+    // Track last processed form update
+    const lastProcessedFormUpdateRef = useRef(0);
+
+    // Update form state when pending store changes (e.g., from prepareNavigation)
+    useEffect(() => {
+        // Only process if this is a new update we haven't seen
+        if (
+            pendingFormLastUpdated > lastProcessedFormUpdateRef.current &&
+            pendingFormState.prompt
+        ) {
+            setFormState((s) => ({ ...s, prompt: pendingFormState.prompt }));
+            lastProcessedFormUpdateRef.current = pendingFormLastUpdated;
+        }
+    }, [pendingFormState, pendingFormLastUpdated]);
 
     // Sync form state to pending store (debounced to avoid excessive updates)
     const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -267,12 +289,23 @@ export function useUnifiedGeneration(
         return ['image/*'];
     }, [attachmentConfig, type]);
 
-    // Get initial files from pending store
-    const initialPendingFiles = useMemo(() => {
-        const pending = pendingStore.getState(type);
-        return pending.uploadedFiles;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Only run once on mount
+    // Get pending state from store - reactive to store changes
+    const pendingState = usePendingGenerationStore((state) => state[type]);
+    const pendingFiles = pendingState.uploadedFiles;
+    const pendingLastUpdated = pendingState.lastUpdated;
+
+    // Track last processed update to avoid duplicate processing
+    const lastProcessedUpdateRef = useRef(0);
+    const [initialPendingFiles, setInitialPendingFiles] = useState(pendingFiles);
+
+    // Update initialPendingFiles when pending store changes (e.g., from prepareNavigation)
+    useEffect(() => {
+        // Only process if this is a new update we haven't seen
+        if (pendingLastUpdated > lastProcessedUpdateRef.current && pendingFiles.length > 0) {
+            setInitialPendingFiles(pendingFiles);
+            lastProcessedUpdateRef.current = pendingLastUpdated;
+        }
+    }, [pendingFiles, pendingLastUpdated]);
 
     // Sync files to pending store
     const handleFilesChange = useCallback(
@@ -305,6 +338,17 @@ export function useUnifiedGeneration(
         initialFiles: initialPendingFiles,
         onFilesChange: handleFilesChange,
     });
+
+    // Immediate sync function for use before navigation - syncs BOTH form state and files
+    const syncToStore = useCallback(() => {
+        pendingStore.setFormState(type, formState);
+        const filesToStore = uploadedFiles.map((f) => ({
+            id: f.id,
+            url: f.url,
+            name: f.name,
+        }));
+        pendingStore.setUploadedFiles(type, filesToStore as UploadedImage[]);
+    }, [pendingStore, type, formState, uploadedFiles]);
 
     // Pricing
     const creditsCost = useMemo(() => {
@@ -504,5 +548,8 @@ export function useUnifiedGeneration(
         canGenerate,
         validationError,
         generate,
+
+        // State persistence
+        syncToStore,
     };
 }
