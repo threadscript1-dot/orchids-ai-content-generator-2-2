@@ -295,13 +295,13 @@ export function AudioSidebar({
                                     placeholder={
                                         customMode
                                             ? language === 'ru'
-                                                ? '[Куплет 1]\nВведите текст песни...\n\n[Припев]\n...'
-                                                : '[Verse 1]\nEnter your lyrics...\n\n[Chorus]\n...'
-                                            : language === 'ru'
-                                              ? 'Опишите песню которую хотите создать...'
-                                              : 'Describe the song you want to create...'
+                                ? '[Куплет 1]\nВведите текст песни…\n\n[Припев]\n…'
+                                : '[Verse 1]\nEnter your lyrics…\n\n[Chorus]\n…'
+                            : language === 'ru'
+                              ? 'Опишите песню которую хотите создать…'
+                              : 'Describe the song you want to create…'
                                     }
-                                    className={`w-full bg-white/[0.03] rounded-2xl p-4 resize-none outline-none text-white placeholder:text-white/20 font-mono text-sm border border-white/5 leading-relaxed focus:border-[#6F00FF]/50 transition-all ${
+                                    className={`w-full bg-white/[0.03] rounded-2xl p-4 resize-none text-white placeholder:text-white/20 font-mono text-sm border border-white/5 leading-relaxed focus:border-[#6F00FF]/50 focus-visible:ring-2 focus-visible:ring-[#6F00FF]/50 focus-visible:outline-none transition-[border-color] ${
                                         customMode ? 'min-h-[180px]' : 'min-h-[100px]'
                                     }`}
                                 />
@@ -341,12 +341,12 @@ export function AudioSidebar({
                                             onStyleChange(e.target.value);
                                         }
                                     }}
-                                    placeholder={
-                                        language === 'ru'
-                                            ? 'Pop, Upbeat, Electronic, Female vocals...'
-                                            : 'Pop, Upbeat, Electronic, Female vocals...'
-                                    }
-                                    className="w-full bg-white/[0.03] rounded-2xl p-4 resize-none outline-none text-white placeholder:text-white/20 min-h-[60px] font-mono text-sm border border-white/5 leading-relaxed focus:border-[#6F00FF]/50 transition-all"
+                        placeholder={
+                            language === 'ru'
+                                ? 'Pop, Upbeat, Electronic, Female vocals…'
+                                : 'Pop, Upbeat, Electronic, Female vocals…'
+                        }
+                        className="w-full bg-white/[0.03] rounded-2xl p-4 resize-none text-white placeholder:text-white/20 min-h-[60px] font-mono text-sm border border-white/5 leading-relaxed focus:border-[#6F00FF]/50 focus-visible:ring-2 focus-visible:ring-[#6F00FF]/50 focus-visible:outline-none transition-[border-color]"
                                 />
                                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
                                     {displayedStyles.map((s) => (
@@ -387,10 +387,10 @@ export function AudioSidebar({
                                             onTitleChange(e.target.value);
                                         }
                                     }}
-                                    placeholder={
-                                        language === 'ru' ? 'Название трека...' : 'Track title...'
-                                    }
-                                    className="w-full h-12 bg-white/[0.03] rounded-xl px-4 outline-none text-sm font-mono border border-white/5 placeholder:text-white/20 focus:border-[#6F00FF]/50 transition-all"
+                        placeholder={
+                            language === 'ru' ? 'Название трека…' : 'Track title…'
+                        }
+                        className="w-full h-12 bg-white/[0.03] rounded-xl px-4 text-sm font-mono border border-white/5 placeholder:text-white/20 focus:border-[#6F00FF]/50 focus-visible:ring-2 focus-visible:ring-[#6F00FF]/50 focus-visible:outline-none transition-[border-color]"
                                 />
                             </div>
                         )}
@@ -483,8 +483,8 @@ export function AudioSidebar({
                                                     onChange={(e) =>
                                                         onNegativeTagsChange(e.target.value)
                                                     }
-                                                    placeholder="Heavy Metal, Screaming, Drums..."
-                                                    className="w-full h-10 bg-white/[0.03] rounded-lg px-3 outline-none text-xs font-mono border border-white/5 placeholder:text-white/20 focus:border-[#6F00FF]/50 transition-all"
+                                    placeholder="Heavy Metal, Screaming, Drums…"
+                                    className="w-full h-10 bg-white/[0.03] rounded-lg px-3 text-xs font-mono border border-white/5 placeholder:text-white/20 focus:border-[#6F00FF]/50 focus-visible:ring-2 focus-visible:ring-[#6F00FF]/50 focus-visible:outline-none transition-[border-color]"
                                                 />
                                             </div>
 

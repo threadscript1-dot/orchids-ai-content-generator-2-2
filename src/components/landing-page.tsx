@@ -322,7 +322,7 @@ function FeaturesTabs() {
                                     : 'bg-white/5 text-white/40 hover:bg-white/10'
                             }`}
                         >
-                            <tab.icon className="w-4 h-4" />
+                            <tab.icon className="w-4 h-4" aria-hidden="true" />
                             {tab.label}
                         </button>
                     ))}
@@ -366,7 +366,7 @@ function ToolCard({
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-[#6F00FF] transition-all mb-4">
-                <Icon className="w-6 h-6 text-white/40 group-hover:text-white transition-colors" />
+                <Icon className="w-6 h-6 text-white/40 group-hover:text-white transition-colors" aria-hidden="true" />
             </div>
 
             <div className="aspect-[4/5] rounded-2xl overflow-hidden relative mb-4 border border-white/10 group-hover:border-white/20 transition-colors">
@@ -521,7 +521,7 @@ function FeatureCard({
             className="p-8 rounded-3xl bg-black/5 border border-black/10 hover:border-[#6F00FF]/50 transition-all group"
         >
             <div className="w-12 h-12 rounded-xl bg-[#6F00FF]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Icon className="w-6 h-6 text-[#6F00FF]" />
+                <Icon className="w-6 h-6 text-[#6F00FF]" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-bold mb-3 text-black">{title}</h3>
             <p className="text-black/60 leading-relaxed font-medium">{description}</p>
@@ -665,14 +665,16 @@ function HiggsfieldGrid() {
                         key={item.id}
                         className="relative rounded-2xl overflow-hidden group border border-black/5"
                     >
-                        <img
-                            src={item.img}
-                            alt=""
-                            className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
-                        />
+                <img
+                  src="/logo.png"
+                  alt="OBRAZ AI Logo"
+                  className="h-6 w-6"
+                  width={24}
+                  height={24}
+                />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                                <ExternalLink className="w-5 h-5 text-white" />
+                                <ExternalLink className="w-5 h-5 text-white" aria-hidden="true" />
                             </div>
                         </div>
                     </motion.div>
@@ -723,6 +725,7 @@ function NavDropdown({
                         className={`w-3.5 h-3.5 opacity-50 transition-transform duration-200 ${
                             open ? 'rotate-180' : ''
                         }`}
+                        aria-hidden="true"
                     />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -742,7 +745,7 @@ function NavDropdown({
                                     className="flex items-center gap-3 w-full pl-3 pr-8 py-3 group/item"
                                 >
                                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover/item:bg-white/10 group-hover/item:text-white transition-colors">
-                                    <item.icon className="w-4 h-4 transition-transform group-hover/item:scale-110" />
+                                    <item.icon className="w-4 h-4 transition-transform group-hover/item:scale-110" aria-hidden="true" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-bold text-sm text-white">
@@ -933,6 +936,7 @@ export function LandingPage() {
                     <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                         <button
                             onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')}
+                            aria-label={language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
                             className={`px-3 py-1.5 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 backdrop-blur-md ${
                                 isHeaderLight
                                     ? 'border-black/5 bg-black/10 text-black hover:bg-black/15'
@@ -1076,12 +1080,13 @@ export function LandingPage() {
                                         <textarea
                                             value={prompt}
                                             onChange={(e) => setPrompt(e.target.value)}
+                                            aria-label={language === 'ru' ? 'Описание вашего шедевра' : 'Describe your masterpiece'}
                                             placeholder={
                                                 language === 'ru'
-                                                    ? 'Опишите ваш шедевр...'
-                                                    : 'Describe your masterpiece...'
+                                                    ? 'Опишите ваш шедевр…'
+                                                    : 'Describe your masterpiece…'
                                             }
-                                            className="w-full bg-transparent border-none focus:ring-0 text-xl font-mono resize-none p-5 placeholder:text-white/35 outline-none"
+                                            className="w-full bg-transparent border-none focus:ring-0 text-xl font-mono resize-none p-5 placeholder:text-white/35 outline-none focus-visible:ring-0"
                                         />
 
                                         <div className="flex justify-end p-3">
@@ -1158,7 +1163,7 @@ export function LandingPage() {
                                 >
                                     <span className="relative z-10 flex items-center gap-3">
                                         {t('landing.cta')}
-                                        <ArrowRight className="w-6 h-6" />
+                                        <ArrowRight className="w-6 h-6" aria-hidden="true" />
                                     </span>
                                 </Link>
                             </div>

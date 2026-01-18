@@ -24,8 +24,8 @@ export function ProcessingIndicator({ status, size = 'md' }: ProcessingIndicator
     };
 
     const statusText = {
-        queued: language === 'ru' ? 'В очереди...' : 'Queued...',
-        processing: language === 'ru' ? 'Генерация...' : 'Generating...',
+        queued: language === 'ru' ? 'В очереди…' : 'Queued…',
+        processing: language === 'ru' ? 'Генерация…' : 'Generating…',
     };
 
     return (

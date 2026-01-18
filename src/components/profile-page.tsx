@@ -79,11 +79,13 @@ export function ProfilePage() {
                 className="flex items-center gap-5"
             >
                 <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-white/10">
-                    <img
-                        src={mockUser.avatar}
-                        alt={mockUser.name}
-                        className="w-full h-full object-cover"
-                    />
+                            <img 
+                                src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
+                                alt={user?.display_name || "User avatar"}
+                                className="w-full h-full object-cover"
+                                width={128}
+                                height={128}
+                            />
                 </div>
                 <div>
                     <h1 className="text-xl font-bold">{mockUser.name}</h1>
@@ -366,16 +368,17 @@ export function ProfilePage() {
                     <div className="flex-1 bg-white/[0.03] rounded-lg px-4 py-2.5 text-sm font-mono text-white/60 border border-white/[0.06]">
                         sdel.ai/ref/{mockUser.referralCode}
                     </div>
-                    <button
-                        onClick={copyReferral}
-                        className="px-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/[0.06]"
-                    >
-                        {copied ? (
-                            <Check className="w-4 h-4 text-[#53FF45]" />
-                        ) : (
-                            <Copy className="w-4 h-4 text-white/40" />
-                        )}
-                    </button>
+<button
+                          onClick={copyReferral}
+                          aria-label={language === 'ru' ? 'Скопировать реферальную ссылку' : 'Copy referral link'}
+                          className="px-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/[0.06]"
+                      >
+                          {copied ? (
+                              <Check className="w-4 h-4 text-[#53FF45]" aria-hidden="true" />
+                          ) : (
+                              <Copy className="w-4 h-4 text-white/40" aria-hidden="true" />
+                          )}
+                      </button>
                 </div>
             </motion.div>
 
@@ -389,7 +392,7 @@ export function ProfilePage() {
                 <div className="space-y-0 divide-y divide-white/[0.04]">
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-white/70 flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-white/40" />
+                            <Globe className="w-4 h-4 text-white/40" aria-hidden="true" />
                             {language === 'ru' ? 'Язык' : 'Language'}
                         </span>
                         <div className="relative">
@@ -399,7 +402,7 @@ export function ProfilePage() {
                             >
                                 <span className="text-lg">{language === 'ru' ? '🇷🇺' : '🇬🇧'}</span>
                                 <span className="text-white/70">{language === 'ru' ? 'Русский' : 'English'}</span>
-                                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                             </button>
                             {langDropdownOpen && (
                                 <>
@@ -414,7 +417,7 @@ export function ProfilePage() {
                                         >
                                             <span className="text-lg">🇷🇺</span>
                                             <span>Русский</span>
-                                            {language === 'ru' && <Check className="w-4 h-4 ml-auto text-[#53FF45]" />}
+                                            {language === 'ru' && <Check className="w-4 h-4 ml-auto text-[#53FF45]" aria-hidden="true" />}
                                         </button>
                                         <button
                                             onClick={() => { setLanguage('en'); setLangDropdownOpen(false); }}
@@ -422,7 +425,7 @@ export function ProfilePage() {
                                         >
                                             <span className="text-lg">🇬🇧</span>
                                             <span>English</span>
-                                            {language === 'en' && <Check className="w-4 h-4 ml-auto text-[#53FF45]" />}
+                                            {language === 'en' && <Check className="w-4 h-4 ml-auto text-[#53FF45]" aria-hidden="true" />}
                                         </button>
                                     </div>
                                 </>

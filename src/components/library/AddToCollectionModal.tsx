@@ -190,7 +190,7 @@ export function AddToCollectionModal({
 
                     <div className="flex gap-2 pt-2">
                         <Input
-                            placeholder={language === 'ru' ? 'Название папки...' : 'Folder name...'}
+                            placeholder={language === 'ru' ? 'Название папки…' : 'Folder name…'}
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
@@ -201,6 +201,7 @@ export function AddToCollectionModal({
                             onClick={handleCreateFolder}
                             disabled={!newFolderName.trim() || isCreating}
                             className="shrink-0"
+                            aria-label={language === 'ru' ? 'Создать папку' : 'Create folder'}
                         >
                             {isCreating ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

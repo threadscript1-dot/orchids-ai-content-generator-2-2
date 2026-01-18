@@ -1,6 +1,6 @@
 'use client';
 
-import { Cpu } from 'lucide-react';
+import { Cpu, Zap } from 'lucide-react';
 import { Model } from '@/stores/models-store';
 import {
     Select,
@@ -47,7 +47,8 @@ export function ModelSelector({
                     <SelectItem key={m.id} value={m.id} className="rounded-sm py-2.5">
                         <div className="flex items-center justify-between w-[220px] sm:w-[280px]">
                             <span className="font-medium truncate pr-2">{m.name}</span>
-                            <span className="text-credits font-mono text-[10px] font-black shrink-0">
+                            <span className="flex items-center gap-1 text-credits font-mono text-[10px] font-black shrink-0">
+                                <Zap className="w-2.5 h-2.5 fill-current" aria-hidden="true" />
                                 {m.credits_cost}
                             </span>
                         </div>

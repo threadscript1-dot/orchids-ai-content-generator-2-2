@@ -27,7 +27,7 @@ export function ImageCard({ generation, onClick, onRemix, onToggleLike }: ImageC
 
     return (
         <div
-            className="relative group rounded-2xl overflow-hidden glass transition-all aspect-square cursor-pointer border border-white/5 hover:border-white/20 shadow-xl"
+            className="relative group rounded-2xl overflow-hidden glass transition-[border-color,box-shadow] aspect-square cursor-pointer border border-white/5 hover:border-white/20 shadow-xl"
             onClick={() => !isProcessing && onClick()}
         >
             {isProcessing ? (
@@ -71,9 +71,10 @@ export function ImageCard({ generation, onClick, onRemix, onToggleLike }: ImageC
                         <DropdownMenuTrigger asChild>
                             <button
                                 onClick={(e) => e.stopPropagation()}
-                                className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                                aria-label="More options"
+                                className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-[color,background-color,transform] active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50"
                             >
-                                <MoreHorizontal className="w-4 h-4" />
+                                <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
@@ -81,13 +82,13 @@ export function ImageCard({ generation, onClick, onRemix, onToggleLike }: ImageC
                             className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-2xl p-2 min-w-[180px]"
                         >
                             <DropdownMenuItem className="gap-3 py-3 rounded-lg cursor-pointer focus:bg-white/10">
-                                <FolderPlus className="w-4 h-4 text-white/40" />
+                                <FolderPlus className="w-4 h-4 text-white/40" aria-hidden="true" />
                                 <span className="text-sm font-medium">
                                     {language === 'ru' ? 'В папку' : 'Add to folder'}
                                 </span>
                             </DropdownMenuItem>
                             <DropdownMenuItem className="gap-3 py-3 rounded-lg text-red-500 focus:text-red-500 focus:bg-red-500/10 cursor-pointer">
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                                 <span className="text-sm font-medium">
                                     {language === 'ru' ? 'Удалить' : 'Delete'}
                                 </span>
@@ -95,25 +96,28 @@ export function ImageCard({ generation, onClick, onRemix, onToggleLike }: ImageC
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onRemix();
-                        }}
-                        className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-                    >
-                        <RefreshCw className="w-4 h-4" />
+<button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemix();
+                            }}
+                            aria-label="Remix"
+                            className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-[color,background-color,transform] active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50"
+                        >
+                        <RefreshCw className="w-4 h-4" aria-hidden="true" />
                     </button>
 
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleLike();
-                        }}
-                        className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-                    >
+<button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleLike();
+                            }}
+                            aria-label={generation.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                            className="p-3 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-[color,background-color,transform] active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50"
+                        >
                         <Heart
                             className={`w-4 h-4 ${generation.is_favorite ? 'fill-white' : ''}`}
+                            aria-hidden="true"
                         />
                     </button>
                 </div>

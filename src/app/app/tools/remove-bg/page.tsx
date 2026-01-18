@@ -254,8 +254,8 @@ function RemoveBgToolContent() {
                                 </div>
                                 <p className="text-xs font-black uppercase tracking-widest text-[#6F00FF] animate-pulse">
                                     {language === 'ru'
-                                        ? 'Удаляем фон...'
-                                        : 'Removing background...'}
+                                        ? 'Удаляем фон…'
+                                        : 'Removing background…'}
                                 </p>
                             </div>
                         </div>

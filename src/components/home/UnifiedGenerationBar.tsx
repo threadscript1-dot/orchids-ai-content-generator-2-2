@@ -123,29 +123,29 @@ export function UnifiedGenerationBar() {
             <div className="flex items-center justify-center gap-2">
                 <Link
                     href="/app/create/image"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-[background-color,border-color,color] border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
                 >
-                    <ImageIcon className="w-3.5 h-3.5" />
+                    <ImageIcon className="w-3.5 h-3.5" aria-hidden="true" />
                     {language === 'ru' ? 'Изображение' : 'Image'}
                 </Link>
                 <Link
                     href="/app/create/video"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-[background-color,border-color,color] border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
                 >
-                    <VideoIcon className="w-3.5 h-3.5" />
+                    <VideoIcon className="w-3.5 h-3.5" aria-hidden="true" />
                     {language === 'ru' ? 'Видео' : 'Video'}
                 </Link>
                 <Link
                     href="/app/create/audio"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-[background-color,border-color,color] border bg-white/10 backdrop-blur-md text-white/40 border-white/5 hover:text-white`}
                 >
-                    <Music className="w-3.5 h-3.5" />
+                    <Music className="w-3.5 h-3.5" aria-hidden="true" />
                     {language === 'ru' ? 'Аудио' : 'Audio'}
                 </Link>
             </div>
 
             <div
-                className={`relative transition-all rounded-[32px] p-4 shadow-2xl ${
+                className={`relative transition-[border-color,box-shadow] rounded-[32px] p-4 shadow-2xl ${
                     isDragging
                         ? 'border-[#6F00FF] border-2 border-dashed shadow-[0_0_50px_rgba(111,0,255,0.2)]'
                         : ''
@@ -186,11 +186,12 @@ export function UnifiedGenerationBar() {
                                 className="w-full h-full object-cover"
                                 alt="Preview"
                             />
-                            <button
-                                onClick={() => setAttachedImage(null)}
-                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                            >
-                                <X className="w-5 h-5 text-white" />
+                                <button
+                                    onClick={() => setAttachedImage(null)}
+                                    aria-label="Remove image"
+                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center focus-visible:ring-2 focus-visible:ring-white/50"
+                                >
+                                <X className="w-5 h-5 text-white" aria-hidden="true" />
                             </button>
                         </div>
                     </div>
@@ -199,33 +200,35 @@ export function UnifiedGenerationBar() {
                 <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
+                    aria-label={language === 'ru' ? 'Промпт для генерации' : 'Generation prompt'}
                     placeholder={
                         mode === 'image'
                             ? language === 'ru'
-                                ? 'Опишите, что хотите сделать или приложите изображение'
-                                : 'Describe what you want to do or attach an image'
+                                ? 'Опишите, что хотите сделать или приложите изображение…'
+                                : 'Describe what you want to do or attach an image…'
                             : language === 'ru'
-                            ? 'Опишите, что хотите сделать или приложите изображение'
-                            : 'Describe what you want to do or attach an image'
+                            ? 'Опишите, что хотите сделать или приложите изображение…'
+                            : 'Describe what you want to do or attach an image…'
                     }
-                    className="w-full bg-transparent resize-none outline-none text-white placeholder:text-white/20 min-h-[44px] font-medium text-sm mb-4 leading-relaxed"
+                            className="w-full bg-transparent resize-none text-white placeholder:text-white/20 min-h-[44px] font-medium text-sm mb-4 leading-relaxed focus-visible:outline-none"
                     rows={1}
                 />
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-9 px-3 rounded-2xl bg-white/5 hover:bg-white/10"
-                            >
-                                <Plus className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => setMode(mode === 'image' ? 'video' : 'image')}
-                                className="h-9 px-3 md:px-4 flex items-center justify-center gap-2 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all"
-                                title={mode === 'image' ? 'Switch to Video' : 'Switch to Image'}
-                            >
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        aria-label="Attach image"
+                                        className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-9 px-3 rounded-2xl bg-white/5 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50"
+                                    >
+                                        <Plus className="w-4 h-4" aria-hidden="true" />
+                                    </button>
+                                    <button
+                                        onClick={() => setMode(mode === 'image' ? 'video' : 'image')}
+                                        className="h-9 px-3 md:px-4 flex items-center justify-center gap-2 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-[background-color,color] focus-visible:ring-2 focus-visible:ring-white/50"
+                                        title={mode === 'image' ? 'Switch to Video' : 'Switch to Image'}
+                                    >
                                 {mode === 'image' ? (
                                     <>
                                         <ImageIcon className="w-4 h-4" />
@@ -271,15 +274,15 @@ export function UnifiedGenerationBar() {
 
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                         <div className="text-sm text-muted-foreground hidden sm:block">
-                            <span className="text-[#FFDC74] font-mono flex items-center gap-2 font-black">
-                                <Zap className="w-4 h-4 fill-current" />
+                                <span className="text-[#FFDC74] font-mono flex items-center gap-2 font-black">
+                                    <Zap className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
                                 10
                             </span>
                         </div>
                         <button
                             onClick={handleGenerate}
                             disabled={!prompt.trim()}
-                            className="h-9 px-6 rounded-2xl bg-[#6F00FF] text-white font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto flex items-center justify-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(111,0,255,0.3)]"
+                                        className="h-9 px-6 rounded-2xl bg-[#6F00FF] text-white font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto flex items-center justify-center hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-[0_0_30px_rgba(111,0,255,0.3)] focus-visible:ring-2 focus-visible:ring-white/50"
                         >
                             {t('prompt.create')}
                         </button>

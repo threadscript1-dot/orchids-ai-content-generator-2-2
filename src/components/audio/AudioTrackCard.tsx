@@ -63,8 +63,8 @@ export function AudioTrackCard({
                     <h3 className="text-sm font-mono truncate mb-0.5">
                         {isProcessing
                             ? language === 'ru'
-                                ? 'Генерация...'
-                                : 'Generating...'
+                                ? 'Генерация…'
+                                : 'Generating…'
                             : language === 'ru'
                             ? 'Ошибка'
                             : 'Failed'}
@@ -82,7 +82,7 @@ export function AudioTrackCard({
             layout
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`h-[72px] rounded-xl border transition-all flex items-center pl-3 pr-2 gap-3 group relative cursor-pointer ${
+            className={`h-[72px] rounded-xl border transition-[background-color,border-color] flex items-center pl-3 pr-2 gap-3 group relative cursor-pointer ${
                 isCurrentTrack
                     ? 'bg-[#6F00FF]/10 backdrop-blur-md border-[#6F00FF]/30'
                     : 'bg-white/[0.02] backdrop-blur-md border-white/5 hover:bg-white/[0.04] hover:border-white/10'
@@ -106,16 +106,21 @@ export function AudioTrackCard({
                             ? 'opacity-100'
                             : 'opacity-0 group-hover/thumb:opacity-100'
                     }`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onClick();
-                    }}
                 >
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onClick();
+                        }}
+                        aria-label={isCurrentTrack && isPlaying ? 'Pause' : 'Play'}
+                        className="focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                    >
                     {isCurrentTrack && isPlaying ? (
-                        <Pause className="w-5 h-5 fill-white" />
+                        <Pause className="w-5 h-5 fill-white" aria-hidden="true" />
                     ) : (
-                        <Play className="w-5 h-5 fill-white" />
+                        <Play className="w-5 h-5 fill-white" aria-hidden="true" />
                     )}
+                    </button>
                 </div>
             </div>
 
@@ -132,25 +137,30 @@ export function AudioTrackCard({
             {/* Action Bar (Icons) */}
             <div className="flex items-center gap-1 shrink-0">
                 <button
-                    className="p-1.5 text-white/20 hover:text-[#6F00FF] transition-colors hidden sm:block"
+                    className="p-1.5 text-white/20 hover:text-[#6F00FF] transition-colors hidden sm:block focus-visible:ring-2 focus-visible:ring-white/50 rounded"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={generation.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
-                    <Heart className="w-4 h-4" />
+                    <Heart className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         onDownload();
                     }}
-                    className="p-1.5 text-white/20 hover:text-white transition-colors"
+                    aria-label="Download"
+                    className="p-1.5 text-white/20 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 rounded"
                 >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <div onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <button className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-all active:scale-95">
-                                <MoreHorizontal className="w-4 h-4" />
+                            <button 
+                                aria-label="More options"
+                                className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-[color,background-color,transform] active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50"
+                            >
+                                <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

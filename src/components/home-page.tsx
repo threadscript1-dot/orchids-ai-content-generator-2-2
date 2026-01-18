@@ -147,7 +147,9 @@ function TemplateCard({ item }: { item: (typeof TEMPLATES)[0] }) {
                 <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover transition-all duration-500"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    width={400}
+                    height={400}
                 />
             </div>
             <h4 className="font-bold text-base mb-1">{item.title}</h4>
@@ -198,6 +200,8 @@ function ToolCardSquare({ item }: { item: any }) {
                     src={isHovered ? item.hoverImage : item.image}
                     alt={item.title}
                     className="w-full h-full object-cover transition-all duration-500"
+                    width={216}
+                    height={216}
                 />
             </div>
             <div className="px-1">
