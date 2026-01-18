@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useGenerationStore } from '@/stores/generation-store';
 import { useModelsStore } from '@/stores/models-store';
+import { usePendingGenerationStore } from '@/stores/pending-generation-store';
 import {
     Model,
     AttachmentConfig,
@@ -121,13 +122,17 @@ const DEFAULT_DURATIONS = ['5', '10'];
 // ============================================================================
 
 export function useUnifiedGeneration(
-    options: UseUnifiedGenerationOptions
+    options: UseUnifiedGenerationOptions,
 ): UseUnifiedGenerationReturn {
     const { type, maxFiles = 4, language = 'en' } = options;
 
     // Stores
     const modelsStore = useModelsStore();
     const generationStore = useGenerationStore();
+    const pendingStore = usePendingGenerationStore();
+
+    // Track if we've initialized from pending store
+    const initializedRef = useRef(false);
 
     // Get models for the given type
     const models = useMemo(() => {
@@ -138,7 +143,7 @@ export function useUnifiedGeneration(
     const [selectedModelId, setSelectedModelId] = useState<string>('');
     const selectedModel = useMemo(
         () => models.find((m) => m.id === selectedModelId),
-        [models, selectedModelId]
+        [models, selectedModelId],
     );
 
     // Set default model when models load
@@ -148,35 +153,51 @@ export function useUnifiedGeneration(
         }
     }, [models, selectedModelId]);
 
-    // Form state
-    const [formState, setFormState] = useState<GenerationFormState>(DEFAULT_FORM_STATE);
+    // Form state - initialize from pending store
+    const [formState, setFormState] = useState<GenerationFormState>(() => {
+        const pending = pendingStore.getState(type);
+        if (pending.formState.prompt || pending.uploadedFiles.length > 0) {
+            return pending.formState as GenerationFormState;
+        }
+        return DEFAULT_FORM_STATE;
+    });
     const [isGenerating, setIsGenerating] = useState(false);
 
+    // Sync form state to pending store (debounced to avoid excessive updates)
+    const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect(() => {
+        if (syncTimeoutRef.current) {
+            clearTimeout(syncTimeoutRef.current);
+        }
+        syncTimeoutRef.current = setTimeout(() => {
+            pendingStore.setFormState(type, formState);
+        }, 100);
+        return () => {
+            if (syncTimeoutRef.current) {
+                clearTimeout(syncTimeoutRef.current);
+            }
+        };
+    }, [formState, type, pendingStore]);
+
     // Individual setters for convenience
-    const setPrompt = useCallback(
-        (prompt: string) => setFormState((s) => ({ ...s, prompt })),
-        []
-    );
+    const setPrompt = useCallback((prompt: string) => setFormState((s) => ({ ...s, prompt })), []);
     const setAspectRatio = useCallback(
         (aspectRatio: string) => setFormState((s) => ({ ...s, aspectRatio })),
-        []
+        [],
     );
     const setResolution = useCallback(
         (resolution: string) => setFormState((s) => ({ ...s, resolution })),
-        []
+        [],
     );
     const setDuration = useCallback(
         (duration: string) => setFormState((s) => ({ ...s, duration })),
-        []
+        [],
     );
     const setQuality = useCallback(
         (quality: string) => setFormState((s) => ({ ...s, quality })),
-        []
+        [],
     );
-    const setSound = useCallback(
-        (sound: boolean) => setFormState((s) => ({ ...s, sound })),
-        []
-    );
+    const setSound = useCallback((sound: boolean) => setFormState((s) => ({ ...s, sound })), []);
 
     // Get constraints from selected model
     const availableAspectRatios = useMemo(() => {
@@ -246,6 +267,26 @@ export function useUnifiedGeneration(
         return ['image/*'];
     }, [attachmentConfig, type]);
 
+    // Get initial files from pending store
+    const initialPendingFiles = useMemo(() => {
+        const pending = pendingStore.getState(type);
+        return pending.uploadedFiles;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only run once on mount
+
+    // Sync files to pending store
+    const handleFilesChange = useCallback(
+        (files: UploadedImage[]) => {
+            const filesToStore = files.map((f) => ({
+                id: f.id,
+                url: f.url,
+                name: f.name,
+            }));
+            pendingStore.setUploadedFiles(type, filesToStore as UploadedImage[]);
+        },
+        [type, pendingStore],
+    );
+
     // File upload
     const {
         uploadedImages: uploadedFiles,
@@ -259,7 +300,11 @@ export function useUnifiedGeneration(
         openFilePicker,
         handleInputChange: handleFileInputChange,
         addImageFromUrl: addFileFromUrl,
-    } = useFileUpload({ maxFiles: effectiveMaxFiles });
+    } = useFileUpload({
+        maxFiles: effectiveMaxFiles,
+        initialFiles: initialPendingFiles,
+        onFilesChange: handleFilesChange,
+    });
 
     // Pricing
     const creditsCost = useMemo(() => {
@@ -286,16 +331,12 @@ export function useUnifiedGeneration(
         }
 
         if (requiresUpload && uploadedFiles.length === 0) {
-            return language === 'ru'
-                ? 'Загрузите изображение'
-                : 'Upload an image';
+            return language === 'ru' ? 'Загрузите изображение' : 'Upload an image';
         }
 
         // Validate files against attachment config
         if (attachmentConfig && uploadedFiles.length > 0) {
-            const files = uploadedFiles
-                .filter((f) => f.file)
-                .map((f) => f.file as File);
+            const files = uploadedFiles.filter((f) => f.file).map((f) => f.file as File);
             if (files.length > 0) {
                 const validation = validateAttachment(attachmentConfig, files);
                 if (!validation.valid) {
@@ -305,7 +346,14 @@ export function useUnifiedGeneration(
         }
 
         return null;
-    }, [selectedModel, formState.prompt, requiresUpload, uploadedFiles, attachmentConfig, language]);
+    }, [
+        selectedModel,
+        formState.prompt,
+        requiresUpload,
+        uploadedFiles,
+        attachmentConfig,
+        language,
+    ]);
 
     const canGenerate = useMemo(() => {
         return validationError === null;
@@ -373,22 +421,17 @@ export function useUnifiedGeneration(
             }
 
             // Use unified generation
-            const generationId = await generationStore.generateUnified(
-                selectedModel.id,
-                params
-            );
+            const generationId = await generationStore.generateUnified(selectedModel.id, params);
 
             if (generationId) {
-                toast.success(
-                    language === 'ru' ? 'Генерация запущена' : 'Generation started'
-                );
+                toast.success(language === 'ru' ? 'Генерация запущена' : 'Generation started');
                 setFormState((s) => ({ ...s, prompt: '' }));
                 clearFiles();
+                // Clear pending store after successful generation
+                pendingStore.clear(type);
                 return generationId;
             } else {
-                toast.error(
-                    language === 'ru' ? 'Ошибка генерации' : 'Generation failed'
-                );
+                toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
                 return null;
             }
         } catch (error) {
@@ -409,6 +452,7 @@ export function useUnifiedGeneration(
         generationStore,
         language,
         clearFiles,
+        pendingStore,
     ]);
 
     return {

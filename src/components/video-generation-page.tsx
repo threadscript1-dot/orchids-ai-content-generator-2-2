@@ -84,16 +84,11 @@ export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps
     }, [searchParams, generation.models.length, initialModelId]);
 
     // Navigate to model URL when model changes via dropdown
+    // State is preserved in pending-generation-store across navigation
     const handleModelChange = useCallback(
         (modelId: string) => {
             generation.setSelectedModelId(modelId);
-            // Build query params to preserve state
-            const params = new URLSearchParams();
-            if (generation.formState.prompt) {
-                params.set('prompt', generation.formState.prompt);
-            }
-            const queryString = params.toString();
-            router.push(`/app/create/video/${modelId}${queryString ? `?${queryString}` : ''}`);
+            router.push(`/app/create/video/${modelId}`);
         },
         [generation, router],
     );

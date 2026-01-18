@@ -1,24 +1,53 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { UploadedImage } from '@/types/generation';
 
 interface UseFileUploadOptions {
     maxFiles?: number;
     acceptedTypes?: string[];
+    initialFiles?: Array<{ id: string; url: string; name: string }>;
+    onFilesChange?: (files: UploadedImage[]) => void;
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
-    const { maxFiles = 4, acceptedTypes = ['image/'] } = options;
+    const { maxFiles = 4, acceptedTypes = ['image/'], initialFiles, onFilesChange } = options;
 
-    const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+    const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>(() => {
+        if (initialFiles && initialFiles.length > 0) {
+            return initialFiles.map((f) => ({
+                id: f.id,
+                url: f.url,
+                name: f.name,
+            }));
+        }
+        return [];
+    });
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Notify parent of file changes (debounced)
+    const notifyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect(() => {
+        if (onFilesChange) {
+            if (notifyTimeoutRef.current) {
+                clearTimeout(notifyTimeoutRef.current);
+            }
+            notifyTimeoutRef.current = setTimeout(() => {
+                onFilesChange(uploadedImages);
+            }, 50);
+        }
+        return () => {
+            if (notifyTimeoutRef.current) {
+                clearTimeout(notifyTimeoutRef.current);
+            }
+        };
+    }, [uploadedImages, onFilesChange]);
 
     const handleFiles = useCallback(
         (files: File[]) => {
             const validFiles = files.filter((f) =>
-                acceptedTypes.some((type) => f.type.startsWith(type))
+                acceptedTypes.some((type) => f.type.startsWith(type)),
             );
 
             const newImages = validFiles.map((file) => ({
@@ -30,7 +59,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
             setUploadedImages((prev) => [...prev, ...newImages].slice(0, maxFiles));
         },
-        [maxFiles, acceptedTypes]
+        [maxFiles, acceptedTypes],
     );
 
     const handleDrop = useCallback(
@@ -40,7 +69,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             const files = Array.from(e.dataTransfer.files);
             handleFiles(files);
         },
-        [handleFiles]
+        [handleFiles],
     );
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -68,7 +97,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         (e: React.ChangeEvent<HTMLInputElement>) => {
             handleFiles(Array.from(e.target.files || []));
         },
-        [handleFiles]
+        [handleFiles],
     );
 
     const addImageFromUrl = useCallback(
@@ -81,10 +110,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
                         url,
                         name,
                     },
-                ].slice(0, maxFiles)
+                ].slice(0, maxFiles),
             );
         },
-        [maxFiles]
+        [maxFiles],
     );
 
     return {
