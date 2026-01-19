@@ -3,16 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import {
-    X,
     Download,
     Heart,
     MoreHorizontal,
     FolderPlus,
     Trash2,
-    ChevronLeft,
-    ChevronRight,
     Share2,
-    Copy,
     Music,
     Play,
     Pause,
@@ -24,7 +20,7 @@ import {
     FileText,
     Shuffle,
     Repeat,
-    Gauge,
+    Copy,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -35,12 +31,13 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
-import { useLanguage } from '@/lib/language-context';
-import { Generation, useGenerationStore } from '@/stores/generation-store';
+import { Generation } from '@/stores/generation-store';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import { AddToCollectionModal } from '@/components/library/AddToCollectionModal';
 import { ConfirmDeleteDialog } from '@/components/library/ConfirmDeleteDialog';
+import { useDetailDialog } from '@/hooks/useDetailDialog';
+import { DetailDialogHeader } from './shared';
 
 interface AudioTrack {
     url: string;
@@ -66,24 +63,43 @@ export function AudioDetailDialog({
     audios = [],
     onSelectAudio,
 }: AudioDetailDialogProps) {
-    const { language } = useLanguage();
     const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
     const { user } = useAuth();
 
+    const {
+        language,
+        isAddToCollectionOpen,
+        setIsAddToCollectionOpen,
+        isDeleteConfirmOpen,
+        setIsDeleteConfirmOpen,
+        currentItem,
+        isFirst,
+        isLast,
+        handlePrevious,
+        handleNext,
+        handleCopyPrompt,
+        handleRemix,
+        handleDelete,
+        handleConfirmDelete,
+        handleOpenAddToCollection,
+    } = useDetailDialog({
+        item: audio,
+        items: audios,
+        open,
+        onOpenChange,
+        onSelectItem: onSelectAudio,
+        onRemix,
+    });
+
+    // Audio-specific state
     const [selectedTrackIndex, setSelectedTrackIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [isAddToCollectionOpen, setIsAddToCollectionOpen] = useState(false);
-    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [isShuffleOn, setIsShuffleOn] = useState(false);
     const [isRepeatOn, setIsRepeatOn] = useState(false);
     const [speedPreset, setSpeedPreset] = useState<'normal' | 'slowed' | 'nightcore'>('normal');
-
-    const storeGenerations = useGenerationStore((state) => state.generations);
-    const removeGeneration = useGenerationStore((state) => state.removeGeneration);
-    const currentAudio = audio ? storeGenerations.find((g) => g.id === audio.id) || audio : null;
 
     const getAudioTracks = useCallback((gen: Generation | null): AudioTrack[] => {
         if (!gen?.result_assets) return [];
@@ -106,6 +122,7 @@ export function AudioDetailDialog({
     const tracks = audio ? getAudioTracks(audio) : [];
     const currentTrack = tracks[selectedTrackIndex];
 
+    // Reset audio state when item changes
     useEffect(() => {
         setSelectedTrackIndex(0);
         setIsPlaying(false);
@@ -127,27 +144,10 @@ export function AudioDetailDialog({
         }
     }, [speedPreset]);
 
-    const handlePrevious = useCallback(() => {
-        if (!audio || !onSelectAudio || audios.length === 0) return;
-        const currentIndex = audios.findIndex((a) => a.id === audio.id);
-        if (currentIndex > 0) {
-            onSelectAudio(audios[currentIndex - 1]);
-        }
-    }, [audio, audios, onSelectAudio]);
-
-    const handleNext = useCallback(() => {
-        if (!audio || !onSelectAudio || audios.length === 0) return;
-        const currentIndex = audios.findIndex((a) => a.id === audio.id);
-        if (currentIndex < audios.length - 1) {
-            onSelectAudio(audios[currentIndex + 1]);
-        }
-    }, [audio, audios, onSelectAudio]);
-
+    // Add space key for play/pause
     useEffect(() => {
         if (!open) return;
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowLeft') handlePrevious();
-            if (e.key === 'ArrowRight') handleNext();
             if (e.key === ' ') {
                 e.preventDefault();
                 togglePlayPause();
@@ -155,7 +155,7 @@ export function AudioDetailDialog({
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [open, handlePrevious, handleNext, isPlaying]);
+    }, [open, isPlaying]);
 
     const togglePlayPause = () => {
         if (!audioRef.current) return;
@@ -163,18 +163,6 @@ export function AudioDetailDialog({
             audioRef.current.pause();
         } else {
             audioRef.current.play();
-        }
-    };
-
-    const handleTimeUpdate = () => {
-        if (audioRef.current) {
-            setProgress(audioRef.current.currentTime);
-        }
-    };
-
-    const handleLoadedMetadata = () => {
-        if (audioRef.current) {
-            setDuration(audioRef.current.duration);
         }
     };
 
@@ -225,25 +213,16 @@ export function AudioDetailDialog({
 
     const getTrackTitle = () => {
         if (!audio?.prompt) {
-            return language === 'ru'
-                ? `Трек ${selectedTrackIndex + 1}`
-                : `Track ${selectedTrackIndex + 1}`;
+            return language === 'ru' ? `Трек ${selectedTrackIndex + 1}` : `Track ${selectedTrackIndex + 1}`;
         }
-
-        const lines = audio.prompt.split('\n');
-        const firstLine = lines[0]?.trim();
+        const firstLine = audio.prompt.split('\n')[0]?.trim();
         if (firstLine && firstLine.length > 0 && firstLine.length < 60) {
             return firstLine;
         }
-
-        return language === 'ru'
-            ? `Трек ${selectedTrackIndex + 1}`
-            : `Track ${selectedTrackIndex + 1}`;
+        return language === 'ru' ? `Трек ${selectedTrackIndex + 1}` : `Track ${selectedTrackIndex + 1}`;
     };
 
-    const getArtistName = () => {
-        return user?.display_name || (language === 'ru' ? 'Пользователь' : 'User');
-    };
+    const getArtistName = () => user?.display_name || (language === 'ru' ? 'Пользователь' : 'User');
 
     if (!audio) return null;
 
@@ -273,20 +252,7 @@ export function AudioDetailDialog({
         }
     };
 
-    const handleDownloadAll = () => {
-        tracks.forEach((_, idx) => handleDownload(idx));
-    };
-
-    const handleCopyPrompt = (e: React.MouseEvent) => {
-        e.preventDefault();
-        navigator.clipboard.writeText(audio.prompt);
-        toast.success(language === 'ru' ? 'Промпт скопирован' : 'Prompt copied');
-    };
-
-    const handleRemix = () => {
-        onRemix(audio);
-        onOpenChange(false);
-    };
+    const handleDownloadAll = () => tracks.forEach((_, idx) => handleDownload(idx));
 
     const handleExtend = () => {
         router.push(
@@ -295,15 +261,73 @@ export function AudioDetailDialog({
         onOpenChange(false);
     };
 
-    const handleDelete = () => {
-        setIsDeleteConfirmOpen(true);
-    };
+    // Shared action buttons for mobile and desktop
+    const ActionButtons = ({ isMobile = false }: { isMobile?: boolean }) => (
+        <>
+            <div className={`grid grid-cols-2 gap-2 ${isMobile ? '' : ''}`}>
+                <button
+                    onClick={handleExtend}
+                    className={`flex ${isMobile ? 'items-center justify-center gap-2' : 'flex-col items-center justify-center gap-1'} h-${isMobile ? '11' : '16'} rounded-${isMobile ? 'xl' : '2xl'} bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[${isMobile ? '10' : '9'}px] font-bold uppercase tracking-wider`}
+                >
+                    <Clock className="w-3.5 h-3.5" />
+                    {language === 'ru' ? 'Продлить' : 'Extend'}
+                </button>
+                <button
+                    onClick={handleRemix}
+                    className={`flex ${isMobile ? 'items-center justify-center gap-2' : 'flex-col items-center justify-center gap-1'} h-${isMobile ? '11' : '16'} rounded-${isMobile ? 'xl' : '2xl'} bg-[#6F00FF] hover:bg-[#7F20FF] text-white transition-all text-[${isMobile ? '10' : '9'}px] font-black uppercase tracking-wider ${!isMobile ? 'shadow-[0_0_20px_rgba(111,0,255,0.15)]' : ''}`}
+                >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    {language === 'ru' ? 'Пересоздать' : 'Recreate'}
+                </button>
+            </div>
 
-    const handleConfirmDelete = () => {
-        removeGeneration(audio.id);
-        toast.success(language === 'ru' ? 'Удалено' : 'Deleted');
-        onOpenChange(false);
-    };
+            <div className="flex items-center gap-2">
+                <button
+                    onClick={handleDownloadAll}
+                    className={`flex-1 h-11 rounded-${isMobile ? 'xl' : '2xl'} bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-all border border-white/10 font-bold text-[10px] uppercase tracking-widest`}
+                >
+                    <Download className="w-3.5 h-3.5" />
+                    {language === 'ru' ? 'Скачать' : 'Save'}
+                    {tracks.length > 1 && ` (${tracks.length})`}
+                </button>
+                <button
+                    onClick={() => onToggleLike(audio.id)}
+                    className={`w-11 h-11 rounded-${isMobile ? 'xl' : '2xl'} bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/10 ${
+                        currentItem?.is_favorite ? 'text-red-500' : 'text-white'
+                    }`}
+                >
+                    <Heart className={`w-4 h-4 ${currentItem?.is_favorite ? 'fill-current' : ''}`} />
+                </button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className={`w-11 h-11 rounded-${isMobile ? 'xl' : '2xl'} bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all border border-white/10`}>
+                            <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="end"
+                        className={`bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-${isMobile ? 'xl' : '2xl'} p-2 min-w-[${isMobile ? '160' : '180'}px]`}
+                    >
+                        <DropdownMenuItem className={`gap-3 py-${isMobile ? '2.5' : '3'} rounded-lg cursor-pointer focus:bg-white/10 ${isMobile ? 'text-sm' : ''}`}>
+                            <Share2 className="w-4 h-4" /> {language === 'ru' ? 'Поделиться' : 'Share'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={handleOpenAddToCollection}
+                            className={`gap-3 py-${isMobile ? '2.5' : '3'} rounded-lg cursor-pointer focus:bg-white/10 ${isMobile ? 'text-sm' : ''}`}
+                        >
+                            <FolderPlus className="w-4 h-4" /> {language === 'ru' ? 'В папку' : 'Add to folder'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={handleDelete}
+                            className={`gap-3 py-${isMobile ? '2.5' : '3'} rounded-lg text-red-500 focus:text-red-500 focus:bg-red-500/10 ${isMobile ? 'text-sm' : ''}`}
+                        >
+                            <Trash2 className="w-4 h-4" /> {language === 'ru' ? 'Удалить' : 'Delete'}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        </>
+    );
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -316,42 +340,22 @@ export function AudioDetailDialog({
                 </VisuallyHidden>
 
                 <div className="flex flex-col lg:flex-row h-full w-full relative">
-                    <div className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center pointer-events-none lg:hidden">
-                        <button
-                            onClick={() => onOpenChange(false)}
-                            className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all pointer-events-auto"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                        <div className="flex gap-2 pointer-events-auto">
-                            <button
-                                onClick={handlePrevious}
-                                className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                disabled={audios.findIndex((a) => a.id === audio.id) === 0}
-                            >
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={handleNext}
-                                className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                disabled={
-                                    audios.findIndex((a) => a.id === audio.id) === audios.length - 1
-                                }
-                            >
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
+                    <DetailDialogHeader
+                        variant="mobile"
+                        onClose={() => onOpenChange(false)}
+                        onPrevious={handlePrevious}
+                        onNext={handleNext}
+                        isFirst={isFirst}
+                        isLast={isLast}
+                    />
 
+                    {/* Main content - Audio player */}
                     <div className="flex-1 relative flex flex-col items-center bg-black pt-16 pb-4 px-4 lg:pt-12 lg:pb-12 lg:px-12 min-h-0 overflow-y-auto lg:justify-center">
                         <div className="w-full max-w-[280px] sm:max-w-[320px] lg:max-w-md mx-auto shrink-0">
+                            {/* Album cover */}
                             <div className="relative w-full aspect-square rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl mb-4 lg:mb-6">
                                 {currentTrack?.cover ? (
-                                    <img
-                                        src={currentTrack.cover}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <img src={currentTrack.cover} alt="" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-[#6F00FF]/30 to-purple-500/30 flex items-center justify-center">
                                         <Music className="w-16 h-16 lg:w-24 lg:h-24 text-white/40" />
@@ -360,14 +364,14 @@ export function AudioDetailDialog({
                                 <div className="absolute inset-0 bg-black/20" />
                             </div>
 
+                            {/* Track info */}
                             <div className="text-center mb-6 lg:mb-8">
-                                <h2 className="text-lg lg:text-xl font-bold text-white truncate mb-1">
-                                    {getTrackTitle()}
-                                </h2>
+                                <h2 className="text-lg lg:text-xl font-bold text-white truncate mb-1">{getTrackTitle()}</h2>
                                 <p className="text-sm text-white/50">{getArtistName()}</p>
                             </div>
                         </div>
 
+                        {/* Player controls */}
                         <div className="w-full max-w-[280px] sm:max-w-[320px] lg:max-w-md mx-auto space-y-4 shrink-0">
                             <div className="flex items-center justify-center gap-4 lg:gap-6">
                                 <button
@@ -408,53 +412,37 @@ export function AudioDetailDialog({
                                 </button>
                             </div>
 
+                            {/* Speed presets */}
                             <div className="flex items-center justify-center gap-2">
-                                <button
-                                    onClick={() => setSpeedPreset('normal')}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                                        speedPreset === 'normal'
-                                            ? 'bg-white text-black'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                                    }`}
-                                >
-                                    Normal
-                                </button>
-                                <button
-                                    onClick={() => setSpeedPreset('slowed')}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                                        speedPreset === 'slowed'
-                                            ? 'bg-[#6F00FF] text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                                    }`}
-                                >
-                                    Slowed
-                                </button>
-                                <button
-                                    onClick={() => setSpeedPreset('nightcore')}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                                        speedPreset === 'nightcore'
-                                            ? 'bg-pink-500 text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                                    }`}
-                                >
-                                    Nightcore
-                                </button>
+                                {(['normal', 'slowed', 'nightcore'] as const).map((preset) => (
+                                    <button
+                                        key={preset}
+                                        onClick={() => setSpeedPreset(preset)}
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                                            speedPreset === preset
+                                                ? preset === 'normal'
+                                                    ? 'bg-white text-black'
+                                                    : preset === 'slowed'
+                                                      ? 'bg-[#6F00FF] text-white'
+                                                      : 'bg-pink-500 text-white'
+                                                : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                                        }`}
+                                    >
+                                        {preset.charAt(0).toUpperCase() + preset.slice(1)}
+                                    </button>
+                                ))}
                             </div>
 
+                            {/* Progress bar */}
                             <div className="space-y-2">
-                                <Slider
-                                    value={[progress]}
-                                    max={duration || 100}
-                                    step={0.1}
-                                    onValueChange={handleSeek}
-                                    className="cursor-pointer"
-                                />
+                                <Slider value={[progress]} max={duration || 100} step={0.1} onValueChange={handleSeek} className="cursor-pointer" />
                                 <div className="flex justify-between text-xs text-white/40 font-mono">
                                     <span>{formatTime(progress)}</span>
                                     <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
 
+                            {/* Track selector */}
                             {tracks.length > 1 && (
                                 <div className="flex items-center justify-center gap-2 pt-2">
                                     {tracks.map((track, idx) => (
@@ -471,20 +459,14 @@ export function AudioDetailDialog({
                                             }`}
                                         >
                                             {track.cover ? (
-                                                <img
-                                                    src={track.cover}
-                                                    alt=""
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <img src={track.cover} alt="" className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full bg-white/10 flex items-center justify-center">
                                                     <Music className="w-4 h-4 lg:w-5 lg:h-5 text-white/40" />
                                                 </div>
                                             )}
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                                <span className="text-[10px] font-bold">
-                                                    {idx + 1}
-                                                </span>
+                                                <span className="text-[10px] font-bold">{idx + 1}</span>
                                             </div>
                                         </button>
                                     ))}
@@ -492,119 +474,27 @@ export function AudioDetailDialog({
                             )}
                         </div>
 
+                        {/* Mobile actions */}
                         <div className="lg:hidden w-full max-w-[280px] sm:max-w-[320px] mx-auto mt-6 space-y-4">
-                            {audio.prompt && (
-                                <div className="text-sm text-white/60 leading-relaxed line-clamp-3">
-                                    {audio.prompt}
-                                </div>
-                            )}
-
+                            {audio.prompt && <div className="text-sm text-white/60 leading-relaxed line-clamp-3">{audio.prompt}</div>}
                             <div className="flex items-center gap-2 flex-wrap text-[10px] font-bold uppercase tracking-wider text-white/40">
                                 <span className="px-2 py-1 bg-white/5 rounded">{audio.model}</span>
-                                <span className="px-2 py-1 bg-white/5 rounded">
-                                    {formatTime(duration)}
-                                </span>
+                                <span className="px-2 py-1 bg-white/5 rounded">{formatTime(duration)}</span>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    onClick={handleExtend}
-                                    className="flex items-center justify-center gap-2 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[10px] font-bold uppercase tracking-wider"
-                                >
-                                    <Clock className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Продлить' : 'Extend'}
-                                </button>
-                                <button
-                                    onClick={handleRemix}
-                                    className="flex items-center justify-center gap-2 h-11 rounded-xl bg-[#6F00FF] hover:bg-[#7F20FF] text-white transition-all text-[10px] font-black uppercase tracking-wider"
-                                >
-                                    <RefreshCw className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Пересоздать' : 'Recreate'}
-                                </button>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={handleDownloadAll}
-                                    className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-all border border-white/10 font-bold text-[10px] uppercase tracking-widest"
-                                >
-                                    <Download className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Скачать' : 'Save'}
-                                </button>
-                                <button
-                                    onClick={() => onToggleLike(audio.id)}
-                                    className={`w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/10 ${
-                                        currentAudio?.is_favorite ? 'text-red-500' : 'text-white'
-                                    }`}
-                                >
-                                    <Heart
-                                        className={`w-4 h-4 ${
-                                            currentAudio?.is_favorite ? 'fill-current' : ''
-                                        }`}
-                                    />
-                                </button>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <button className="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all border border-white/10">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        align="end"
-                                        className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-xl p-2 min-w-[160px]"
-                                    >
-                                        <DropdownMenuItem className="gap-3 py-2.5 rounded-lg cursor-pointer focus:bg-white/10 text-sm">
-                                            <Share2 className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'Поделиться' : 'Share'}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={() => setIsAddToCollectionOpen(true)}
-                                            className="gap-3 py-2.5 rounded-lg cursor-pointer focus:bg-white/10 text-sm"
-                                        >
-                                            <FolderPlus className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'В папку' : 'Add to folder'}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={handleDelete}
-                                            className="gap-3 py-2.5 rounded-lg text-red-500 focus:text-red-500 focus:bg-red-500/10 text-sm"
-                                        >
-                                            <Trash2 className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'Удалить' : 'Delete'}
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
+                            <ActionButtons isMobile />
                         </div>
                     </div>
 
+                    {/* Desktop sidebar */}
                     <div className="hidden lg:flex w-[450px] bg-[#0A0A0A] border-l border-white/5 flex-col h-full relative overflow-hidden">
-                        <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-white/5">
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handlePrevious}
-                                    className="p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                    disabled={audios.findIndex((a) => a.id === audio.id) === 0}
-                                >
-                                    <ChevronLeft className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    className="p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
-                                    disabled={
-                                        audios.findIndex((a) => a.id === audio.id) ===
-                                        audios.length - 1
-                                    }
-                                >
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <button
-                                onClick={() => onOpenChange(false)}
-                                className="p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <DetailDialogHeader
+                            variant="desktop"
+                            onClose={() => onOpenChange(false)}
+                            onPrevious={handlePrevious}
+                            onNext={handleNext}
+                            isFirst={isFirst}
+                            isLast={isLast}
+                        />
 
                         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 scrollbar-hide">
                             {audio.prompt && (
@@ -634,120 +524,35 @@ export function AudioDetailDialog({
                                     </button>
                                 </div>
                                 <div className="text-sm text-white/70 leading-relaxed">
-                                    {audio.prompt?.slice(0, 100) ||
-                                        (language === 'ru' ? 'Без описания' : 'No description')}
+                                    {audio.prompt?.slice(0, 100) || (language === 'ru' ? 'Без описания' : 'No description')}
                                     {audio.prompt && audio.prompt.length > 100 && '...'}
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-3 flex-wrap text-[10px] font-bold uppercase tracking-wider text-white/50">
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
-                                    {audio.model}
-                                </span>
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
-                                    {formatTime(duration)}
-                                </span>
-                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">
-                                    {new Date(audio.created_at).toLocaleDateString()}
-                                </span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{audio.model}</span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{formatTime(duration)}</span>
+                                <span className="px-2.5 py-1.5 bg-white/5 rounded-lg">{new Date(audio.created_at).toLocaleDateString()}</span>
                             </div>
                         </div>
 
                         <div className="p-4 lg:p-6 bg-black/40 backdrop-blur-xl border-t border-white/5 space-y-3">
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    onClick={handleExtend}
-                                    className="flex flex-col items-center justify-center gap-1 h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[9px] font-bold uppercase tracking-wider"
-                                >
-                                    <Clock className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Продлить' : 'Extend'}
-                                </button>
-                                <button
-                                    onClick={handleRemix}
-                                    className="flex flex-col items-center justify-center gap-1 h-16 rounded-2xl bg-[#6F00FF] hover:bg-[#7F20FF] text-white transition-all text-[9px] font-black uppercase tracking-wider shadow-[0_0_20px_rgba(111,0,255,0.15)]"
-                                >
-                                    <RefreshCw className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Пересоздать' : 'Recreate'}
-                                </button>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={handleDownloadAll}
-                                    className="flex-1 h-11 rounded-2xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-all border border-white/10 font-bold text-[10px] uppercase tracking-widest"
-                                    title="Download"
-                                >
-                                    <Download className="w-3.5 h-3.5" />
-                                    {language === 'ru' ? 'Скачать' : 'Save'}
-                                    {tracks.length > 1 && ` (${tracks.length})`}
-                                </button>
-                                <button
-                                    onClick={() => onToggleLike(audio.id)}
-                                    className={`w-11 h-11 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/10 ${
-                                        currentAudio?.is_favorite ? 'text-red-500' : 'text-white'
-                                    }`}
-                                >
-                                    <Heart
-                                        className={`w-4 h-4 ${
-                                            currentAudio?.is_favorite ? 'fill-current' : ''
-                                        }`}
-                                    />
-                                </button>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <button className="w-11 h-11 rounded-2xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all border border-white/10">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        align="end"
-                                        className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-2xl p-2 min-w-[180px]"
-                                    >
-                                        <DropdownMenuItem className="gap-3 py-3 rounded-lg cursor-pointer focus:bg-white/10">
-                                            <Share2 className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'Поделиться' : 'Share'}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={() => setIsAddToCollectionOpen(true)}
-                                            className="gap-3 py-3 rounded-lg cursor-pointer focus:bg-white/10"
-                                        >
-                                            <FolderPlus className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'В папку' : 'Add to folder'}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={handleDelete}
-                                            className="gap-3 py-3 rounded-lg text-red-500 focus:text-red-500 focus:bg-red-500/10"
-                                        >
-                                            <Trash2 className="w-4 h-4" />{' '}
-                                            {language === 'ru' ? 'Удалить' : 'Delete'}
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
+                            <ActionButtons />
                         </div>
                     </div>
                 </div>
 
                 <audio
                     ref={audioRef}
-                    onTimeUpdate={handleTimeUpdate}
-                    onLoadedMetadata={handleLoadedMetadata}
+                    onTimeUpdate={() => audioRef.current && setProgress(audioRef.current.currentTime)}
+                    onLoadedMetadata={() => audioRef.current && setDuration(audioRef.current.duration)}
                     onPlay={() => setIsPlaying(true)}
                     onPause={() => setIsPlaying(false)}
                     onEnded={handleTrackEnded}
                 />
 
-                <AddToCollectionModal
-                    generationIds={[audio.id]}
-                    open={isAddToCollectionOpen}
-                    onOpenChange={setIsAddToCollectionOpen}
-                />
-
-                <ConfirmDeleteDialog
-                    open={isDeleteConfirmOpen}
-                    onOpenChange={setIsDeleteConfirmOpen}
-                    onConfirm={handleConfirmDelete}
-                />
+                <AddToCollectionModal generationIds={[audio.id]} open={isAddToCollectionOpen} onOpenChange={setIsAddToCollectionOpen} />
+                <ConfirmDeleteDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen} onConfirm={handleConfirmDelete} />
             </DialogContent>
         </Dialog>
     );

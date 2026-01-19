@@ -14,3 +14,4 @@ export { ProcessingIndicator } from './ProcessingIndicator';
 export { ResolutionSelector } from './ResolutionSelector';
 export { UploadedImagesPreview } from './UploadedImagesPreview';
 export { VideoCard } from './VideoCard';
+export { GenerationPageHeader } from './GenerationPageHeader';

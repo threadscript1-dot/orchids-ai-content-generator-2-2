@@ -1,24 +1,17 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-
 import { useLanguage } from '@/lib/language-context';
-import { useModelsStore } from '@/stores/models-store';
-import { useGenerationStore, Generation } from '@/stores/generation-store';
-import { useUnifiedGeneration } from '@/hooks/useUnifiedGeneration';
-
+import { Generation } from '@/stores/generation-store';
+import { useGenerationPage } from '@/hooks/useGenerationPage';
 import { BackgroundEllipses } from '@/components/shared';
 import {
-    GridSizeSlider,
     ImageGenerationBar,
     GeneratingPlaceholder,
     ImageCard,
+    GenerationPageHeader,
 } from '@/components/generation';
 import { ImageDetailDialog } from '@/components/dialogs/ImageDetailDialog';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 
 const DEFAULT_IMAGE_MODEL = 'nano-banana-pro';
 
@@ -27,96 +20,32 @@ interface ImageGenerationPageProps {
 }
 
 export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps) {
-    const { t, language } = useLanguage();
-    const router = useRouter();
+    const { language } = useLanguage();
 
-    // Stores
-    const { fetchModels } = useModelsStore();
-    const { generations, fetchHistory, toggleFavorite, generateImageGeneric } =
-        useGenerationStore();
-
-    // Unified generation hook
-    const generation = useUnifiedGeneration({
+    const {
+        generation,
+        gridSize,
+        setGridSize,
+        viewMode,
+        setViewMode,
+        selectedItem,
+        setSelectedItem,
+        aspectRatioOptions,
+        resolutionOptions,
+        filteredGenerations,
+        gridStyle,
+        gridClassName,
+        handleModelChange,
+        handleRemix,
+        handleGenerate,
+        toggleFavorite,
+    } = useGenerationPage({
         type: 'image',
+        initialModelId,
+        defaultModel: DEFAULT_IMAGE_MODEL,
         maxFiles: 4,
         language: language as 'ru' | 'en',
     });
-
-    // Local UI state
-    const [gridSize, setGridSize] = useState([250]);
-    const [viewMode, setViewMode] = useState<'grid' | 'feed'>('grid');
-    const [selectedImage, setSelectedImage] = useState<Generation | null>(null);
-
-    // Fetch models and history on mount
-    useEffect(() => {
-        fetchModels();
-        fetchHistory(true);
-    }, [fetchModels, fetchHistory]);
-
-    // Set model from URL path
-    useEffect(() => {
-        if (generation.models.length > 0) {
-            const modelId = initialModelId || DEFAULT_IMAGE_MODEL;
-            const foundModel = generation.models.find(
-                (m) => m.id === modelId || m.name === modelId,
-            );
-            if (foundModel && generation.selectedModelId !== foundModel.id) {
-                generation.setSelectedModelId(foundModel.id);
-            } else if (!foundModel && generation.models.length > 0 && !generation.selectedModelId) {
-                // Fallback to first model if specified model not found
-                generation.setSelectedModelId(generation.models[0].id);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [generation.models.length, initialModelId]);
-
-    // Navigate to model URL when model changes via dropdown
-    // State is preserved in pending-generation-store across navigation
-    const handleModelChange = useCallback(
-        (modelId: string) => {
-            // Sync state to store immediately before navigation to prevent data loss
-            generation.syncToStore();
-            generation.setSelectedModelId(modelId);
-            router.push(`/app/create/image/${modelId}`);
-        },
-        [generation, router],
-    );
-
-    // Build aspect ratio options for the bar
-    const aspectRatioOptions = useMemo(
-        () =>
-            generation.availableAspectRatios.map((ar) => ({
-                id: ar,
-                name: ar,
-            })),
-        [generation.availableAspectRatios],
-    );
-
-    // Build resolution options for the bar
-    const resolutionOptions = useMemo(
-        () =>
-            generation.availableResolutions.map((res) => ({
-                id: res,
-                name: res,
-            })),
-        [generation.availableResolutions],
-    );
-
-    // Filter generations to only show images
-    const imageGenerations = useMemo(
-        () => generations.filter((g) => g.type === 'image'),
-        [generations],
-    );
-
-    // Handlers
-    const handleRemix = (gen: Generation) => {
-        generation.setPrompt(gen.prompt);
-        const foundModel = generation.models.find(
-            (m) => m.id === gen.model || m.name === gen.model,
-        );
-        if (foundModel) generation.setSelectedModelId(foundModel.id);
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    };
 
     const handleMakeVariations = async (gen: Generation) => {
         generation.setPrompt(gen.prompt);
@@ -125,72 +54,33 @@ export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps
         );
         if (foundModel) generation.setSelectedModelId(foundModel.id);
 
-        // Trigger generation with current prompt
         const generationId = await generation.generate();
         if (!generationId) {
             toast.error(language === 'ru' ? 'Ошибка генерации' : 'Generation failed');
         }
     };
 
-    const handleGenerate = async () => {
-        await generation.generate();
-    };
-
     return (
         <div className="max-w-full mx-auto pb-40 relative px-0 sm:px-4">
             <BackgroundEllipses />
 
-            <div
-                className={`sticky top-0 z-10 w-full px-2 sm:px-6 py-4 flex items-center justify-between gap-4 transition-all duration-300 ${
-                    selectedImage
-                        ? 'opacity-0 pointer-events-none -translate-y-4'
-                        : 'opacity-100 pointer-events-auto translate-y-0'
-                }`}
-            >
-                <div className="flex items-center gap-2 sm:gap-6">
-                    <Link
-                        href="/app"
-                        className="p-2 rounded-xl hover:bg-white/10 transition-colors bg-white/5 border border-white/10"
-                    >
-                        <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-                    </Link>
-                    <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight">
-                        {language === 'ru' ? 'ИЗОБРАЖЕНИЕ' : 'IMAGE'}
-                    </h1>
-                </div>
-
-                <div className="flex items-center gap-6">
-                    <GridSizeSlider
-                        value={gridSize}
-                        onChange={setGridSize}
-                        min={200}
-                        max={800}
-                        viewMode={viewMode}
-                        onViewModeChange={setViewMode}
-                    />
-                </div>
-            </div>
+            <GenerationPageHeader
+                title={language === 'ru' ? 'ИЗОБРАЖЕНИЕ' : 'IMAGE'}
+                gridSize={gridSize}
+                onGridSizeChange={setGridSize}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                isHidden={!!selectedItem}
+            />
 
             <div className="px-2 sm:px-6 mt-4 sm:mt-8">
-                <div
-                    className={`grid gap-2 ${
-                        viewMode === 'grid'
-                            ? 'grid-cols-2 sm:grid-cols-none'
-                            : 'grid-cols-1 sm:grid-cols-none'
-                    }`}
-                    style={{
-                        gridTemplateColumns:
-                            typeof window !== 'undefined' && window.innerWidth > 640
-                                ? `repeat(auto-fill, minmax(${gridSize[0]}px, 1fr))`
-                                : undefined,
-                    }}
-                >
+                <div className={gridClassName} style={gridStyle}>
                     {generation.isGenerating && <GeneratingPlaceholder aspectRatio="square" />}
-                    {imageGenerations.map((gen) => (
+                    {filteredGenerations.map((gen) => (
                         <ImageCard
                             key={gen.id}
                             generation={gen}
-                            onClick={() => setSelectedImage(gen)}
+                            onClick={() => setSelectedItem(gen)}
                             onRemix={() => handleRemix(gen)}
                             onToggleLike={() => toggleFavorite(gen.id)}
                         />
@@ -251,15 +141,15 @@ export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps
             />
 
             <ImageDetailDialog
-                image={selectedImage}
-                open={!!selectedImage}
-                onOpenChange={(open) => !open && setSelectedImage(null)}
+                image={selectedItem}
+                open={!!selectedItem}
+                onOpenChange={(open) => !open && setSelectedItem(null)}
                 resolution={generation.formState.resolution}
                 onRemix={handleRemix}
                 onMakeVariations={handleMakeVariations}
                 onToggleLike={toggleFavorite}
-                generations={imageGenerations}
-                onSelectImage={setSelectedImage}
+                generations={filteredGenerations}
+                onSelectImage={setSelectedItem}
             />
         </div>
     );
