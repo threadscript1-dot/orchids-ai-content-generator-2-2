@@ -21,11 +21,7 @@ export interface PendingFormState {
     variants: number;
 }
 
-interface PendingUploadedFile {
-    id: string;
-    url: string;
-    name: string;
-}
+interface PendingUploadedFile extends UploadedImage {}
 
 type GenerationType = 'image' | 'video' | 'audio';
 
@@ -103,15 +99,10 @@ export const usePendingGenerationStore = create<PendingGenerationState>()((set, 
     },
 
     setUploadedFiles: (type, files) => {
-        const pendingFiles: PendingUploadedFile[] = files.map((f) => ({
-            id: f.id,
-            url: f.file ? URL.createObjectURL(f.file) : f.url,
-            name: f.name,
-        }));
         set((prev) => ({
             [type]: {
                 ...prev[type],
-                uploadedFiles: pendingFiles,
+                uploadedFiles: files,
             },
         }));
     },

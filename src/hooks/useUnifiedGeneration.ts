@@ -424,12 +424,7 @@ export function useUnifiedGeneration(
     // Sync files to pending store
     const handleFilesChange = useCallback(
         (files: UploadedImage[]) => {
-            const filesToStore = files.map((f) => ({
-                id: f.id,
-                url: f.url,
-                name: f.name,
-            }));
-            pendingStore.setUploadedFiles(type, filesToStore as UploadedImage[]);
+            pendingStore.setUploadedFiles(type, files);
         },
         [type, pendingStore],
     );
@@ -456,12 +451,7 @@ export function useUnifiedGeneration(
     // Immediate sync function for use before navigation - syncs BOTH form state and files
     const syncToStore = useCallback(() => {
         pendingStore.setFormState(type, formState);
-        const filesToStore = uploadedFiles.map((f) => ({
-            id: f.id,
-            url: f.url,
-            name: f.name,
-        }));
-        pendingStore.setUploadedFiles(type, filesToStore as UploadedImage[]);
+        pendingStore.setUploadedFiles(type, uploadedFiles);
     }, [pendingStore, type, formState, uploadedFiles]);
 
     // Pricing
@@ -601,7 +591,15 @@ export function useUnifiedGeneration(
             // Add uploaded files using the correct field name
             if (uploadedUrls.length > 0 && attachmentConfig) {
                 const fieldName = attachmentConfig.fieldName;
-                params[fieldName] = uploadedUrls;
+                // Use array only if fieldName ends with 's' or maxCount > 1
+                if (
+                    fieldName.endsWith('s') ||
+                    (attachmentConfig.maxCount && attachmentConfig.maxCount > 1)
+                ) {
+                    params[fieldName] = uploadedUrls;
+                } else {
+                    params[fieldName] = uploadedUrls[0];
+                }
             }
 
             // Use unified generation

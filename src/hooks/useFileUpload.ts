@@ -6,7 +6,7 @@ import { UploadedImage } from '@/types/generation';
 interface UseFileUploadOptions {
     maxFiles?: number;
     acceptedTypes?: string[];
-    initialFiles?: Array<{ id: string; url: string; name: string }>;
+    initialFiles?: UploadedImage[];
     onFilesChange?: (files: UploadedImage[]) => void;
 }
 
@@ -50,6 +50,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
                     id: f.id,
                     url: f.url,
                     name: f.name,
+                    file: f.file,
                 })),
             );
         }
