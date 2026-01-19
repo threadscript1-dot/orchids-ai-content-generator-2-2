@@ -9,6 +9,7 @@ import { UploadedImagesPreview } from './UploadedImagesPreview';
 import { ModelSelector } from './ModelSelector';
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ResolutionSelector } from './ResolutionSelector';
+import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
 import { AspectRatioOption } from '@/types/generation';
 
 interface ResolutionOption {
@@ -40,6 +41,33 @@ interface ImageGenerationBarProps {
     onGenerate: () => void;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    // Advanced options
+    advancedOptions?: {
+        negativePrompt: string;
+        promptEnhancement: boolean;
+        translation: boolean;
+        removeWatermark: boolean;
+        upscale: boolean;
+        safetyTolerance: number;
+        strength: number;
+        variants: number;
+        onNegativePromptChange: (value: string) => void;
+        onPromptEnhancementChange: (value: boolean) => void;
+        onTranslationChange: (value: boolean) => void;
+        onRemoveWatermarkChange: (value: boolean) => void;
+        onUpscaleChange: (value: boolean) => void;
+        onSafetyToleranceChange: (value: number) => void;
+        onStrengthChange: (value: number) => void;
+        onVariantsChange: (value: number) => void;
+        supportsNegativePrompt: boolean;
+        supportsPromptEnhancement: boolean;
+        supportsTranslation: boolean;
+        supportsWatermark: boolean;
+        supportsUpscale: boolean;
+        supportsStrength: boolean;
+        safetyToleranceRange: [number, number] | null;
+        maxVariants: number | null;
+    };
 }
 
 export function ImageGenerationBar({
@@ -66,6 +94,7 @@ export function ImageGenerationBar({
     onGenerate,
     fileInputRef,
     onFileInputChange,
+    advancedOptions,
 }: ImageGenerationBarProps) {
     const { t, language } = useLanguage();
 
@@ -180,6 +209,35 @@ export function ImageGenerationBar({
                                 value={resolution}
                                 onChange={onResolutionChange}
                             />
+                            {advancedOptions && (
+                                <AdvancedOptionsPanel
+                                    negativePrompt={advancedOptions.negativePrompt}
+                                    promptEnhancement={advancedOptions.promptEnhancement}
+                                    translation={advancedOptions.translation}
+                                    removeWatermark={advancedOptions.removeWatermark}
+                                    upscale={advancedOptions.upscale}
+                                    safetyTolerance={advancedOptions.safetyTolerance}
+                                    strength={advancedOptions.strength}
+                                    variants={advancedOptions.variants}
+                                    onNegativePromptChange={advancedOptions.onNegativePromptChange}
+                                    onPromptEnhancementChange={advancedOptions.onPromptEnhancementChange}
+                                    onTranslationChange={advancedOptions.onTranslationChange}
+                                    onRemoveWatermarkChange={advancedOptions.onRemoveWatermarkChange}
+                                    onUpscaleChange={advancedOptions.onUpscaleChange}
+                                    onSafetyToleranceChange={advancedOptions.onSafetyToleranceChange}
+                                    onStrengthChange={advancedOptions.onStrengthChange}
+                                    onVariantsChange={advancedOptions.onVariantsChange}
+                                    supportsNegativePrompt={advancedOptions.supportsNegativePrompt}
+                                    supportsPromptEnhancement={advancedOptions.supportsPromptEnhancement}
+                                    supportsTranslation={advancedOptions.supportsTranslation}
+                                    supportsWatermark={advancedOptions.supportsWatermark}
+                                    supportsUpscale={advancedOptions.supportsUpscale}
+                                    supportsStrength={advancedOptions.supportsStrength}
+                                    safetyToleranceRange={advancedOptions.safetyToleranceRange}
+                                    maxVariants={advancedOptions.maxVariants}
+                                    hasAttachments={uploadedImages.length > 0}
+                                />
+                            )}
                         </div>
 
                         <div className="flex items-center justify-between w-full sm:w-auto gap-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Cpu, Image, Video, Wand2, Zap } from 'lucide-react';
+import { Cpu, Image, Video, Zap } from 'lucide-react';
 import { Model, hasCapability, supportsAttachment } from '@/stores/models-store';
 import {
     Select,
@@ -9,7 +9,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { InfoTooltip } from '@/components/ui/tooltip';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useLanguage } from '@/lib/language-context';
 
 interface ModelSelectorProps {
     models: Model[];
@@ -45,22 +47,28 @@ function getModelBadges(model: Model): string[] {
 }
 
 export function ModelSelector({ models, value, onChange, open, onOpenChange }: ModelSelectorProps) {
+    const { language } = useLanguage();
     const selectedModel = models.find((m) => m.id === value);
     const ModelIcon = selectedModel ? getModelIcon(selectedModel) : Cpu;
+    const tooltip = language === 'ru'
+        ? 'AI модель для генерации'
+        : 'AI model for generation';
 
     return (
         <Select value={value} onValueChange={onChange} open={open} onOpenChange={onOpenChange}>
-            <SelectTrigger className="w-fit min-w-[100px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
-                <div className="flex items-center gap-3">
-                    <ModelIcon className="w-4 h-4 text-white" />
-                    <span className="text-white truncate max-w-[120px]">
-                        {selectedModel?.name || 'Select model'}
-                    </span>
-                </div>
-                <VisuallyHidden>
-                    <SelectValue />
-                </VisuallyHidden>
-            </SelectTrigger>
+            <InfoTooltip content={tooltip}>
+                <SelectTrigger className="w-fit min-w-[100px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <ModelIcon className="w-4 h-4 text-white" />
+                        <span className="text-white truncate max-w-[120px]">
+                            {selectedModel?.name || 'Select model'}
+                        </span>
+                    </div>
+                    <VisuallyHidden>
+                        <SelectValue />
+                    </VisuallyHidden>
+                </SelectTrigger>
+            </InfoTooltip>
             <SelectContent
                 className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-md p-2 max-h-[400px]"
                 align="start"

@@ -58,4 +58,27 @@ function TooltipContent({
   )
 }
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+// Reusable tooltip wrapper with consistent dark theme styling
+interface InfoTooltipProps {
+  content: React.ReactNode;
+  children: React.ReactNode;
+  side?: 'top' | 'bottom' | 'left' | 'right';
+  maxWidth?: string;
+}
+
+function InfoTooltip({ content, children, side = 'top', maxWidth = '200px' }: InfoTooltipProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent
+        side={side}
+        className="bg-black/90 text-white border-white/10"
+        style={{ maxWidth }}
+      >
+        {content}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, InfoTooltip }

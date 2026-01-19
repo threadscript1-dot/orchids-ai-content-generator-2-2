@@ -8,7 +8,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { InfoTooltip } from '@/components/ui/tooltip';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useLanguage } from '@/lib/language-context';
 
 interface ResolutionOption {
     id: string;
@@ -30,17 +32,24 @@ export function ResolutionSelector({
     open,
     onOpenChange,
 }: ResolutionSelectorProps) {
+    const { language } = useLanguage();
+    const tooltip = language === 'ru'
+        ? 'Разрешение изображения (HD = выше качество)'
+        : 'Image resolution (HD = higher quality)';
+
     return (
         <Select value={value} onValueChange={onChange} open={open} onOpenChange={onOpenChange}>
-            <SelectTrigger className="w-fit min-w-[70px] h-10 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors uppercase tracking-widest">
-                <div className="flex items-center gap-3">
-                    <DiamondIcon className="w-4 h-4 text-white" />
-                    <span className="text-white">{value}</span>
-                </div>
-                <VisuallyHidden>
-                    <SelectValue />
-                </VisuallyHidden>
-            </SelectTrigger>
+            <InfoTooltip content={tooltip}>
+                <SelectTrigger className="w-fit min-w-[70px] h-10 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors uppercase tracking-widest">
+                    <div className="flex items-center gap-3">
+                        <DiamondIcon className="w-4 h-4 text-white" />
+                        <span className="text-white">{value}</span>
+                    </div>
+                    <VisuallyHidden>
+                        <SelectValue />
+                    </VisuallyHidden>
+                </SelectTrigger>
+            </InfoTooltip>
             <SelectContent
                 className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-md p-2"
                 align="start"

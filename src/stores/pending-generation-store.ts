@@ -10,6 +10,15 @@ export interface PendingFormState {
     duration: string;
     quality: string;
     sound: boolean;
+    // Advanced options
+    negativePrompt: string;
+    promptEnhancement: boolean;
+    translation: boolean;
+    removeWatermark: boolean;
+    upscale: boolean;
+    safetyTolerance: number;
+    strength: number;
+    variants: number;
 }
 
 interface PendingUploadedFile {
@@ -56,6 +65,15 @@ const DEFAULT_FORM_STATE: PendingFormState = {
     duration: '5',
     quality: 'basic',
     sound: false,
+    // Advanced options defaults
+    negativePrompt: '',
+    promptEnhancement: false,
+    translation: false,
+    removeWatermark: false,
+    upscale: false,
+    safetyTolerance: 3,
+    strength: 0.75,
+    variants: 1,
 };
 
 export const usePendingGenerationStore = create<PendingGenerationState>()((set, get) => ({

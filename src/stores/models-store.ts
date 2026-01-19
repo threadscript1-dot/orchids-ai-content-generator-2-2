@@ -8,14 +8,52 @@ import { api } from '@/api/client';
 // ============================================================================
 
 export interface ModelConstraints {
+    // Common
     aspectRatios?: string[];
-    durations?: string[];
-    resolutions?: string[];
-    maxInputImages?: number;
-    maxSizeBytes?: number;
     promptRequired?: boolean;
-    supportsAudio?: boolean;
-    outputFormats?: string[];
+
+    // Video-specific
+    maxDuration?: number;
+    minDuration?: number;
+    durations?: number[]; // Available duration options (e.g., [5, 10])
+    resolutions?: string[]; // e.g., ['720p', '1080p']
+    defaultResolution?: string;
+    supportsAudio?: boolean; // Whether model can generate audio with video
+
+    // Image-specific
+    outputFormats?: string[]; // e.g., ['png', 'jpg', 'webp']
+    maxVariants?: number; // Max number of variations (GPT-4o: 1, 2, 4)
+    supportsMask?: boolean; // For inpainting
+    maxInputImages?: number; // Max reference images
+    supportsStrength?: boolean; // For image-to-image strength control
+    supportsNegativePrompt?: boolean; // For negative prompt support
+
+    // Audio/Music-specific
+    maxMusicDuration?: number; // In seconds
+    kieModelVersion?: string;
+    supportedModels?: string[];
+    supportsInstrumental?: boolean;
+    supportsLyrics?: boolean;
+    supportsCustomMode?: boolean;
+    musicStyles?: string[];
+    supportsVocalGender?: boolean;
+    supportsStyleWeight?: boolean;
+    supportsWeirdnessConstraint?: boolean;
+    supportsAudioWeight?: boolean;
+    supportsNegativeTags?: boolean;
+    supportsPersona?: boolean;
+    maxPromptLength?: number;
+    maxStyleLength?: number;
+    maxTitleLength?: number;
+
+    // Advanced options
+    supportsPromptEnhancement?: boolean;
+    supportsTranslation?: boolean;
+    supportsWatermark?: boolean;
+    supportsUpscale?: boolean; // For models with 1080p upgrade option
+    safetyToleranceRange?: [number, number]; // e.g., [0, 6] for Flux
+
+    // Generation modes (for multi-mode models like Veo)
     generationModes?: string[];
 }
 

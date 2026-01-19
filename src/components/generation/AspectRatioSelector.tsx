@@ -9,7 +9,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { InfoTooltip } from '@/components/ui/tooltip';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useLanguage } from '@/lib/language-context';
 
 interface AspectRatioSelectorProps {
     options: AspectRatioOption[];
@@ -26,17 +28,24 @@ export function AspectRatioSelector({
     open,
     onOpenChange,
 }: AspectRatioSelectorProps) {
+    const { language } = useLanguage();
+    const tooltip = language === 'ru'
+        ? 'Соотношение сторон результата'
+        : 'Output aspect ratio';
+
     return (
         <Select value={value} onValueChange={onChange} open={open} onOpenChange={onOpenChange}>
-            <SelectTrigger className="w-fit min-w-[70px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
-                <div className="flex items-center gap-3">
-                    <AspectRatioIcon ratio={value} className="text-white" />
-                    <span className="text-white">{value}</span>
-                </div>
-                <VisuallyHidden>
-                    <SelectValue />
-                </VisuallyHidden>
-            </SelectTrigger>
+            <InfoTooltip content={tooltip}>
+                <SelectTrigger className="w-fit min-w-[70px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <AspectRatioIcon ratio={value} className="text-white" />
+                        <span className="text-white">{value}</span>
+                    </div>
+                    <VisuallyHidden>
+                        <SelectValue />
+                    </VisuallyHidden>
+                </SelectTrigger>
+            </InfoTooltip>
             <SelectContent
                 className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-md p-2"
                 align="start"

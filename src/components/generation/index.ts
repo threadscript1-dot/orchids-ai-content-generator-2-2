@@ -1,3 +1,4 @@
+export { AdvancedOptionsPanel, SoundToggle } from './AdvancedOptionsPanel';
 export { AspectRatioIcon } from './AspectRatioIcon';
 export { AspectRatioSelector } from './AspectRatioSelector';
 export { CreditsCostDisplay } from './CreditsCostDisplay';

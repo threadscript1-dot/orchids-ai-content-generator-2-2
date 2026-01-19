@@ -318,6 +318,7 @@ function getEndpointForModel(
         'wan-animate-replace': '/video/wan/generate',
         'grok-imagine-t2v': '/video/grok-imagine/generate',
         'grok-imagine-i2v': '/video/grok-imagine/generate',
+        'grok-imagine-video': '/video/grok-imagine/generate',
     };
 
     // Audio model endpoints

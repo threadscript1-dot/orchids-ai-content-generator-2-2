@@ -41,6 +41,15 @@ export interface GenerationFormState {
     duration: string;
     quality: string;
     sound: boolean;
+    // Advanced options
+    negativePrompt: string;
+    promptEnhancement: boolean;
+    translation: boolean;
+    removeWatermark: boolean;
+    upscale: boolean;
+    safetyTolerance: number;
+    strength: number; // For image-to-image
+    variants: number; // Number of variations
 }
 
 export interface UseUnifiedGenerationOptions {
@@ -65,11 +74,31 @@ export interface UseUnifiedGenerationReturn {
     setDuration: (duration: string) => void;
     setQuality: (quality: string) => void;
     setSound: (sound: boolean) => void;
+    // Advanced options setters
+    setNegativePrompt: (value: string) => void;
+    setPromptEnhancement: (value: boolean) => void;
+    setTranslation: (value: boolean) => void;
+    setRemoveWatermark: (value: boolean) => void;
+    setUpscale: (value: boolean) => void;
+    setSafetyTolerance: (value: number) => void;
+    setStrength: (value: number) => void;
+    setVariants: (value: number) => void;
 
     // Constraints from model
     availableAspectRatios: string[];
     availableResolutions: string[];
     availableDurations: string[];
+
+    // Advanced constraints (for UI rendering)
+    supportsNegativePrompt: boolean;
+    supportsPromptEnhancement: boolean;
+    supportsTranslation: boolean;
+    supportsWatermark: boolean;
+    supportsUpscale: boolean;
+    supportsStrength: boolean;
+    safetyToleranceRange: [number, number] | null;
+    maxVariants: number | null;
+    supportsAudio: boolean;
 
     // Attachments
     uploadedFiles: UploadedImage[];
@@ -114,6 +143,15 @@ const DEFAULT_FORM_STATE: GenerationFormState = {
     duration: '5',
     quality: 'basic',
     sound: false,
+    // Advanced options defaults
+    negativePrompt: '',
+    promptEnhancement: false,
+    translation: false,
+    removeWatermark: false,
+    upscale: false,
+    safetyTolerance: 3, // Middle of typical [0, 6] range
+    strength: 0.75, // Default i2i strength
+    variants: 1,
 };
 
 const DEFAULT_ASPECT_RATIOS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
@@ -220,6 +258,39 @@ export function useUnifiedGeneration(
         [],
     );
     const setSound = useCallback((sound: boolean) => setFormState((s) => ({ ...s, sound })), []);
+    // Advanced options setters
+    const setNegativePrompt = useCallback(
+        (negativePrompt: string) => setFormState((s) => ({ ...s, negativePrompt })),
+        [],
+    );
+    const setPromptEnhancement = useCallback(
+        (promptEnhancement: boolean) => setFormState((s) => ({ ...s, promptEnhancement })),
+        [],
+    );
+    const setTranslation = useCallback(
+        (translation: boolean) => setFormState((s) => ({ ...s, translation })),
+        [],
+    );
+    const setRemoveWatermark = useCallback(
+        (removeWatermark: boolean) => setFormState((s) => ({ ...s, removeWatermark })),
+        [],
+    );
+    const setUpscale = useCallback(
+        (upscale: boolean) => setFormState((s) => ({ ...s, upscale })),
+        [],
+    );
+    const setSafetyTolerance = useCallback(
+        (safetyTolerance: number) => setFormState((s) => ({ ...s, safetyTolerance })),
+        [],
+    );
+    const setStrength = useCallback(
+        (strength: number) => setFormState((s) => ({ ...s, strength })),
+        [],
+    );
+    const setVariants = useCallback(
+        (variants: number) => setFormState((s) => ({ ...s, variants })),
+        [],
+    );
 
     // Get constraints from selected model
     const availableAspectRatios = useMemo(() => {
@@ -230,9 +301,52 @@ export function useUnifiedGeneration(
         return selectedModel?.constraints?.resolutions || DEFAULT_RESOLUTIONS;
     }, [selectedModel]);
 
+    // Convert number[] from backend to string[] for UI
     const availableDurations = useMemo(() => {
-        return selectedModel?.constraints?.durations || DEFAULT_DURATIONS;
+        const durations = selectedModel?.constraints?.durations;
+        if (durations && durations.length > 0) {
+            return durations.map((d) => String(d));
+        }
+        return DEFAULT_DURATIONS;
     }, [selectedModel]);
+
+    // Advanced constraint flags for UI rendering
+    const supportsNegativePrompt = useMemo(
+        () => selectedModel?.constraints?.supportsNegativePrompt ?? false,
+        [selectedModel],
+    );
+    const supportsPromptEnhancement = useMemo(
+        () => selectedModel?.constraints?.supportsPromptEnhancement ?? false,
+        [selectedModel],
+    );
+    const supportsTranslation = useMemo(
+        () => selectedModel?.constraints?.supportsTranslation ?? false,
+        [selectedModel],
+    );
+    const supportsWatermark = useMemo(
+        () => selectedModel?.constraints?.supportsWatermark ?? false,
+        [selectedModel],
+    );
+    const supportsUpscale = useMemo(
+        () => selectedModel?.constraints?.supportsUpscale ?? false,
+        [selectedModel],
+    );
+    const supportsStrength = useMemo(
+        () => selectedModel?.constraints?.supportsStrength ?? false,
+        [selectedModel],
+    );
+    const safetyToleranceRange = useMemo(
+        () => selectedModel?.constraints?.safetyToleranceRange ?? null,
+        [selectedModel],
+    );
+    const maxVariants = useMemo(
+        () => selectedModel?.constraints?.maxVariants ?? null,
+        [selectedModel],
+    );
+    const supportsAudio = useMemo(
+        () => selectedModel?.constraints?.supportsAudio ?? false,
+        [selectedModel],
+    );
 
     // Auto-correct form state when constraints change
     useMemo(() => {
@@ -458,6 +572,32 @@ export function useUnifiedGeneration(
                 params.sound = formState.sound;
             }
 
+            // Add advanced options based on model constraints
+            if (supportsNegativePrompt && formState.negativePrompt.trim()) {
+                params.negative_prompt = formState.negativePrompt;
+            }
+            if (supportsPromptEnhancement) {
+                params.prompt_enhancement = formState.promptEnhancement;
+            }
+            if (supportsTranslation) {
+                params.translate = formState.translation;
+            }
+            if (supportsWatermark) {
+                params.remove_watermark = formState.removeWatermark;
+            }
+            if (supportsUpscale) {
+                params.upscale = formState.upscale;
+            }
+            if (safetyToleranceRange) {
+                params.safety_tolerance = formState.safetyTolerance;
+            }
+            if (supportsStrength && uploadedUrls.length > 0) {
+                params.strength = formState.strength;
+            }
+            if (maxVariants && maxVariants > 1) {
+                params.n = formState.variants;
+            }
+
             // Add uploaded files using the correct field name
             if (uploadedUrls.length > 0 && attachmentConfig) {
                 const fieldName = attachmentConfig.fieldName;
@@ -497,6 +637,14 @@ export function useUnifiedGeneration(
         language,
         clearFiles,
         pendingStore,
+        supportsNegativePrompt,
+        supportsPromptEnhancement,
+        supportsTranslation,
+        supportsWatermark,
+        supportsUpscale,
+        safetyToleranceRange,
+        supportsStrength,
+        maxVariants,
     ]);
 
     return {
@@ -515,11 +663,31 @@ export function useUnifiedGeneration(
         setDuration,
         setQuality,
         setSound,
+        // Advanced options setters
+        setNegativePrompt,
+        setPromptEnhancement,
+        setTranslation,
+        setRemoveWatermark,
+        setUpscale,
+        setSafetyTolerance,
+        setStrength,
+        setVariants,
 
         // Constraints
         availableAspectRatios,
         availableResolutions,
         availableDurations,
+
+        // Advanced constraints (for UI rendering)
+        supportsNegativePrompt,
+        supportsPromptEnhancement,
+        supportsTranslation,
+        supportsWatermark,
+        supportsUpscale,
+        supportsStrength,
+        safetyToleranceRange,
+        maxVariants,
+        supportsAudio,
 
         // Attachments
         uploadedFiles,

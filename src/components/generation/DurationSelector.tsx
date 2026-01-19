@@ -8,7 +8,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { InfoTooltip } from '@/components/ui/tooltip';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useLanguage } from '@/lib/language-context';
 
 interface DurationOption {
     id: string;
@@ -30,17 +32,24 @@ export function DurationSelector({
     open,
     onOpenChange,
 }: DurationSelectorProps) {
+    const { language } = useLanguage();
+    const tooltip = language === 'ru'
+        ? 'Длительность видео в секундах'
+        : 'Video duration in seconds';
+
     return (
         <Select value={value} onValueChange={onChange} open={open} onOpenChange={onOpenChange}>
-            <SelectTrigger className="w-fit min-w-[70px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
-                <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-white" />
-                    <span className="text-white">{value}</span>
-                </div>
-                <VisuallyHidden>
-                    <SelectValue />
-                </VisuallyHidden>
-            </SelectTrigger>
+            <InfoTooltip content={tooltip}>
+                <SelectTrigger className="w-fit min-w-[70px] h-9 bg-white/5 border-none rounded-2xl px-4 text-xs font-medium gap-3 hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <Clock className="w-4 h-4 text-white" />
+                        <span className="text-white">{value}</span>
+                    </div>
+                    <VisuallyHidden>
+                        <SelectValue />
+                    </VisuallyHidden>
+                </SelectTrigger>
+            </InfoTooltip>
             <SelectContent
                 className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-md p-2"
                 align="start"

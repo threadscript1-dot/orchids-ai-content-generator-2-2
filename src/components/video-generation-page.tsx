@@ -193,6 +193,9 @@ export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps
                 durations={generation.availableDurations}
                 duration={generation.formState.duration}
                 onDurationChange={generation.setDuration}
+                sound={generation.formState.sound}
+                onSoundChange={generation.setSound}
+                supportsAudio={generation.supportsAudio}
                 creditsCost={generation.estimatedPrice}
                 isGenerating={generation.isGenerating}
                 onGenerate={handleGenerate}
@@ -201,6 +204,33 @@ export function VideoGenerationPage({ initialModelId }: VideoGenerationPageProps
                 addFrameText={language === 'ru' ? 'Добавьте кадр' : 'Add frame'}
                 fileInputRef={generation.fileInputRef}
                 onFileInputChange={generation.handleFileInputChange}
+                advancedOptions={{
+                    negativePrompt: generation.formState.negativePrompt,
+                    promptEnhancement: generation.formState.promptEnhancement,
+                    translation: generation.formState.translation,
+                    removeWatermark: generation.formState.removeWatermark,
+                    upscale: generation.formState.upscale,
+                    safetyTolerance: generation.formState.safetyTolerance,
+                    strength: generation.formState.strength,
+                    variants: generation.formState.variants,
+                    onNegativePromptChange: generation.setNegativePrompt,
+                    onPromptEnhancementChange: generation.setPromptEnhancement,
+                    onTranslationChange: generation.setTranslation,
+                    onRemoveWatermarkChange: generation.setRemoveWatermark,
+                    onUpscaleChange: generation.setUpscale,
+                    onSafetyToleranceChange: generation.setSafetyTolerance,
+                    onStrengthChange: generation.setStrength,
+                    onVariantsChange: generation.setVariants,
+                    supportsNegativePrompt: generation.supportsNegativePrompt,
+                    supportsPromptEnhancement: generation.supportsPromptEnhancement,
+                    supportsTranslation: generation.supportsTranslation,
+                    supportsWatermark: generation.supportsWatermark,
+                    supportsUpscale: generation.supportsUpscale,
+                    supportsStrength: generation.supportsStrength,
+                    safetyToleranceRange: generation.safetyToleranceRange,
+                    maxVariants: generation.maxVariants,
+                    supportsAudio: generation.supportsAudio,
+                }}
             />
 
             <VideoDetailDialog

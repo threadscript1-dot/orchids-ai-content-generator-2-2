@@ -9,6 +9,7 @@ import { UploadedImagesPreview } from './UploadedImagesPreview';
 import { ModelSelector } from './ModelSelector';
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { DurationSelector } from './DurationSelector';
+import { AdvancedOptionsPanel, SoundToggle } from './AdvancedOptionsPanel';
 import { AspectRatioOption } from '@/types/generation';
 
 interface GenerationBarProps {
@@ -30,6 +31,10 @@ interface GenerationBarProps {
     durations?: string[];
     duration?: string;
     onDurationChange?: (value: string) => void;
+    // Sound toggle
+    sound?: boolean;
+    onSoundChange?: (enabled: boolean) => void;
+    supportsAudio?: boolean;
     creditsCost: number;
     isGenerating: boolean;
     onGenerate: () => void;
@@ -39,6 +44,34 @@ interface GenerationBarProps {
     addFrameText?: string;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    // Advanced options
+    advancedOptions?: {
+        negativePrompt: string;
+        promptEnhancement: boolean;
+        translation: boolean;
+        removeWatermark: boolean;
+        upscale: boolean;
+        safetyTolerance: number;
+        strength: number;
+        variants: number;
+        onNegativePromptChange: (value: string) => void;
+        onPromptEnhancementChange: (value: boolean) => void;
+        onTranslationChange: (value: boolean) => void;
+        onRemoveWatermarkChange: (value: boolean) => void;
+        onUpscaleChange: (value: boolean) => void;
+        onSafetyToleranceChange: (value: number) => void;
+        onStrengthChange: (value: number) => void;
+        onVariantsChange: (value: number) => void;
+        supportsNegativePrompt: boolean;
+        supportsPromptEnhancement: boolean;
+        supportsTranslation: boolean;
+        supportsWatermark: boolean;
+        supportsUpscale: boolean;
+        supportsStrength: boolean;
+        safetyToleranceRange: [number, number] | null;
+        maxVariants: number | null;
+        supportsAudio?: boolean;
+    };
 }
 
 export function GenerationBar({
@@ -60,6 +93,9 @@ export function GenerationBar({
     durations,
     duration,
     onDurationChange,
+    sound,
+    onSoundChange,
+    supportsAudio,
     creditsCost,
     isGenerating,
     onGenerate,
@@ -69,6 +105,7 @@ export function GenerationBar({
     addFrameText,
     fileInputRef,
     onFileInputChange,
+    advancedOptions,
 }: GenerationBarProps) {
     const { t, language } = useLanguage();
 
@@ -178,6 +215,42 @@ export function GenerationBar({
                                     options={durations}
                                     value={duration}
                                     onChange={onDurationChange}
+                                />
+                            )}
+                            {supportsAudio && onSoundChange && (
+                                <SoundToggle
+                                    enabled={sound ?? false}
+                                    onChange={onSoundChange}
+                                    supported={supportsAudio}
+                                />
+                            )}
+                            {advancedOptions && (
+                                <AdvancedOptionsPanel
+                                    negativePrompt={advancedOptions.negativePrompt}
+                                    promptEnhancement={advancedOptions.promptEnhancement}
+                                    translation={advancedOptions.translation}
+                                    removeWatermark={advancedOptions.removeWatermark}
+                                    upscale={advancedOptions.upscale}
+                                    safetyTolerance={advancedOptions.safetyTolerance}
+                                    strength={advancedOptions.strength}
+                                    variants={advancedOptions.variants}
+                                    onNegativePromptChange={advancedOptions.onNegativePromptChange}
+                                    onPromptEnhancementChange={advancedOptions.onPromptEnhancementChange}
+                                    onTranslationChange={advancedOptions.onTranslationChange}
+                                    onRemoveWatermarkChange={advancedOptions.onRemoveWatermarkChange}
+                                    onUpscaleChange={advancedOptions.onUpscaleChange}
+                                    onSafetyToleranceChange={advancedOptions.onSafetyToleranceChange}
+                                    onStrengthChange={advancedOptions.onStrengthChange}
+                                    onVariantsChange={advancedOptions.onVariantsChange}
+                                    supportsNegativePrompt={advancedOptions.supportsNegativePrompt}
+                                    supportsPromptEnhancement={advancedOptions.supportsPromptEnhancement}
+                                    supportsTranslation={advancedOptions.supportsTranslation}
+                                    supportsWatermark={advancedOptions.supportsWatermark}
+                                    supportsUpscale={advancedOptions.supportsUpscale}
+                                    supportsStrength={advancedOptions.supportsStrength}
+                                    safetyToleranceRange={advancedOptions.safetyToleranceRange}
+                                    maxVariants={advancedOptions.maxVariants}
+                                    hasAttachments={uploadedImages.length > 0}
                                 />
                             )}
                         </div>
