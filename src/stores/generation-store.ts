@@ -91,6 +91,12 @@ interface GenerationState {
 
     // Image Tools - Background Removal
     removeBackground: (params: RemoveBackgroundParams) => Promise<string | null>;
+
+    // Video Tools - Kling Motion Control
+    klingMotionControl: (params: KlingMotionControlParams) => Promise<string | null>;
+
+    // Video Tools - Seedance Start-End Frame
+    seedanceStartEndFrame: (params: SeedanceStartEndFrameParams) => Promise<string | null>;
 }
 
 export interface Flux2TextToImageParams {
@@ -244,6 +250,25 @@ export interface RecraftUpscaleParams {
 
 export interface RemoveBackgroundParams {
     image: string;
+}
+
+export interface KlingMotionControlParams {
+    prompt?: string;
+    input_url: string; // Reference image
+    video_url: string; // Reference video
+    mode: '720p' | '1080p';
+    character_orientation: 'image' | 'video';
+}
+
+export interface SeedanceStartEndFrameParams {
+    prompt: string;
+    start_frame_url: string;
+    end_frame_url: string;
+    aspect_ratio?: '1:1' | '4:3' | '3:4' | '16:9' | '9:16' | '21:9';
+    resolution?: '480p' | '720p';
+    duration?: 4 | 8 | 12;
+    fixed_lens?: boolean;
+    generate_audio?: boolean;
 }
 
 const POLL_INTERVAL = 5000;
@@ -587,8 +612,14 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             return null;
         }
 
-        // Get the correct endpoint using our mapping (model.endpoint from registry is incorrect)
-        const endpoint = getEndpointForModel(modelId, model.type, params);
+        // Use endpoint from model config (provided by backend)
+        // Fall back to hardcoded mapping only if model.endpoint is missing or invalid
+        let endpoint = model.endpoint;
+        if (!endpoint || endpoint.includes('undefined') || endpoint.startsWith('/v2/')) {
+            // Fallback to legacy mapping for models with incorrect endpoints
+            endpoint = getEndpointForModel(modelId, model.type, params);
+            console.warn(`[generateUnified] Using fallback endpoint mapping for ${modelId}`);
+        }
 
         try {
             console.log(`[generateUnified] Calling ${endpoint} for model ${modelId}`, params);
@@ -1621,6 +1652,76 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             return genData.id;
         } catch (err) {
             set({ error: err instanceof Error ? err.message : 'Background removal error' });
+            return null;
+        }
+    },
+
+    // Video Tools - Kling Motion Control
+    klingMotionControl: async (params) => {
+        set({ error: null });
+        try {
+            const { data, error } = await api.POST('/video/kling/motion-control' as any, {
+                body: params,
+            });
+
+            if (error || !data) {
+                const errData = error as { error?: string; message?: string } | undefined;
+                set({ error: errData?.message || errData?.error || 'Motion control failed' });
+                return null;
+            }
+
+            const genData = data as { id: string; status: string; cost_credits: number };
+            const optimisticGen: Generation = {
+                id: genData.id,
+                type: 'video',
+                model: 'kling-motion-control',
+                status: 'processing',
+                prompt: params.prompt || 'Motion Control',
+                cost_credits: genData.cost_credits,
+                created_at: new Date().toISOString(),
+            };
+
+            get().addGeneration(optimisticGen);
+            get().pollGenerationStatus(genData.id);
+
+            return genData.id;
+        } catch (err) {
+            set({ error: err instanceof Error ? err.message : 'Motion control error' });
+            return null;
+        }
+    },
+
+    // Video Tools - Seedance Start-End Frame
+    seedanceStartEndFrame: async (params) => {
+        set({ error: null });
+        try {
+            const { data, error } = await api.POST('/video/seedance/start-end-frame' as any, {
+                body: params,
+            });
+
+            if (error || !data) {
+                const errData = error as { error?: string; message?: string } | undefined;
+                set({ error: errData?.message || errData?.error || 'Start-end frame generation failed' });
+                return null;
+            }
+
+            const genData = data as { id: string; status: string; cost_credits: number };
+            const optimisticGen: Generation = {
+                id: genData.id,
+                type: 'video',
+                model: 'seedance-start-end',
+                status: 'processing',
+                prompt: params.prompt,
+                cost_credits: genData.cost_credits,
+                created_at: new Date().toISOString(),
+            };
+
+            get().addGeneration(optimisticGen);
+            get().pollGenerationStatus(genData.id);
+
+            return genData.id;
+        } catch (err) {
+            set({ error: err instanceof Error ? err.message : 'Start-end frame error' });
             return null;
         }
     },

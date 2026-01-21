@@ -8945,9 +8945,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "quality"
+                  "prompt"
                 ]
               }
             },
@@ -9019,9 +9017,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "quality"
+                  "prompt"
                 ]
               }
             },
@@ -9093,9 +9089,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "quality"
+                  "prompt"
                 ]
               }
             }
@@ -9255,9 +9249,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "resolution"
+                  "prompt"
                 ]
               }
             },
@@ -9329,9 +9321,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "resolution"
+                  "prompt"
                 ]
               }
             },
@@ -9403,9 +9393,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "aspect_ratio",
-                  "resolution"
+                  "prompt"
                 ]
               }
             }
@@ -13298,8 +13286,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "size"
+                  "prompt"
                 ]
               }
             },
@@ -13333,8 +13320,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "size"
+                  "prompt"
                 ]
               }
             },
@@ -13368,8 +13354,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "size"
+                  "prompt"
                 ]
               }
             }
@@ -13503,8 +13488,7 @@
                   }
                 },
                 "required": [
-                  "image_urls",
-                  "size"
+                  "image_urls"
                 ]
               }
             },
@@ -13550,8 +13534,7 @@
                   }
                 },
                 "required": [
-                  "image_urls",
-                  "size"
+                  "image_urls"
                 ]
               }
             },
@@ -13597,8 +13580,7 @@
                   }
                 },
                 "required": [
-                  "image_urls",
-                  "size"
+                  "image_urls"
                 ]
               }
             }
@@ -14022,7 +14004,6 @@
                 },
                 "required": [
                   "prompt",
-                  "duration",
                   "sound"
                 ]
               }
@@ -14079,7 +14060,6 @@
                 },
                 "required": [
                   "prompt",
-                  "duration",
                   "sound"
                 ]
               }
@@ -14136,8 +14116,242 @@
                 },
                 "required": [
                   "prompt",
-                  "duration",
                   "sound"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video/kling/motion-control": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              },
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postVideoKlingMotion-control",
+        "tags": [
+          "Video - Kling"
+        ],
+        "summary": "Motion Control with Kling 2.6",
+        "description": "Animate a character image using motion from a reference video.\n\n**Inputs:**\n- `input_url`: Reference image (JPEG/PNG/JPG, max 10MB, aspect ratio 2:5 to 5:2)\n- `video_url`: Motion reference video (MP4/QuickTime/MKV, max 100MB, 3-30 seconds)\n- `mode`: Output resolution - \"720p\" or \"1080p\"\n- `character_orientation`: Which source to use for character pose - \"image\" or \"video\"\n- `prompt`: Optional text description (max 2500 chars)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "input_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "video_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "1080p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "character_orientation": {
+                    "anyOf": [
+                      {
+                        "const": "image",
+                        "type": "string"
+                      },
+                      {
+                        "const": "video",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "input_url",
+                  "video_url",
+                  "mode",
+                  "character_orientation"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "input_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "video_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "1080p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "character_orientation": {
+                    "anyOf": [
+                      {
+                        "const": "image",
+                        "type": "string"
+                      },
+                      {
+                        "const": "video",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "input_url",
+                  "video_url",
+                  "mode",
+                  "character_orientation"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "input_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "video_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "1080p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "character_orientation": {
+                    "anyOf": [
+                      {
+                        "const": "image",
+                        "type": "string"
+                      },
+                      {
+                        "const": "video",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "input_url",
+                  "video_url",
+                  "mode",
+                  "character_orientation"
                 ]
               }
             }
@@ -15397,7 +15611,7 @@
           "Video - Seedance"
         ],
         "summary": "Generate video with Seedance 1.5 Pro",
-        "description": "T2V or I2V (provide input_urls for I2V). Duration: 4/8/12 sec. Audio optional.",
+        "description": "T2V or I2V (provide input_urls for I2V, up to 2 images). Duration: 4/8/12 sec. Audio optional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -15656,6 +15870,355 @@
                 "required": [
                   "prompt",
                   "aspect_ratio"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video/seedance/start-end-frame": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              },
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "processing",
+                      "type": "string"
+                    },
+                    "cost_credits": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "cost_credits"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postVideoSeedanceStart-end-frame",
+        "tags": [
+          "Video - Seedance"
+        ],
+        "summary": "Generate video from start and end frames with Seedance 1.5 Pro",
+        "description": "Create a smooth video transition between two keyframes.\n\n**Inputs:**\n- `start_frame_url`: Starting frame image (JPEG/PNG/WebP, max 10MB)\n- `end_frame_url`: Ending frame image (JPEG/PNG/WebP, max 10MB)\n- `prompt`: Description of the transition (3-2500 chars)\n- `aspect_ratio`: 1:1, 4:3, 3:4, 16:9, 9:16, or 21:9 (default: 16:9)\n- `resolution`: 480p or 720p (default: 720p)\n- `duration`: 4, 8, or 12 seconds (default: 8)\n- `fixed_lens`: Lock camera movement (default: false)\n- `generate_audio`: Generate audio track (default: false, increases cost)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "minLength": 3,
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "start_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "end_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "aspect_ratio": {
+                    "anyOf": [
+                      {
+                        "const": "1:1",
+                        "type": "string"
+                      },
+                      {
+                        "const": "4:3",
+                        "type": "string"
+                      },
+                      {
+                        "const": "3:4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "16:9",
+                        "type": "string"
+                      },
+                      {
+                        "const": "9:16",
+                        "type": "string"
+                      },
+                      {
+                        "const": "21:9",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "resolution": {
+                    "anyOf": [
+                      {
+                        "const": "480p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "duration": {
+                    "anyOf": [
+                      {
+                        "const": 4,
+                        "type": "number"
+                      },
+                      {
+                        "const": 8,
+                        "type": "number"
+                      },
+                      {
+                        "const": 12,
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "fixed_lens": {
+                    "type": "boolean"
+                  },
+                  "generate_audio": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "prompt",
+                  "start_frame_url",
+                  "end_frame_url"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "minLength": 3,
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "start_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "end_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "aspect_ratio": {
+                    "anyOf": [
+                      {
+                        "const": "1:1",
+                        "type": "string"
+                      },
+                      {
+                        "const": "4:3",
+                        "type": "string"
+                      },
+                      {
+                        "const": "3:4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "16:9",
+                        "type": "string"
+                      },
+                      {
+                        "const": "9:16",
+                        "type": "string"
+                      },
+                      {
+                        "const": "21:9",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "resolution": {
+                    "anyOf": [
+                      {
+                        "const": "480p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "duration": {
+                    "anyOf": [
+                      {
+                        "const": 4,
+                        "type": "number"
+                      },
+                      {
+                        "const": 8,
+                        "type": "number"
+                      },
+                      {
+                        "const": 12,
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "fixed_lens": {
+                    "type": "boolean"
+                  },
+                  "generate_audio": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "prompt",
+                  "start_frame_url",
+                  "end_frame_url"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "minLength": 3,
+                    "maxLength": 2500,
+                    "type": "string"
+                  },
+                  "start_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "end_frame_url": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "aspect_ratio": {
+                    "anyOf": [
+                      {
+                        "const": "1:1",
+                        "type": "string"
+                      },
+                      {
+                        "const": "4:3",
+                        "type": "string"
+                      },
+                      {
+                        "const": "3:4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "16:9",
+                        "type": "string"
+                      },
+                      {
+                        "const": "9:16",
+                        "type": "string"
+                      },
+                      {
+                        "const": "21:9",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "resolution": {
+                    "anyOf": [
+                      {
+                        "const": "480p",
+                        "type": "string"
+                      },
+                      {
+                        "const": "720p",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "duration": {
+                    "anyOf": [
+                      {
+                        "const": 4,
+                        "type": "number"
+                      },
+                      {
+                        "const": 8,
+                        "type": "number"
+                      },
+                      {
+                        "const": 12,
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "fixed_lens": {
+                    "type": "boolean"
+                  },
+                  "generate_audio": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "prompt",
+                  "start_frame_url",
+                  "end_frame_url"
                 ]
               }
             }
@@ -17431,9 +17994,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "duration",
-                  "quality"
+                  "prompt"
                 ]
               }
             },
@@ -17503,9 +18064,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "duration",
-                  "quality"
+                  "prompt"
                 ]
               }
             },
@@ -17575,9 +18134,7 @@
                   }
                 },
                 "required": [
-                  "prompt",
-                  "duration",
-                  "quality"
+                  "prompt"
                 ]
               }
             }
@@ -17712,9 +18269,7 @@
                 },
                 "required": [
                   "prompt",
-                  "image_url",
-                  "duration",
-                  "quality"
+                  "image_url"
                 ]
               }
             },
@@ -17761,9 +18316,7 @@
                 },
                 "required": [
                   "prompt",
-                  "image_url",
-                  "duration",
-                  "quality"
+                  "image_url"
                 ]
               }
             },
@@ -17810,9 +18363,7 @@
                 },
                 "required": [
                   "prompt",
-                  "image_url",
-                  "duration",
-                  "quality"
+                  "image_url"
                 ]
               }
             }

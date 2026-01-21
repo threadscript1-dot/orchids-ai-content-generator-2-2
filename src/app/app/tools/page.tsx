@@ -18,6 +18,26 @@ const TOOLS = [
         badge: 'ТОП',
     },
     {
+        id: 'motion-control',
+        title: 'Motion Control',
+        description: 'Оживи персонажа',
+        image: 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/removebg-1768346852348.png?width=8000&height=8000&resize=contain',
+        hoverImage:
+            'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/removebg_hover-1768346852348.png?width=8000&height=8000&resize=contain',
+        href: '/app/tools/motion-control',
+        badge: 'NEW',
+    },
+    {
+        id: 'start-end-frame',
+        title: 'Кадр-Кадр',
+        description: 'Видео из двух кадров',
+        image: 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/expand-1768346852352.png?width=8000&height=8000&resize=contain',
+        hoverImage:
+            'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/010102a2-9a78-497c-a40c-16883620b037/expand_hover-1768346852354.png?width=8000&height=8000&resize=contain',
+        href: '/app/tools/start-end-frame',
+        badge: 'NEW',
+    },
+    {
         id: 'remove-bg',
         title: 'Удалить фон',
         description: 'Идеально чисто',

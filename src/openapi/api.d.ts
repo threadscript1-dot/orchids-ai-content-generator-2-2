@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-18T21:56:45.659Z
+ * Generated from OpenAPI spec: 2026-01-21T10:48:48.446Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -1374,6 +1374,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/video/kling/motion-control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Motion Control with Kling 2.6
+         * @description Animate a character image using motion from a reference video.
+         *
+         *     **Inputs:**
+         *     - `input_url`: Reference image (JPEG/PNG/JPG, max 10MB, aspect ratio 2:5 to 5:2)
+         *     - `video_url`: Motion reference video (MP4/QuickTime/MKV, max 100MB, 3-30 seconds)
+         *     - `mode`: Output resolution - "720p" or "1080p"
+         *     - `character_orientation`: Which source to use for character pose - "image" or "video"
+         *     - `prompt`: Optional text description (max 2500 chars)
+         */
+        post: operations["postVideoKlingMotion-control"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/video/sora-2/generate": {
         parameters: {
             query?: never;
@@ -1485,9 +1512,39 @@ export interface paths {
         put?: never;
         /**
          * Generate video with Seedance 1.5 Pro
-         * @description T2V or I2V (provide input_urls for I2V). Duration: 4/8/12 sec. Audio optional.
+         * @description T2V or I2V (provide input_urls for I2V, up to 2 images). Duration: 4/8/12 sec. Audio optional.
          */
         post: operations["postVideoSeedanceGenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/video/seedance/start-end-frame": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate video from start and end frames with Seedance 1.5 Pro
+         * @description Create a smooth video transition between two keyframes.
+         *
+         *     **Inputs:**
+         *     - `start_frame_url`: Starting frame image (JPEG/PNG/WebP, max 10MB)
+         *     - `end_frame_url`: Ending frame image (JPEG/PNG/WebP, max 10MB)
+         *     - `prompt`: Description of the transition (3-2500 chars)
+         *     - `aspect_ratio`: 1:1, 4:3, 3:4, 16:9, 9:16, or 21:9 (default: 16:9)
+         *     - `resolution`: 480p or 720p (default: 720p)
+         *     - `duration`: 4, 8, or 12 seconds (default: 8)
+         *     - `fixed_lens`: Lock camera movement (default: false)
+         *     - `generate_audio`: Generate audio track (default: false, increases cost)
+         */
+        post: operations["postVideoSeedanceStart-end-frame"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4677,20 +4734,20 @@ export interface operations {
                 "application/json": {
                     prompt: string;
                     image_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
+                    quality?: "basic" | "high";
                 };
                 "multipart/form-data": {
                     prompt: string;
                     image_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
+                    quality?: "basic" | "high";
                 };
                 "text/plain": {
                     prompt: string;
                     image_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
-                    quality: "basic" | "high";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
+                    quality?: "basic" | "high";
                 };
             };
         };
@@ -4734,20 +4791,20 @@ export interface operations {
                 "application/json": {
                     prompt: string;
                     input_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
+                    resolution?: "1K" | "2K";
                 };
                 "multipart/form-data": {
                     prompt: string;
                     input_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
+                    resolution?: "1K" | "2K";
                 };
                 "text/plain": {
                     prompt: string;
                     input_urls?: string[];
-                    aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
-                    resolution: "1K" | "2K";
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "3:2" | "2:3" | "auto";
+                    resolution?: "1K" | "2K";
                 };
             };
         };
@@ -5541,17 +5598,17 @@ export interface operations {
             content: {
                 "application/json": {
                     prompt: string;
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     is_enhance?: boolean;
                 };
                 "multipart/form-data": {
                     prompt: string;
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     is_enhance?: boolean;
                 };
                 "text/plain": {
                     prompt: string;
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     is_enhance?: boolean;
                 };
             };
@@ -5596,7 +5653,7 @@ export interface operations {
                 "application/json": {
                     prompt?: string;
                     image_urls: string[];
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     /** Format: uri */
                     mask_url?: string;
                     is_enhance?: boolean;
@@ -5604,7 +5661,7 @@ export interface operations {
                 "multipart/form-data": {
                     prompt?: string;
                     image_urls: string[];
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     /** Format: uri */
                     mask_url?: string;
                     is_enhance?: boolean;
@@ -5612,7 +5669,7 @@ export interface operations {
                 "text/plain": {
                     prompt?: string;
                     image_urls: string[];
-                    size: "1:1" | "3:2" | "2:3";
+                    size?: "1:1" | "3:2" | "2:3";
                     /** Format: uri */
                     mask_url?: string;
                     is_enhance?: boolean;
@@ -5717,22 +5774,88 @@ export interface operations {
                     prompt: string;
                     image_urls?: string[];
                     aspect_ratio?: "1:1" | "16:9" | "9:16";
-                    duration: "5" | "10";
+                    duration?: "5" | "10";
                     sound: boolean;
                 };
                 "multipart/form-data": {
                     prompt: string;
                     image_urls?: string[];
                     aspect_ratio?: "1:1" | "16:9" | "9:16";
-                    duration: "5" | "10";
+                    duration?: "5" | "10";
                     sound: boolean;
                 };
                 "text/plain": {
                     prompt: string;
                     image_urls?: string[];
                     aspect_ratio?: "1:1" | "16:9" | "9:16";
-                    duration: "5" | "10";
+                    duration?: "5" | "10";
                     sound: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                    "multipart/form-data": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                    "text/plain": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                };
+            };
+        };
+    };
+    "postVideoKlingMotion-control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    prompt?: string;
+                    /** Format: uri */
+                    input_url: string;
+                    /** Format: uri */
+                    video_url: string;
+                    mode: "720p" | "1080p";
+                    character_orientation: "image" | "video";
+                };
+                "multipart/form-data": {
+                    prompt?: string;
+                    /** Format: uri */
+                    input_url: string;
+                    /** Format: uri */
+                    video_url: string;
+                    mode: "720p" | "1080p";
+                    character_orientation: "image" | "video";
+                };
+                "text/plain": {
+                    prompt?: string;
+                    /** Format: uri */
+                    input_url: string;
+                    /** Format: uri */
+                    video_url: string;
+                    mode: "720p" | "1080p";
+                    character_orientation: "image" | "video";
                 };
             };
         };
@@ -6110,6 +6233,81 @@ export interface operations {
                     prompt: string;
                     aspect_ratio: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "21:9";
                     input_urls?: string[];
+                    resolution?: "480p" | "720p";
+                    duration?: 4 | 8 | 12;
+                    fixed_lens?: boolean;
+                    generate_audio?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                    "multipart/form-data": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                    "text/plain": {
+                        id: string;
+                        /** @constant */
+                        status: "processing";
+                        cost_credits: number;
+                    };
+                };
+            };
+        };
+    };
+    "postVideoSeedanceStart-end-frame": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    prompt: string;
+                    /** Format: uri */
+                    start_frame_url: string;
+                    /** Format: uri */
+                    end_frame_url: string;
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "21:9";
+                    resolution?: "480p" | "720p";
+                    duration?: 4 | 8 | 12;
+                    fixed_lens?: boolean;
+                    generate_audio?: boolean;
+                };
+                "multipart/form-data": {
+                    prompt: string;
+                    /** Format: uri */
+                    start_frame_url: string;
+                    /** Format: uri */
+                    end_frame_url: string;
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "21:9";
+                    resolution?: "480p" | "720p";
+                    duration?: 4 | 8 | 12;
+                    fixed_lens?: boolean;
+                    generate_audio?: boolean;
+                };
+                "text/plain": {
+                    prompt: string;
+                    /** Format: uri */
+                    start_frame_url: string;
+                    /** Format: uri */
+                    end_frame_url: string;
+                    aspect_ratio?: "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "21:9";
                     resolution?: "480p" | "720p";
                     duration?: 4 | 8 | 12;
                     fixed_lens?: boolean;
@@ -6582,8 +6780,8 @@ export interface operations {
                     /** Format: uri */
                     image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
                 "multipart/form-data": {
@@ -6591,8 +6789,8 @@ export interface operations {
                     /** Format: uri */
                     image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
                 "text/plain": {
@@ -6600,8 +6798,8 @@ export interface operations {
                     /** Format: uri */
                     image_url?: string;
                     aspect_ratio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
             };
@@ -6647,24 +6845,24 @@ export interface operations {
                     prompt: string;
                     /** Format: uri */
                     image_url: string;
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
                 "multipart/form-data": {
                     prompt: string;
                     /** Format: uri */
                     image_url: string;
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
                 "text/plain": {
                     prompt: string;
                     /** Format: uri */
                     image_url: string;
-                    duration: 5 | 10;
-                    quality: "720p" | "1080p";
+                    duration?: 5 | 10;
+                    quality?: "720p" | "1080p";
                     watermark?: string;
                 };
             };
