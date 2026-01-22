@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-21T10:48:48.446Z
+ * Generated from OpenAPI spec: 2026-01-22T22:55:43.617Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -1334,6 +1334,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/image/midjourney/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate image with Midjourney v7
+         * @description Creates or edits images using Midjourney. Provide image_urls for img2img mode (up to 5 images). Supports style control via variety, stylization, and weirdness parameters. Speed options: relaxed (slower, queue-based), fast, turbo (fastest).
+         */
+        post: operations["postImageMidjourneyGenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/video/grok-imagine/generate": {
         parameters: {
             query?: never;
@@ -1765,6 +1785,26 @@ export interface paths {
          * @description Transforms an existing video based on text prompt. Max input: 10 seconds, 500MB. Formats: MP4, MOV, AVI. English prompts only.
          */
         post: operations["postVideoLumaModify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/video/midjourney/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate video from image with Midjourney
+         * @description Converts an image to a dynamic video using Midjourney. Requires exactly one input image. Prompt guides the animation style and motion.
+         */
+        post: operations["postVideoMidjourneyGenerate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4702,20 +4742,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -4759,20 +4796,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -4816,20 +4850,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -4876,20 +4907,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -4936,20 +4964,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5008,20 +5033,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5080,20 +5102,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5134,20 +5153,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5206,20 +5222,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5284,20 +5297,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5362,20 +5372,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5413,20 +5420,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5479,20 +5483,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5567,20 +5568,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5621,20 +5619,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5684,20 +5679,83 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                };
+            };
+        };
+    };
+    postImageMidjourneyGenerate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    prompt: string;
+                    image_urls?: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                    speed?: "relaxed" | "fast" | "turbo";
+                    version?: "7" | "6.1" | "6" | "5.2" | "5.1" | "niji6" | "niji7";
+                    variety?: number;
+                    stylization?: number;
+                    weirdness?: number;
+                };
+                "multipart/form-data": {
+                    prompt: string;
+                    image_urls?: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                    speed?: "relaxed" | "fast" | "turbo";
+                    version?: "7" | "6.1" | "6" | "5.2" | "5.1" | "niji6" | "niji7";
+                    variety?: number;
+                    stylization?: number;
+                    weirdness?: number;
+                };
+                "text/plain": {
+                    prompt: string;
+                    image_urls?: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                    speed?: "relaxed" | "fast" | "turbo";
+                    version?: "7" | "6.1" | "6" | "5.2" | "5.1" | "niji6" | "niji7";
+                    variety?: number;
+                    stylization?: number;
+                    weirdness?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                    "multipart/form-data": {
+                        id: string;
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                    "text/plain": {
+                        id: string;
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5741,20 +5799,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5801,20 +5856,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5867,20 +5919,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5930,20 +5979,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -5987,20 +6033,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6044,20 +6087,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6113,20 +6153,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6182,20 +6219,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6248,20 +6282,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6323,20 +6354,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6380,20 +6408,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6437,20 +6462,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6494,20 +6516,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6551,20 +6570,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6608,20 +6624,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6677,20 +6690,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6746,20 +6756,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6812,20 +6819,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6875,20 +6879,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6929,20 +6930,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -6986,20 +6984,68 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                };
+            };
+        };
+    };
+    postVideoMidjourneyGenerate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    prompt: string;
+                    image_urls: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                };
+                "multipart/form-data": {
+                    prompt: string;
+                    image_urls: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                };
+                "text/plain": {
+                    prompt: string;
+                    image_urls: string[];
+                    aspect_ratio?: "1:2" | "9:16" | "2:3" | "3:4" | "5:6" | "6:5" | "4:3" | "3:2" | "1:1" | "16:9" | "2:1";
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                    "multipart/form-data": {
+                        id: string;
+                        status: "processing" | "queued";
+                        cost_credits: number;
+                    };
+                    "text/plain": {
+                        id: string;
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -7050,24 +7096,21 @@ export interface operations {
                     "application/json": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "text/plain": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
@@ -7166,24 +7209,21 @@ export interface operations {
                     "application/json": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "text/plain": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
@@ -7282,24 +7322,21 @@ export interface operations {
                     "application/json": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
                     "text/plain": {
                         /** @description Generation ID for tracking */
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         /** @description Credits consumed for this operation */
                         cost_credits: number;
                     };
@@ -7454,20 +7491,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };
@@ -7520,20 +7554,17 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "multipart/form-data": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                     "text/plain": {
                         id: string;
-                        /** @constant */
-                        status: "processing";
+                        status: "processing" | "queued";
                         cost_credits: number;
                     };
                 };

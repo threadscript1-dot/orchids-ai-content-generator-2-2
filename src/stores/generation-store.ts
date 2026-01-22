@@ -312,6 +312,10 @@ function getEndpointForModel(
         'grok-imagine-t2i': '/image/grok-imagine/generate',
         'gpt-image-1-5-t2i': '/image/gpt-1.5/generate',
         'gpt-image-1-5-i2i': '/image/gpt-1.5/generate',
+        // Midjourney
+        midjourney: '/image/midjourney/generate',
+        'midjourney-t2i': '/image/midjourney/generate',
+        'midjourney-i2i': '/image/midjourney/generate',
     };
 
     // Video model endpoints
@@ -344,6 +348,9 @@ function getEndpointForModel(
         'grok-imagine-t2v': '/video/grok-imagine/generate',
         'grok-imagine-i2v': '/video/grok-imagine/generate',
         'grok-imagine-video': '/video/grok-imagine/generate',
+        // Midjourney
+        'midjourney-video': '/video/midjourney/generate',
+        'midjourney-i2v': '/video/midjourney/generate',
     };
 
     // Audio model endpoints
@@ -1092,6 +1099,10 @@ export const useGenerationStore = create<GenerationState>()((set, get) => ({
             'z-image': '/image/flux-2/generate', // fallback
             'gpt-image-1-5-t2i': '/image/gpt4o/generate',
             'gpt-image-1-5-i2i': '/image/gpt4o/edit',
+            // Midjourney
+            midjourney: '/image/midjourney/generate',
+            'midjourney-t2i': '/image/midjourney/generate',
+            'midjourney-i2i': '/image/midjourney/generate',
         };
 
         const endpoint = modelEndpointMap[modelId] || '/image/flux-2/generate';
