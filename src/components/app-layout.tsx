@@ -2,171 +2,55 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import {
-    Home,
-    Wrench,
     FolderOpen,
     User,
     Menu,
-    X,
     Zap,
     Image,
     Video,
     Music,
     Sparkles,
-    Scissors,
+    Wrench,
     Wand2,
     Maximize,
     Eraser,
-    Smile,
-    Sun,
-    Palette,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUserStore } from '@/stores/user-store';
-import { Progress } from '@/components/ui/progress';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { OnboardingModal } from '@/components/onboarding-modal';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
 import { AnimatedLogo } from '@/components/animated-logo';
+import { HeaderDropdown, SidebarMenu, MobileBottomNav, type DropdownItem } from '@/components/layout';
 
-function NavItem({
-    href,
-    icon: Icon,
-    label,
-    active,
-    highlight,
-}: {
-    href: string;
-    icon: any;
-    label: string;
-    active: boolean;
-    highlight?: boolean;
-}) {
-    return (
-        <Link
-            href={href}
-            className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-                highlight
-                    ? 'bg-[#7C3AED] text-white px-6 py-2 rounded-2xl'
-                    : active
-                      ? 'text-white p-2'
-                      : 'text-muted-foreground hover:text-white p-2'
-            }`}
-        >
-            <Icon className={`w-5 h-5 ${active || highlight ? 'text-white' : ''}`} aria-hidden="true" />
-            <span className="text-[10px] font-medium">{label}</span>
-        </Link>
-    );
-}
-
-function HeaderDropdown({
-    label,
-    items,
-    pathname,
-    href,
-}: {
-    label: string;
-    items: any[];
-    pathname: string;
-    href?: string;
-}) {
-    const [isOpen, setIsOpen] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const handleMouseEnter = () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setIsOpen(true);
-    };
-
-    const handleMouseLeave = () => {
-        timeoutRef.current = setTimeout(() => {
-            setIsOpen(false);
-        }, 100);
-    };
-
-    const isActive = href 
-        ? pathname === href || pathname.startsWith(href + '/')
-        : pathname.startsWith(items[0].href.split('/').slice(0, 3).join('/'));
-
-    const triggerContent = (
-        <span
-            className={`px-4 py-2 rounded-xl transition-colors border-none outline-none text-sm font-medium cursor-pointer ${
-                isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-muted-foreground hover:text-white hover:bg-white/5'
-            }`}
-        >
-            {label}
-        </span>
-    );
-
-    return (
-        <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className="relative py-2"
-        >
-            <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
-                <DropdownMenuTrigger asChild>
-                    {href ? (
-                        <Link href={href}>
-                            {triggerContent}
-                        </Link>
-                    ) : (
-                        triggerContent
-                    )}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    align="start"
-                    sideOffset={8}
-                    className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 rounded-2xl min-w-[280px] p-2"
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    {items.map((item) => (
-                        <DropdownMenuItem
-                            key={item.href}
-                            asChild
-                            className="rounded-xl focus:bg-white/10 focus:text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white cursor-pointer p-0"
-                        >
-                            <Link
-                                href={item.href}
-                                className="flex items-start gap-3 w-full pl-3 pr-8 py-3 group/item"
-                            >
-                                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover/item:bg-white/10 transition-colors shrink-0">
-                                    <item.icon className="w-5 h-5 text-white/40 group-hover/item:text-white transition-transform group-hover/item:scale-110" aria-hidden="true" />
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="font-medium text-sm text-white transition-colors">
-                                        {item.label}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground leading-tight">
-                                        {item.description}
-                                    </span>
-                                </div>
-                            </Link>
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-    );
-}
+const MAX_CREDITS = 1000;
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { language, setLanguage, t } = useLanguage();
+    const { language, t } = useLanguage();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    const { user } = useAuthStore();
+    const { creditBalance, fetchBalance } = useUserStore();
+
+    useEffect(() => {
+        fetchBalance();
+    }, [fetchBalance]);
+
+    useEffect(() => {
+        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+        if (!hasSeenOnboarding) {
+            setShowOnboarding(true);
+        }
+    }, []);
+
+    const handleCloseOnboarding = () => {
+        setShowOnboarding(false);
+        localStorage.setItem('hasSeenOnboarding', 'true');
+    };
 
     const navItems = [
         { href: '/app/library', icon: FolderOpen, label: t('nav.library') },
@@ -174,7 +58,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         { href: '/app/tools', icon: Wrench, label: t('nav.edit') },
     ];
 
-    const createItems = [
+    const createItems: DropdownItem[] = [
         {
             href: '/app/create/image',
             label: t('type.image'),
@@ -195,7 +79,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         },
     ];
 
-    const editItems = [
+    const editItems: DropdownItem[] = [
         {
             href: '/app/tools/enhance',
             label: t('edit.enhance'),
@@ -216,30 +100,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         },
     ];
 
-    const { user } = useAuthStore();
-    const { creditBalance, fetchBalance } = useUserStore();
-
-    useEffect(() => {
-        fetchBalance();
-    }, [fetchBalance]);
-
-    const maxCredits = 1000;
-    const creditPercentage = (creditBalance / maxCredits) * 100;
-
-    const [showOnboarding, setShowOnboarding] = useState(false);
-
-    useEffect(() => {
-        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-        if (!hasSeenOnboarding) {
-            setShowOnboarding(true);
-        }
-    }, []);
-
-    const handleCloseOnboarding = () => {
-        setShowOnboarding(false);
-        localStorage.setItem('hasSeenOnboarding', 'true');
-    };
-
     return (
         <div className="min-h-[100dvh] bg-black text-white overflow-x-hidden">
             <OnboardingModal isOpen={showOnboarding} onClose={handleCloseOnboarding} />
@@ -252,110 +112,27 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         <div className="flex items-center gap-2">
                             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                                 <SheetTrigger asChild>
-<button aria-label={language === 'ru' ? 'Открыть меню' : 'Open menu'} className="p-2 rounded-xl hover:bg-white/10 transition-colors">
-                                          <Menu className="w-5 h-5" aria-hidden="true" />
-                                      </button>
+                                    <button
+                                        aria-label={
+                                            language === 'ru' ? 'Открыть меню' : 'Open menu'
+                                        }
+                                        className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+                                    >
+                                        <Menu className="w-5 h-5" aria-hidden="true" />
+                                    </button>
                                 </SheetTrigger>
                                 <SheetContent
                                     side="left"
                                     className="bg-[#0A0A0A]/95 backdrop-blur-xl border-white/10 p-0 w-[280px]"
                                 >
-                                    <div className="flex flex-col h-full">
-                                        <div className="p-6 border-b border-white/10">
-                                            <Link href="/app" onClick={() => setMenuOpen(false)}>
-                                                <AnimatedLogo />
-                                            </Link>
-                                        </div>
-
-                                        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                                            <div>
-                                                <h3 className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                                                    {t('nav.create')}
-                                                </h3>
-                                                <div className="space-y-1">
-                                                    {createItems.map((item) => (
-                                                        <Link
-                                                            key={item.href}
-                                                            href={item.href}
-                                                            onClick={() => setMenuOpen(false)}
-                                                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
-                                                        >
-<div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                                  <item.icon className="w-4 h-4" aria-hidden="true" />
-                                                              </div>
-                                                            <span className="text-sm font-medium">
-                                                                {item.label}
-                                                            </span>
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h3 className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                                                    {t('nav.edit')}
-                                                </h3>
-                                                <div className="space-y-1">
-                                                    {editItems.map((item) => (
-                                                        <Link
-                                                            key={item.href}
-                                                            href={item.href}
-                                                            onClick={() => setMenuOpen(false)}
-                                                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
-                                                        >
-<div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                                  <item.icon className="w-4 h-4" aria-hidden="true" />
-                                                              </div>
-                                                            <span className="text-sm font-medium">
-                                                                {item.label}
-                                                            </span>
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="pt-2 border-t border-white/5">
-                                                <div className="space-y-1">
-                                                    <Link
-                                                        href="/app/library"
-                                                        onClick={() => setMenuOpen(false)}
-                                                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
-                                                    >
-                                                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                                            <FolderOpen className="w-4 h-4" aria-hidden="true" />
-                                                        </div>
-                                                        <span className="text-sm font-medium">
-                                                            {t('nav.library')}
-                                                        </span>
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="p-4 border-t border-white/10">
-                                            <div className="bg-white/5 rounded-2xl p-3">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-xs text-white">
-                                                        {t('nav.credits')}
-                                                    </span>
-                                                    <span className="text-xs font-bold text-[#FFDC74]">
-                                                        {creditBalance} / {maxCredits}
-                                                    </span>
-                                                </div>
-                                                <Progress
-                                                    value={creditPercentage}
-                                                    className="h-1 bg-white/10 [&>div]:bg-[#FFDC74]"
-                                                />
-                                                <Link
-                                                    href="/app/profile#plans"
-                                                    onClick={() => setMenuOpen(false)}
-                                                    className="mt-3 w-full flex items-center justify-center px-3 py-2 rounded-lg bg-[#FFDC74] hover:bg-[#FFDC74]/90 transition-colors text-xs font-bold text-black uppercase tracking-wider"
-                                                >
-                                                    {t('nav.more')}
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <SidebarMenu
+                                        createItems={createItems}
+                                        editItems={editItems}
+                                        creditBalance={creditBalance}
+                                        maxCredits={MAX_CREDITS}
+                                        onClose={() => setMenuOpen(false)}
+                                        t={t}
+                                    />
                                 </SheetContent>
                             </Sheet>
 
@@ -392,7 +169,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-3 sm:gap-6">
                         <div className="flex items-center gap-3">
                             <div className="hidden sm:flex items-center gap-1.5 px-1">
-                                <Zap className="w-4 h-4 text-[#FFDC74] fill-[#FFDC74]" aria-hidden="true" />
+                                <Zap
+                                    className="w-4 h-4 text-[#FFDC74] fill-[#FFDC74]"
+                                    aria-hidden="true"
+                                />
                                 <span className="text-sm font-bold text-[#FFDC74] font-mono">
                                     {creditBalance}
                                 </span>
@@ -415,7 +195,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <User className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+                                        <User
+                                            className="w-5 h-5 text-muted-foreground"
+                                            aria-hidden="true"
+                                        />
                                     )}
                                 </div>
                             </Link>
@@ -428,20 +211,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <div className="px-[14px] sm:px-6 py-6">{children}</div>
             </main>
 
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass">
-                <div className="flex items-center justify-around h-16 px-2">
-                    {navItems.map((item) => (
-                        <NavItem
-                            key={item.href}
-                            href={item.href}
-                            icon={item.icon}
-                            label={item.label}
-                            active={pathname === item.href}
-                            highlight={item.href === '/app'}
-                        />
-                    ))}
-                </div>
-            </nav>
+            <MobileBottomNav items={navItems} pathname={pathname} />
         </div>
     );
 }
