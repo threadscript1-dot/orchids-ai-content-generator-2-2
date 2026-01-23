@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-22T22:55:43.617Z
+ * Generated from OpenAPI spec: 2026-01-23T00:55:49.790Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -1993,6 +1993,50 @@ export interface paths {
          * @description Upload a video file for use with video-to-video models (max 500MB)
          */
         post: operations["postUploadVideo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/uploads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List uploads
+         * @description List user uploads with optional type filter and pagination
+         */
+        get: operations["getUploads"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete uploads
+         * @description Delete multiple uploads by IDs (files deleted from storage if no other users reference them)
+         */
+        delete: operations["deleteUploads"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/uploads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get upload
+         * @description Get a specific upload by ID
+         */
+        get: operations["getUploadsById"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7648,22 +7692,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                     "multipart/form-data": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                     "text/plain": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                 };
             };
@@ -7746,22 +7796,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                     "multipart/form-data": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                     "text/plain": {
+                        id: string;
                         url: string;
                         storage_path: string;
                         mime_type: string;
                         size: number;
+                        deduplicated: boolean;
                     };
                 };
             };
@@ -7785,6 +7841,241 @@ export interface operations {
                 };
             };
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        message?: string;
+                    };
+                    "multipart/form-data": {
+                        error: string;
+                        message?: string;
+                    };
+                    "text/plain": {
+                        error: string;
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    getUploads: {
+        parameters: {
+            query?: {
+                type?: "image" | "video" | "audio";
+                cursor?: string;
+                limit?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        }[];
+                        next_cursor: (string | null) | null;
+                    };
+                    "multipart/form-data": {
+                        items: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        }[];
+                        next_cursor: (string | null) | null;
+                    };
+                    "text/plain": {
+                        items: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        }[];
+                        next_cursor: (string | null) | null;
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        message?: string;
+                    };
+                    "multipart/form-data": {
+                        error: string;
+                        message?: string;
+                    };
+                    "text/plain": {
+                        error: string;
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    deleteUploads: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    ids: string[];
+                };
+                "multipart/form-data": {
+                    ids: string[];
+                };
+                "text/plain": {
+                    ids: string[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        deleted: string[];
+                        not_found: string[];
+                    };
+                    "multipart/form-data": {
+                        success: boolean;
+                        deleted: string[];
+                        not_found: string[];
+                    };
+                    "text/plain": {
+                        success: boolean;
+                        deleted: string[];
+                        not_found: string[];
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        message?: string;
+                    };
+                    "multipart/form-data": {
+                        error: string;
+                        message?: string;
+                    };
+                    "text/plain": {
+                        error: string;
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    getUploadsById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        data: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        };
+                    };
+                    "multipart/form-data": {
+                        success: boolean;
+                        data: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        };
+                    };
+                    "text/plain": {
+                        success: boolean;
+                        data: {
+                            id: string;
+                            url: string;
+                            original_name: (string | null) | null;
+                            type: "image" | "video" | "audio";
+                            mime_type: string;
+                            size: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        message?: string;
+                    };
+                    "multipart/form-data": {
+                        error: string;
+                        message?: string;
+                    };
+                    "text/plain": {
+                        error: string;
+                        message?: string;
+                    };
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
