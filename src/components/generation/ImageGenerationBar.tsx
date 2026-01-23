@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Plus, Loader2, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Loader2, Zap } from 'lucide-react';
 import { Model } from '@/stores/models-store';
 import { UploadedImage } from '@/types/generation';
 import { useLanguage } from '@/lib/language-context';
@@ -11,6 +11,8 @@ import { AspectRatioSelector } from './AspectRatioSelector';
 import { ResolutionSelector } from './ResolutionSelector';
 import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
 import { AspectRatioOption } from '@/types/generation';
+import { AttachmentDropdown } from './AttachmentDropdown';
+import { MediaPickerModal, MediaItem } from './MediaPickerModal';
 
 interface ResolutionOption {
     id: string;
@@ -21,6 +23,7 @@ interface ImageGenerationBarProps {
     prompt: string;
     onPromptChange: (value: string) => void;
     uploadedImages: UploadedImage[];
+    onAddImages: (images: UploadedImage[]) => void;
     onRemoveImage: (id: string) => void;
     onOpenFilePicker: () => void;
     isDragging: boolean;
@@ -74,6 +77,7 @@ export function ImageGenerationBar({
     prompt,
     onPromptChange,
     uploadedImages,
+    onAddImages,
     onRemoveImage,
     onOpenFilePicker,
     isDragging,
@@ -101,6 +105,16 @@ export function ImageGenerationBar({
     // Local state for prompt to avoid re-rendering parent on every keystroke
     const [localPrompt, setLocalPrompt] = useState(prompt);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
+    const [showMediaPicker, setShowMediaPicker] = useState(false);
+
+    const handleMediaSelect = useCallback((items: MediaItem[]) => {
+        const newImages: UploadedImage[] = items.map((item) => ({
+            id: item.id,
+            url: item.url,
+            name: item.name || 'Selected media',
+        }));
+        onAddImages(newImages);
+    }, [onAddImages]);
 
     // Sync local prompt with parent (debounced)
     useEffect(() => {
@@ -187,13 +201,10 @@ export function ImageGenerationBar({
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                                onClick={onOpenFilePicker}
-                                aria-label="Attach image"
-                                className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-10 px-3 rounded-2xl bg-white/5 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50"
-                            >
-                                <Plus className="w-4 h-4" aria-hidden="true" />
-                            </button>
+                            <AttachmentDropdown
+                                onUploadFromDevice={onOpenFilePicker}
+                                onSelectFromLibrary={() => setShowMediaPicker(true)}
+                            />
                             <ModelSelector
                                 models={models}
                                 value={selectedModelId}
@@ -271,6 +282,12 @@ export function ImageGenerationBar({
                     />
                 </div>
             </div>
+            <MediaPickerModal
+                open={showMediaPicker}
+                onOpenChange={setShowMediaPicker}
+                acceptedTypes="image"
+                onSelect={handleMediaSelect}
+            />
         </div>
     );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/lib/language-context';
 import { Generation } from '@/stores/generation-store';
@@ -12,6 +13,7 @@ import {
     GenerationPageHeader,
 } from '@/components/generation';
 import { ImageDetailDialog } from '@/components/dialogs/ImageDetailDialog';
+import type { UploadedImage } from '@/types/generation';
 
 const DEFAULT_IMAGE_MODEL = 'nano-banana-pro';
 
@@ -60,6 +62,12 @@ export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps
         }
     };
 
+    const handleAddImages = useCallback((images: UploadedImage[]) => {
+        for (const image of images) {
+            generation.addFileFromUrl(image.url, image.name);
+        }
+    }, [generation]);
+
     return (
         <div className="max-w-full mx-auto pb-40 relative px-0 sm:px-4">
             <BackgroundEllipses />
@@ -92,6 +100,7 @@ export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps
                 prompt={generation.formState.prompt}
                 onPromptChange={generation.setPrompt}
                 uploadedImages={generation.uploadedFiles}
+                onAddImages={handleAddImages}
                 onRemoveImage={generation.removeFile}
                 onOpenFilePicker={generation.openFilePicker}
                 isDragging={generation.isDragging}
