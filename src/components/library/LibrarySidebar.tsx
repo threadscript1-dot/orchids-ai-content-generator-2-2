@@ -27,7 +27,8 @@ export type CategoryType =
     | 'face-swap'
     | 'stylist'
     | 'relight'
-    | 'favorites';
+    | 'favorites'
+    | 'uploads';
 
 export interface FolderType {
     id: string;

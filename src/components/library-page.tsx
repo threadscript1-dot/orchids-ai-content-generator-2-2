@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import {
@@ -18,6 +18,7 @@ import {
     Image,
     Video,
     Music,
+    Upload,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { AddToCollectionModal } from '@/components/library/AddToCollectionModal';
@@ -38,6 +39,8 @@ import {
     ConfirmDeleteDialog,
     type CategoryType,
 } from '@/components/library';
+import { UploadsGrid } from './library/UploadsGrid';
+import { useUploadsStore } from '@/stores/uploads-store';
 import { ImageDetailDialog } from '@/components/dialogs/ImageDetailDialog';
 import { VideoDetailDialog } from '@/components/dialogs/VideoDetailDialog';
 import { AudioDetailDialog } from '@/components/dialogs/AudioDetailDialog';
@@ -54,7 +57,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export function LibraryPage() {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const router = useRouter();
 
     // Store
@@ -94,9 +97,31 @@ export function LibraryPage() {
     // Delete confirmation state
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<{
-        type: 'folder' | 'generations';
+        type: 'folder' | 'generations' | 'uploads';
         id?: string;
     } | null>(null);
+
+    // Uploads state
+    const uploadsStore = useUploadsStore();
+    const [selectedUploadIds, setSelectedUploadIds] = useState<Set<string>>(new Set());
+
+    const handleToggleUploadSelect = useCallback((id: string) => {
+        setSelectedUploadIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    }, []);
+
+    const handleDeleteUploads = useCallback(async () => {
+        if (selectedUploadIds.size === 0) return;
+        await uploadsStore.deleteUploads(Array.from(selectedUploadIds));
+        setSelectedUploadIds(new Set());
+    }, [selectedUploadIds, uploadsStore]);
 
     // Fetch initial data
     useEffect(() => {
@@ -125,6 +150,7 @@ export function LibraryPage() {
         if (activeCategory === 'image') return language === 'ru' ? 'Изображения' : 'Images';
         if (activeCategory === 'video') return language === 'ru' ? 'Видео' : 'Videos';
         if (activeCategory === 'audio') return language === 'ru' ? 'Аудио' : 'Audio';
+        if (activeCategory === 'uploads') return t('library.uploads');
         return language === 'ru' ? 'Библиотека' : 'Library';
     };
 
@@ -513,6 +539,23 @@ export function LibraryPage() {
                                             {language === 'ru' ? 'Аудио' : 'Audio'}
                                         </span>
                                     </button>
+                                    {/* Uploads Tab */}
+                                    <button
+                                        onClick={() => {
+                                            setActiveCategory('uploads');
+                                            setActiveFolderId(null);
+                                        }}
+                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,color,box-shadow] flex items-center gap-2 ${
+                                            activeCategory === 'uploads' && !activeFolderId
+                                                ? 'bg-white text-black shadow-lg shadow-black/20'
+                                                : 'text-white/40 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <Upload className="w-3.5 h-3.5" aria-hidden="true" />
+                                        <span className="hidden sm:inline">
+                                            {t('library.uploads')}
+                                        </span>
+                                    </button>
                                 </div>
                                 <div className="hidden sm:block w-px h-8 bg-white/10" />
                                 <GridSizeSlider
@@ -623,6 +666,14 @@ export function LibraryPage() {
                                 {language === 'ru' ? 'Делаем…' : 'Loading…'}
                             </p>
                         </div>
+                    ) : activeCategory === 'uploads' ? (
+                        <UploadsGrid
+                            selectedIds={selectedUploadIds}
+                            onToggleSelect={handleToggleUploadSelect}
+                            onClick={(upload) => {
+                                console.log('Upload clicked:', upload);
+                            }}
+                        />
                     ) : sidebarFolders.length > 0 || groupedGenerations.length > 0 ? (
                         <div className="space-y-12">
                             {/* Folders in main view */}
@@ -756,7 +807,7 @@ export function LibraryPage() {
 
             {/* Action Bar */}
             <AnimatePresence>
-                {selectedIds.length > 0 && (
+                {selectedIds.length > 0 && activeCategory !== 'uploads' && (
                     <SelectionActionBar
                         selectedCount={selectedIds.length}
                         selectedGenerations={generations.filter((g) => selectedIds.includes(g.id))}
@@ -764,6 +815,13 @@ export function LibraryPage() {
                         onDownload={handleBatchDownload}
                         onDelete={handleBatchDelete}
                         onAddToFolder={() => setIsBatchAddToCollectionOpen(true)}
+                    />
+                )}
+                {activeCategory === 'uploads' && selectedUploadIds.size > 0 && (
+                    <SelectionActionBar
+                        selectedCount={selectedUploadIds.size}
+                        onClear={() => setSelectedUploadIds(new Set())}
+                        onDelete={handleDeleteUploads}
                     />
                 )}
             </AnimatePresence>
