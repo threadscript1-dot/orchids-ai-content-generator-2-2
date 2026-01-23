@@ -24,6 +24,7 @@ export interface ModelConstraints {
     outputFormats?: string[]; // e.g., ['png', 'jpg', 'webp']
     maxVariants?: number; // Max number of variations (GPT-4o: 1, 2, 4)
     supportsMask?: boolean; // For inpainting
+    minInputImages?: number; // Min reference images (0 for optional, 1+ for required)
     maxInputImages?: number; // Max reference images
     supportsStrength?: boolean; // For image-to-image strength control
     supportsNegativePrompt?: boolean; // For negative prompt support
@@ -78,6 +79,7 @@ export interface AttachmentConfig {
     type: 'image' | 'video' | 'audio';
     mode: 'none' | 'optional' | 'required';
     fieldName: string;
+    minCount?: number; // Minimum files required (0 for optional, 1+ for required)
     maxCount: number;
     maxSizeBytes?: number;
     acceptedMimeTypes?: string[];
@@ -173,6 +175,18 @@ export function validateAttachment(
     config: AttachmentConfig,
     files: File[],
 ): { valid: boolean; error?: string } {
+    // Check minimum count
+    const minCount = config.minCount ?? (config.mode === 'required' ? 1 : 0);
+    if (files.length < minCount) {
+        return {
+            valid: false,
+            error: minCount === 1
+                ? 'At least 1 file required'
+                : `At least ${minCount} file(s) required`,
+        };
+    }
+
+    // Check maximum count
     if (files.length > config.maxCount) {
         return {
             valid: false,

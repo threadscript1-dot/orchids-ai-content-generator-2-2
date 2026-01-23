@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, memo } from 'react';
-import { Plus, X, Loader2, Zap } from 'lucide-react';
+import { Loader2, Zap } from 'lucide-react';
 import { Model } from '@/stores/models-store';
 import { UploadedImage } from '@/types/generation';
 import { useLanguage } from '@/lib/language-context';
@@ -11,6 +11,7 @@ import { AspectRatioSelector } from './AspectRatioSelector';
 import { DurationSelector } from './DurationSelector';
 import { AdvancedOptionsPanel, SoundToggle } from './AdvancedOptionsPanel';
 import { AspectRatioOption } from '@/types/generation';
+import { AttachmentButton } from './AttachmentButton';
 
 interface GenerationBarProps {
     prompt: string;
@@ -44,6 +45,9 @@ interface GenerationBarProps {
     addFrameText?: string;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    // Attachment constraints
+    minFiles?: number;
+    maxFiles?: number;
     // Advanced options
     advancedOptions?: {
         negativePrompt: string;
@@ -105,6 +109,8 @@ export function GenerationBar({
     addFrameText,
     fileInputRef,
     onFileInputChange,
+    minFiles = 0,
+    maxFiles = 4,
     advancedOptions,
 }: GenerationBarProps) {
     const { t, language } = useLanguage();
@@ -193,13 +199,13 @@ export function GenerationBar({
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                                onClick={onOpenFilePicker}
-                                aria-label="Attach image"
-                                className="flex items-center justify-center text-white/40 hover:text-white transition-colors h-10 px-3 rounded-2xl bg-white/5 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50"
-                            >
-                                <Plus className="w-4 h-4" aria-hidden="true" />
-                            </button>
+                            <AttachmentButton
+                                currentCount={uploadedImages.length}
+                                minCount={minFiles}
+                                maxCount={maxFiles}
+                                onUploadFromDevice={onOpenFilePicker}
+                                showLibraryOption={false}
+                            />
                             <ModelSelector
                                 models={models}
                                 value={selectedModelId}

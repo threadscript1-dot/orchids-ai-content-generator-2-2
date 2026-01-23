@@ -121,6 +121,8 @@ export function ImageGenerationPage({ initialModelId }: ImageGenerationPageProps
                 onGenerate={handleGenerate}
                 fileInputRef={generation.fileInputRef}
                 onFileInputChange={generation.handleFileInputChange}
+                minFiles={generation.minFiles}
+                maxFiles={generation.maxFiles}
                 advancedOptions={{
                     negativePrompt: generation.formState.negativePrompt,
                     promptEnhancement: generation.formState.promptEnhancement,

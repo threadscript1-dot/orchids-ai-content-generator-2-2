@@ -78,6 +78,7 @@ export function useModelSelection(options: UseModelSelectionOptions): UseModelSe
                 attachmentConfig: undefined,
                 requiresUpload: false,
                 supportsUpload: false,
+                minFiles: 0,
                 maxFiles,
                 acceptedMimeTypes: ['image/*'],
             };
@@ -92,6 +93,7 @@ export function useModelSelection(options: UseModelSelectionOptions): UseModelSe
 
         const requiresUpload = config?.mode === 'required';
         const supportsUpload = config?.mode === 'optional' || config?.mode === 'required';
+        const effectiveMinFiles = config?.minCount ?? (requiresUpload ? 1 : 0);
         const effectiveMaxFiles = config?.maxCount || maxFiles;
 
         let acceptedMimeTypes: string[];
@@ -107,6 +109,7 @@ export function useModelSelection(options: UseModelSelectionOptions): UseModelSe
             attachmentConfig: config,
             requiresUpload,
             supportsUpload,
+            minFiles: effectiveMinFiles,
             maxFiles: effectiveMaxFiles,
             acceptedMimeTypes,
         };

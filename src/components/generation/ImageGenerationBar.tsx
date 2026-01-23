@@ -11,7 +11,7 @@ import { AspectRatioSelector } from './AspectRatioSelector';
 import { ResolutionSelector } from './ResolutionSelector';
 import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
 import { AspectRatioOption } from '@/types/generation';
-import { AttachmentDropdown } from './AttachmentDropdown';
+import { AttachmentButton } from './AttachmentButton';
 import { MediaPickerModal, MediaItem } from './MediaPickerModal';
 
 interface ResolutionOption {
@@ -44,6 +44,9 @@ interface ImageGenerationBarProps {
     onGenerate: () => void;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    // Attachment constraints
+    minFiles?: number;
+    maxFiles?: number;
     // Advanced options
     advancedOptions?: {
         negativePrompt: string;
@@ -98,6 +101,8 @@ export function ImageGenerationBar({
     onGenerate,
     fileInputRef,
     onFileInputChange,
+    minFiles = 0,
+    maxFiles = 16,
     advancedOptions,
 }: ImageGenerationBarProps) {
     const { t, language } = useLanguage();
@@ -201,9 +206,13 @@ export function ImageGenerationBar({
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <AttachmentDropdown
+                            <AttachmentButton
+                                currentCount={uploadedImages.length}
+                                minCount={minFiles}
+                                maxCount={maxFiles}
                                 onUploadFromDevice={onOpenFilePicker}
                                 onSelectFromLibrary={() => setShowMediaPicker(true)}
+                                showLibraryOption={true}
                             />
                             <ModelSelector
                                 models={models}

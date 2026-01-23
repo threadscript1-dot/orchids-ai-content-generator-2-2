@@ -61,6 +61,7 @@ export interface AttachmentState {
     attachmentConfig: AttachmentConfig | undefined;
     requiresUpload: boolean;
     supportsUpload: boolean;
+    minFiles: number;
     maxFiles: number;
     acceptedMimeTypes: string[];
 }

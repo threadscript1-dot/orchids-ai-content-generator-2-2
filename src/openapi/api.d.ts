@@ -1,6 +1,6 @@
 /**
  * AI Wrapper Backend API Types
- * Generated from OpenAPI spec: 2026-01-23T00:55:49.790Z
+ * Generated from OpenAPI spec: 2026-01-23T10:45:46.241Z
  * 
  * This file contains TypeScript types generated from your OpenAPI specification.
  * Use with openapi-fetch or openapi-typescript-fetch for full type-safety.
@@ -2940,6 +2940,7 @@ export interface operations {
                                 type: "image" | "video" | "audio";
                                 mode: "none" | "optional" | "required";
                                 fieldName: string;
+                                minCount?: number;
                                 maxCount: number;
                                 maxSizeBytes?: number;
                                 acceptedMimeTypes?: string[];
@@ -2984,6 +2985,7 @@ export interface operations {
                                 outputFormats?: string[];
                                 maxVariants?: number;
                                 supportsMask?: boolean;
+                                minInputImages?: number;
                                 maxInputImages?: number;
                                 supportsStrength?: boolean;
                                 supportsNegativePrompt?: boolean;
@@ -3030,6 +3032,7 @@ export interface operations {
                                 type: "image" | "video" | "audio";
                                 mode: "none" | "optional" | "required";
                                 fieldName: string;
+                                minCount?: number;
                                 maxCount: number;
                                 maxSizeBytes?: number;
                                 acceptedMimeTypes?: string[];
@@ -3074,6 +3077,7 @@ export interface operations {
                                 outputFormats?: string[];
                                 maxVariants?: number;
                                 supportsMask?: boolean;
+                                minInputImages?: number;
                                 maxInputImages?: number;
                                 supportsStrength?: boolean;
                                 supportsNegativePrompt?: boolean;
@@ -3120,6 +3124,7 @@ export interface operations {
                                 type: "image" | "video" | "audio";
                                 mode: "none" | "optional" | "required";
                                 fieldName: string;
+                                minCount?: number;
                                 maxCount: number;
                                 maxSizeBytes?: number;
                                 acceptedMimeTypes?: string[];
@@ -3164,6 +3169,7 @@ export interface operations {
                                 outputFormats?: string[];
                                 maxVariants?: number;
                                 supportsMask?: boolean;
+                                minInputImages?: number;
                                 maxInputImages?: number;
                                 supportsStrength?: boolean;
                                 supportsNegativePrompt?: boolean;

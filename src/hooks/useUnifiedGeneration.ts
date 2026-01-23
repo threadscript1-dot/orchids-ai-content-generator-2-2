@@ -70,6 +70,7 @@ export interface UseUnifiedGenerationReturn {
     attachmentConfig: AttachmentConfig | undefined;
     requiresUpload: boolean;
     supportsUpload: boolean;
+    minFiles: number;
     maxFiles: number;
     acceptedMimeTypes: string[];
     isDragging: boolean;
@@ -222,6 +223,7 @@ export function useUnifiedGeneration(
         attachmentConfig: attachmentState.attachmentConfig,
         requiresUpload: attachmentState.requiresUpload,
         supportsUpload: attachmentState.supportsUpload,
+        minFiles: attachmentState.minFiles,
         maxFiles: attachmentState.maxFiles,
         acceptedMimeTypes: attachmentState.acceptedMimeTypes,
         isDragging,
