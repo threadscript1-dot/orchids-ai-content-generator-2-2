@@ -119,6 +119,7 @@ const translations: Record<Language, Record<string, string>> = {
     "mediaPicker.emptyFavorites": "Нет избранного",
     "mediaPicker.deleteConfirmTitle": "Удалить файлы?",
     "mediaPicker.deleteConfirmDesc": "Это действие нельзя отменить. Выбранные файлы будут удалены.",
+    "action.cancel": "Отмена",
     "library.uploads": "Загрузки",
   },
     en: {
@@ -229,6 +230,7 @@ const translations: Record<Language, Record<string, string>> = {
     "mediaPicker.emptyFavorites": "No favorites",
     "mediaPicker.deleteConfirmTitle": "Delete files?",
     "mediaPicker.deleteConfirmDesc": "This action cannot be undone. Selected files will be deleted.",
+    "action.cancel": "Cancel",
     "library.uploads": "Uploads",
   },
 };
